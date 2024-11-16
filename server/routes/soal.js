@@ -7,32 +7,31 @@ router.get('/', async (req, res) => {
 
   res.status(200).json({
     data: soal,
-    metadata: "test soal endpoint"
+    metadata: "Get All Soal"
   })
 })
 
-router.post('/', async (req, res) => {
-  const { soal, pilihan, jawaban } = req.body;
+router.get('/getsoal', async (req, res) => {
+  const { page } = req.query; // Mengambil parameter 'page'
 
-  // Validasi input
-  if (!soal || !pilihan || !jawaban) {
-    return res.status(400).json({ message: 'Semua field wajib diisi' });
+  if (!page) {
+    return res.status(400).json({ message: 'Page query parameter is required.' });
   }
 
   try {
-    // Menyimpan soal baru ke database
-    const newSoal = await SoalModel.create({
-      soal,
-      pilihan,
-      jawaban
+    // Fetch soal berdasarkan page (hanya satu page)
+    const soalPage = await SoalModel.findOne({
+      where: { page: page },
     });
 
-    res.status(201).json({
-      message: 'Soal berhasil ditambahkan',
-      data: newSoal
-    });
+    if (!soalPage) {
+      return res.status(404).json({ message: `No questions found for page ${page}` });
+    }
+
+    res.status(200).json({ data: soalPage });
   } catch (error) {
-    res.status(500).json({ message: 'Gagal menambahkan soal', error: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'An error occurred while fetching the question.', error: error.message });
   }
 });
 

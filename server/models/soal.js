@@ -28,7 +28,10 @@ Soal.init({
     type: DataTypes.STRING, 
     allowNull: false, 
   },
-  
+  page: {
+    type: DataTypes.STRING, 
+    allowNull: false, 
+  },
 }, {
   sequelize,
   modelName: 'Soal'
