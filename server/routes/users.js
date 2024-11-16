@@ -93,11 +93,11 @@ router.put('/', async (req, res) => {
 })
 
 router.post('/login', async (req, res) => {
-  const { nik, password } = req.body;
+  const { nohp, password } = req.body;
 
   try {
     // Cari pengguna berdasarkan NIP
-    const users = await UsersModel.findOne({ where: { nik: nik } });
+    const users = await UsersModel.findOne({ where: { nohp: nohp } });
     
     // Jika pengguna tidak ditemukan
     if (!users) {
@@ -109,12 +109,12 @@ router.post('/login', async (req, res) => {
     // Jika password cocok
     if (users.password === password) {
       const token = jwt.sign(
-        { nik: users.nik }, // Payload yang dikodekan dalam token
+        { nohp: users.nohp }, // Payload yang dikodekan dalam token
         secretKey, // Secret key untuk menandatangani token
         { expiresIn: '1h' } // Token akan kadaluarsa dalam 1 jam
       );
 
-      res.cookie("cookieToken", jwt.sign({ nik: users.nik, nama: users.nama, role: users.role, profilePic: users.profilePic }, secretKey), { httpOnly: true, maxAge: 1 * 60 * 60 * 1000});
+      res.cookie("cookieToken", jwt.sign({ nohp: users.nohp, nama: users.nama, role: users.role, profilePic: users.profilePic }, secretKey), { httpOnly: true, maxAge: 1 * 60 * 60 * 1000});
 
       return res.status(200).json({
         role: users.role,

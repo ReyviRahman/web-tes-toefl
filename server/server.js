@@ -5,13 +5,6 @@ const port = 3001;
 
 const sequelize = require('./db.config');
 
-// Mengimport model User dan Surat
-const User = require('./models/users');
-const Surat = require('./models/surat');
-
-// Membuat asosiasi
-User.hasMany(Surat, { foreignKey: 'nik' });    // 1 User bisa membuat banyak Surat
-Surat.belongsTo(User, { foreignKey: 'nik' });  // 1 Surat hanya dimiliki oleh 1 User
 
 // Sinkronisasi database dan tabel dengan alter
 sequelize.sync({ alter: true })
@@ -24,8 +17,8 @@ sequelize.sync({ alter: true })
 
 // Mengimpor endpoint
 const userEndpoint = require('./routes/users');
-const suratEndpoint = require('./routes/surat');
 const absensiEndpoint = require('./routes/absensi');
+const soalEndpoint = require('./routes/soal');
 
 // Inisialisasi aplikasi express
 const app = express();
@@ -41,7 +34,7 @@ app.use(cookieParser());
 // Routing
 app.use('/users', userEndpoint);
 app.use('/absensi', absensiEndpoint);
-app.use('/surat', suratEndpoint);
+app.use('/soal', soalEndpoint);
 app.use('/uploads', express.static('uploads'));
 
 // Jalankan server

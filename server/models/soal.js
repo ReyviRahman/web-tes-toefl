@@ -1,33 +1,37 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // Sesuaikan dengan konfigurasi database Anda
+const {Model, DataTypes} = require('sequelize')
+const sequelize = require('../db.config')
 
-const Soal = sequelize.define('Soal', {
+class Soal extends Model {}
+
+Soal.init({
   soal: {
     type: DataTypes.STRING,
     allowNull: false, 
   },
   pilihan_satu: {
-    type: DataTypes.STRING, 
-    allowNull: false, 
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   pilihan_dua: {
-    type: DataTypes.STRING, 
-    allowNull: false, 
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   pilihan_tiga: {
-    type: DataTypes.STRING, 
-    allowNull: false, 
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   pilihan_empat: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  jawaban: {
     type: DataTypes.STRING, 
     allowNull: false, 
   },
-  answer: {
-    type: DataTypes.STRING, 
-    allowNull: false, 
-  },
+  
 }, {
-  timestamps: true, 
-});
+  sequelize,
+  modelName: 'Soal'
+})
 
-module.exports = Soal;
+module.exports = Soal
