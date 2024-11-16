@@ -7,7 +7,8 @@ module.exports = {
         primary: '#161D6F',
         primaryHover: '#1F2AA0',
         secondary: '#00CCDD',
-        orange: '#FEB811'
+        orange: '#FEB811',
+        abu: '#808080'
       },
       container: {
         padding: {

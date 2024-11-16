@@ -13,12 +13,14 @@ import SuratEdit from './features/surat/SuratEdit'
 import SuratList from './features/surat/SuratList'
 import ProsesSurat from './features/admin/prosessurat/ProsesSurat';
 import LandingPage from './features/admin/landingpage/LandingPage';
+import ToeflSimulation from './pages/ToeflSimulation';
+import Soal from './pages/Soal';
 
 function App() {
   return (
     <Routes>
       <Route path='/' element={<Layout />}>
-        <Route path="/" element={<Home />} />
+        {/* <Route path="/" element={<Home />} /> */}
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path="/keuangan" element={<Keuangan />} />
@@ -32,8 +34,8 @@ function App() {
         </Route>
 
         <Route element={<RequireAuth allowedRoles={["User"]} />}>
-          <Route path='/suratpengantar' element={<SuratCreate />} />
-          <Route path='/cekstatussurat' element={<SuratList />} />
+          <Route path='/' element={<ToeflSimulation />} />
+          <Route path='/soal' element={<Soal />} />
         </Route>
       
       </Route>
