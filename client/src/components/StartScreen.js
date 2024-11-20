@@ -1,6 +1,6 @@
 import React from 'react'
 
-const StartScreen = () => {
+const StartScreen = ({dispatch}) => {
   return (
     <div className='border border-abu text-center pt-10 mt-20 rounded-md'>
       <h1>SECTION 1 LISTENING COMPREHENSION</h1>
@@ -13,7 +13,7 @@ const StartScreen = () => {
       
       <h1 className='font-bold'>Question 91-140</h1>
 
-      <button type="button" className="mt-10 w-full bg-primary text-white font-bold p-2 hover:bg-blue-600 rounded-b-md">Mulai Ujian</button>
+      <button type="button" className="mt-10 w-full bg-primary text-white font-bold p-2 hover:bg-blue-600 rounded-b-md" onClick={() => dispatch({type: 'start'})}>Mulai Ujian</button>
     </div>
   )
 }

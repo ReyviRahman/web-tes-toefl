@@ -1,53 +1,15 @@
-import React, { useEffect, useReducer, useState } from 'react'
-import axios from 'axios'
+import React from 'react'
 
-const initialState = {
-  questions: [],
-  status: 'loading',
-  index: 0,
-}
-
-const reducer = (state, action) => {
-  switch(action.type) {
-    case 'dataReceived':
-      return {
-        ...state,
-        questions: action.payload,
-        status: 'ready'
-      }
-    case 'dataFailed':
-      return {
-        ...state,
-        status: 'error'
-      }
-  }
-}
-
-const Soal = () => {
-  const [{questions, status, index}, dispatch] = useReducer(reducer, initialState)
-
-  useEffect(() => {
-    const fetchDataSoal = async () => {
-      try {
-        const response = await axios.get('http://localhost:3001/soal')
-        dispatch({type: 'dataReceived', payload: response.data.soal})
-      } catch (error) {
-        dispatch({type: 'dataFailed'})
-      }
-    }
-
-    fetchDataSoal()
-  }, [])
-
+const Soal = ({question, numQuestions, index, dispatch}) => {
+  console.log(question)
   return (
     <div>
       <div className='flex flex-row border min-h-[589px]'>
         <div className='basis-1/3 border-r'>
           <div className='p-4'>
             <div className="grid grid-cols-5 gap-4">
-              <div className={`border py-1 text-center rounded ${page === 1 ? 'bg-primary text-white' : ''}`}>1</div>
-              <div className={`border py-1 text-center rounded ${page === 2 ? 'bg-primary text-white' : ''}`}>2</div>
-              
+              <div className={`border py-1 text-center rounded`}>1</div>
+              <div className={`border py-1 text-center rounded`}>2</div>
               <div className='border border-primary bg-secondary py-1 text-center rounded'>3</div>
               <div className='border py-1 text-center rounded'>4</div>
               <div className='border py-1 text-center rounded'>5</div>
@@ -59,9 +21,8 @@ const Soal = () => {
           </div>
         </div>
         <div className='basis-full'>
-          {data && (
             <div className='p-10 flex flex-col gap-3'>
-              <h1>{data.soal}</h1>
+              <h1>{question.soal}</h1>
               <div className="flex items-center">
                 <input 
                   id="option-1" 
@@ -69,8 +30,9 @@ const Soal = () => {
                   name="answer" 
                   value="option-1" 
                   className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" 
+                  checked={true}
                 />
-                <label htmlFor="option-1" className="cursor-pointer ml-2">A. {data.pilihan_satu}</label>
+                <label htmlFor="option-1" className="cursor-pointer ml-2">A. {question.pilihan_satu}</label>
               </div>
               <div className="flex items-center">
                 <input 
@@ -80,7 +42,7 @@ const Soal = () => {
                   value="option-2" 
                   className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" 
                 />
-                <label htmlFor="option-2" className="cursor-pointer ml-2">B. {data.pilihan_dua}</label>
+                <label htmlFor="option-2" className="cursor-pointer ml-2">B. {question.pilihan_dua}</label>
               </div>
               <div className="flex items-center">
                 <input 
@@ -90,7 +52,7 @@ const Soal = () => {
                   value="option-3" 
                   className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" 
                 />
-                <label htmlFor="option-3" className="cursor-pointer ml-2">C. {data.pilihan_tiga}</label>
+                <label htmlFor="option-3" className="cursor-pointer ml-2">C. {question.pilihan_tiga}</label>
               </div>
               <div className="flex items-center">
                 <input 
@@ -100,26 +62,40 @@ const Soal = () => {
                   value="option-4" 
                   className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" 
                 />
-                <label htmlFor="option-4" className="cursor-pointer ml-2">D. {data.pilihan_empat}</label>
+                <label htmlFor="option-4" className="cursor-pointer ml-2">D. {question.pilihan_empat}</label>
               </div>
               
               <hr className='mt-5' />
               <div className='flex justify-between'>
-                <button type='button' className='flex items-center' onClick={handlePrevious}>
-                  <span class="material-symbols-outlined border border-secondary rounded-full me-2">
-                    chevron_left
-                  </span>
-                  Sebelumnya
-                </button>
-                <button type='button' className='flex items-center' onClick={handleNext}>
+
+              <div>
+                {index > 0 && (
+                  <button type='button' className='flex items-center'
+                  onClick={() => dispatch({type:'prevQuestion'})}>
+                    <span class="material-symbols-outlined border border-secondary rounded-full me-2">
+                      chevron_left
+                    </span>
+                    Sebelumnya
+                  </button>
+                )}
+              </div>
+
+              <div>
+              {index < numQuestions - 1 && (
+                <button type='button' className='flex items-center'
+                onClick={() => dispatch({type:'nextQuestion'})}>
                   Selanjutnya
                   <span class="material-symbols-outlined border border-secondary rounded-full ms-2">
                     chevron_right
                   </span>
                 </button>
+                )}
+              </div>
+
+              
+
               </div>
             </div>
-          )}
           
           
         </div>

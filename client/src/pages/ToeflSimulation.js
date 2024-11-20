@@ -5,6 +5,7 @@ import Loader from '../components/Loader'
 import Error from '../components/Error'
 import axios from 'axios'
 import StartScreen from '../components/StartScreen'
+import Soal from './Soal'
 
 const initialState = {
   questions: [],
@@ -25,11 +26,28 @@ const reducer = (state, action) => {
         ...state,
         status: 'error'
       }
+    case 'start':
+      return {
+        ...state,
+        status: 'active'
+      }
+    case 'prevQuestion':
+      return {
+        ...state,
+        index: state.index - 1,
+      }
+    case 'nextQuestion':
+      return {
+        ...state,
+        index: state.index + 1,
+      }
   }
 }
 
 const ToeflSimulation = () => {
   const [{questions, status, index}, dispatch] = useReducer(reducer, initialState)
+
+  const numQuestions = questions.length
 
   useEffect(() => {
     const fetchDataSoal = async () => {
@@ -49,10 +67,14 @@ const ToeflSimulation = () => {
       <Main>
         {status === 'loading' && <Loader />}
         {status === 'error' && <Error />}
-        {status === 'ready' && <StartScreen />}
+        {status === 'ready' && <StartScreen dispatch={dispatch} />}
+        {status === 'active' && (
+          <>
+            <Soal question={questions[index]} numQuestions={numQuestions} index={index} dispatch={dispatch}/>
+          </>
+        )}
       </Main>
     </div>
-    
   )
 }
 
