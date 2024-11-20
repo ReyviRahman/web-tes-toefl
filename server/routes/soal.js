@@ -6,7 +6,7 @@ router.get('/', async (req, res) => {
   const soal = await SoalModel.findAll()
 
   res.status(200).json({
-    data: soal,
+    soal: soal,
     metadata: "Get All Soal"
   })
 })
@@ -28,7 +28,7 @@ router.get('/getsoal', async (req, res) => {
       return res.status(404).json({ message: `No questions found for page ${page}` });
     }
 
-    res.status(200).json({ data: soalPage });
+    res.status(200).json({ soal: soalPage });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'An error occurred while fetching the question.', error: error.message });
