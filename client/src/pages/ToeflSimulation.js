@@ -11,6 +11,7 @@ const initialState = {
   questions: [],
   status: 'loading',
   index: 0,
+  answer: [],
 }
 
 const reducer = (state, action) => {
@@ -41,11 +42,23 @@ const reducer = (state, action) => {
         ...state,
         index: state.index + 1,
       }
+    case 'newAnswer':
+      const question = state.questions.at(state.index)
+      console.log('ini payload', action.payload)
+      console.log('ini index', state.index)
+      return {
+        ...state,
+        answer: state.answer.some(item => item.id === state.index)
+          ? state.answer.map(item =>
+              item.id === state.index ? { ...item, answer: action.payload } : item
+            )
+          : [...state.answer, { id: state.index, answer: action.payload }]
+    };
   }
 }
 
 const ToeflSimulation = () => {
-  const [{questions, status, index}, dispatch] = useReducer(reducer, initialState)
+  const [{questions, status, index, answer}, dispatch] = useReducer(reducer, initialState)
 
   const numQuestions = questions.length
 
@@ -53,6 +66,16 @@ const ToeflSimulation = () => {
     const fetchDataSoal = async () => {
       try {
         const response = await axios.get('http://localhost:3001/soal')
+
+        const newObject = {petunjuk: "petunjuk"};
+
+        let soalToefl = response.data.soal
+
+        soalToefl.splice(0, 0, newObject);
+        soalToefl.splice(2, 0, newObject);
+        soalToefl.splice(4, 0, newObject);
+        console.log('ini soalToefl', soalToefl)
+
         dispatch({type: 'dataReceived', payload: response.data.soal})
       } catch (error) {
         dispatch({type: 'dataFailed'})
@@ -62,6 +85,14 @@ const ToeflSimulation = () => {
     fetchDataSoal()
   }, [])
 
+  useEffect(() => {
+    console.log("State changed:");
+    console.log("Questions:", questions);
+    console.log("Status:", status);
+    console.log("Index:", index);
+    console.log("Answer:", answer);
+  }, [questions, status, index, answer]);
+
   return (
     <div>
       <Main>
@@ -70,7 +101,7 @@ const ToeflSimulation = () => {
         {status === 'ready' && <StartScreen dispatch={dispatch} />}
         {status === 'active' && (
           <>
-            <Soal question={questions[index]} numQuestions={numQuestions} index={index} dispatch={dispatch}/>
+            <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch}/>
           </>
         )}
       </Main>
