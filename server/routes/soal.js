@@ -3,7 +3,11 @@ const router = express.Router()
 const SoalModel = require('../models/soal')
 
 router.get('/', async (req, res) => {
-  const soal = await SoalModel.findAll()
+  const soal = await SoalModel.findAll({
+    attributes: {
+      exclude: ['jawaban', 'createdAt', 'updatedAt'], 
+    },
+  })
 
   res.status(200).json({
     soal: soal,
@@ -32,6 +36,42 @@ router.get('/getsoal', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'An error occurred while fetching the question.', error: error.message });
+  }
+});
+
+router.post('/jawaban', async (req, res) => {
+  try {
+    const { answers } = req.body;
+
+    if (!Array.isArray(answers)) {
+      return res.status(400).json({ message: 'Invalid data format' });
+    }
+
+    // Ambil hanya kolom 'id', 'page', dan 'jawaban' dari semua soal
+    const allSoal = await SoalModel.findAll({
+      attributes: ['page', 'jawaban'], // Kolom yang diambil
+    });
+
+    let totalPoints = 0;
+
+    // Loop melalui jawaban user dan bandingkan dengan soal
+    for (const userAnswer of answers) {
+      const { id, answer } = userAnswer;
+
+      // Cari soal di memori berdasarkan id
+      const soal = allSoal.find((q) => q.page === id);
+
+      // Cocokkan jawaban user dengan jawaban di database
+      if (soal && soal.jawaban === answer) {
+        totalPoints += 1; // Tambah poin jika jawaban benar
+      }
+    }
+
+    // Kirimkan total poin user
+    res.status(200).json({ totalPoints });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 

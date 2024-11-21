@@ -49,13 +49,11 @@ const reducer = (state, action) => {
       }
     case 'newAnswer':
       const question = state.questions.at(state.index)
-      console.log('ini payload', action.payload)
-      console.log('ini index', state.index)
       return {
         ...state,
         answer: state.answer.some(item => item.id === state.index)
           ? state.answer.map(item =>
-              item.id === state.index ? { ...item, answer: action.payload } : item
+              item.id === question.page ? { ...item, answer: action.payload } : item
             )
           : [...state.answer, { id: state.index, answer: action.payload }]
     };
