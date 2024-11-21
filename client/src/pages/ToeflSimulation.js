@@ -42,6 +42,11 @@ const reducer = (state, action) => {
         ...state,
         index: state.index + 1,
       }
+    case 'moveToIdx':
+      return {
+        ...state,
+        index: action.payload
+      }
     case 'newAnswer':
       const question = state.questions.at(state.index)
       console.log('ini payload', action.payload)

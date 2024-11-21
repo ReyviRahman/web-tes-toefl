@@ -12,20 +12,11 @@ const Soal = ({question, numQuestions, index, answer, dispatch}) => {
           <div className='p-4'>
             <div className="grid grid-cols-5 gap-4">
             {Array.from({ length: numQuestions }, (_, idx) => (
-              <div key={idx} className={`${index === idx ? 'bg-primary' : ''} ${answerIds.includes(idx) ? 'bg-secondary' : ''} border py-1 text-center rounded`}>
+              <div key={idx} className={`${index === idx ? 'bg-primary text-white' : answerIds.includes(idx) ? 'bg-secondary border-primary' : ''} cursor-pointer  border py-1 text-center rounded`}
+              onClick={() => dispatch({type: 'moveToIdx', payload: idx})}>
                 {idx}
               </div>
             ))}
-
-              <div className={`border py-1 text-center rounded`}>1</div>
-              <div className={`border py-1 text-center rounded`}>2</div>
-              <div className='border border-primary bg-secondary py-1 text-center rounded'>3</div>
-              <div className='border py-1 text-center rounded'>4</div>
-              <div className='border py-1 text-center rounded'>5</div>
-              <div className='border py-1 text-center rounded'>6</div>
-              <div className='border py-1 text-center rounded'>7</div>
-              <div className='border py-1 text-center rounded'>8</div>
-              
             </div>
           </div>
         </div>
