@@ -42,6 +42,8 @@ router.get('/getsoal', async (req, res) => {
 router.post('/jawaban', async (req, res) => {
   try {
     const { answers } = req.body;
+    
+    console.log(req.body);
 
     if (!Array.isArray(answers)) {
       return res.status(400).json({ message: 'Invalid data format' });

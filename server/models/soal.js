@@ -29,7 +29,7 @@ Soal.init({
     allowNull: false, 
   },
   page: {
-    type: DataTypes.STRING, 
+    type: DataTypes.INTEGER, 
     allowNull: false, 
   },
 }, {

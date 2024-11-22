@@ -6,6 +6,7 @@ import Error from '../components/Error'
 import axios from 'axios'
 import StartScreen from '../components/StartScreen'
 import Soal from './Soal'
+import FinishScreen from '../components/FinishScreen'
 
 const initialState = {
   questions: [],
@@ -107,6 +108,7 @@ const ToeflSimulation = () => {
             <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch}/>
           </>
         )}
+        {status === 'finished' && <FinishScreen answer={answer} />}
       </Main>
     </div>
   )
