@@ -39,7 +39,12 @@ const FinishScreen = ({ answer }) => {
   }, [])
 
   return (
-    <div>{score}</div>
+    <div className='min-h-[590px] border flex items-center justify-center'>
+      <div className='border flex flex-col p-5 rounded justify-center'>
+        <h1>Score TOEFL</h1>
+        <h1 className='text-center'>{score}</h1>
+      </div>
+    </div>
   )
 }
 

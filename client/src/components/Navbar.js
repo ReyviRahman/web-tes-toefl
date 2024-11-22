@@ -55,9 +55,7 @@ const Navbar = () => {
 	return (
 		<header className='w-full sticky z-10 top-0 flex justify-between items-center text-white py-1 px-8 bg-primary md:px-32 drop-shadow-md'>
 			<Logo />
-			<ul className='hidden xl:flex items-center gap-4 font-semibold text-base'>
-				<h1>20:20:20</h1>
-			</ul>
+			
 			{auth?.nama !== "" ? (
         <Dropdown nama={auth?.nama} profilePic={`http://localhost:3001/${auth?.profilePic}`} />
       ) : (

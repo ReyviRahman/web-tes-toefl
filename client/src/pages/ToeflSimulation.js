@@ -33,6 +33,11 @@ const reducer = (state, action) => {
         ...state,
         status: 'active'
       }
+    case 'finish':
+      return {
+        ...state,
+        status: 'finished'
+      }
     case 'prevQuestion':
       return {
         ...state,
