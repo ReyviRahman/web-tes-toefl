@@ -47,16 +47,25 @@ router.post('/jawaban', async (req, res) => {
       return res.status(400).json({ message: 'Invalid data format' });
     }
 
-    // Ambil hanya kolom 'id', 'page', dan 'jawaban' dari semua soal
+    // Ambil hanya kolom 'page' dan 'jawaban' dari semua soal
     const allSoal = await SoalModel.findAll({
       attributes: ['page', 'jawaban'], // Kolom yang diambil
     });
 
     let totalPoints = 0;
+    const processedIds = new Set(); // Untuk melacak id yang sudah diproses
 
     // Loop melalui jawaban user dan bandingkan dengan soal
     for (const userAnswer of answers) {
       const { id, answer } = userAnswer;
+
+      // Lewati jika id sudah diproses sebelumnya
+      if (processedIds.has(id)) {
+        continue;
+      }
+
+      // Tandai id sebagai sudah diproses
+      processedIds.add(id);
 
       // Cari soal di memori berdasarkan id
       const soal = allSoal.find((q) => q.page === id);
@@ -74,5 +83,7 @@ router.post('/jawaban', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+
 
 module.exports = router
