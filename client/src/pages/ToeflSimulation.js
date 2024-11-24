@@ -1,5 +1,4 @@
 import React, { useEffect, useReducer, useState } from 'react'
-import { Outlet } from 'react-router-dom'
 import Main from '../components/Main'
 import Loader from '../components/Loader'
 import Error from '../components/Error'
@@ -13,7 +12,7 @@ const initialState = {
   status: 'loading',
   index: 0,
   answer: [],
-  secondsRemaining: undefined
+  secondsRemaining: null
 }
 
 const reducer = (state, action) => {
@@ -32,7 +31,8 @@ const reducer = (state, action) => {
     case 'start':
       return {
         ...state,
-        status: 'active'
+        status: 'active',
+        secondsRemaining: action.payload
       }
     case 'finish':
       return {

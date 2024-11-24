@@ -15,7 +15,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
     let targetTime = new Date();
     let [hours, minutes, seconds] = timeEnd.split(":").map(Number);
     targetTime.setHours(hours, minutes, seconds, 0);
-    // let countDownDate = new Date("Jan 5, 2030 15:37:25").getTime();
+
     const id = setInterval(() => {
       dispatch({ type: 'tick', payload: targetTime.getTime()})
     }, 1000);
@@ -26,13 +26,9 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
     <div>
       <div className='flex justify-end border border-b-0 py-2'>
         <button type='button' className=' bg-green-600 px-3 py-1 me-5 rounded text-white' onClick={() => dispatch({type: 'finish'})}>Selesai</button>
-
-        {secondsRemaining !== undefined && (
-          <h1 className='px-3 py-1 text-red-600 border me-2 rounded'>
-            {hours}:{minutes}:{seconds}
-          </h1>
-        )}
-
+        <h1 className='px-3 py-1 text-red-600 border me-2 rounded'>
+          {hours < 10 && '0'}{hours}:{minutes < 10 && '0'}{minutes}:{seconds < 10 && '0'}{seconds}
+        </h1>
       </div>
       <div className='flex flex-row border min-h-[589px]'>
         <div className='basis-1/3 border-r'>

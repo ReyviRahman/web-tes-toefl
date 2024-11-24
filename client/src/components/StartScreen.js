@@ -5,7 +5,7 @@ const StartScreen = ({dispatch, setTimeEnd}) => {
 
   const getTimers = async () => {
     const timeUjian = new Date().getTime(); 
-    const twoHoursInMillis = 2 * 60 * 60 * 1000; 
+    const twoHoursInMillis = 2 * 60 * 60 * 1000 + 1000; 
     const updatedTime = new Date(timeUjian + twoHoursInMillis); 
     const formattedTime = updatedTime.toTimeString().split(' ')[0];
 
@@ -15,7 +15,13 @@ const StartScreen = ({dispatch, setTimeEnd}) => {
         timeUjian: formattedTime
       });
       setTimeEnd(response.data.timeUjian)
-      dispatch({type: 'start'})
+      const timeString = response.data.timeUjian;
+      let targetTime = new Date();
+      let [hours, minutes, seconds] = timeString.split(":").map(Number);
+      targetTime.setHours(hours, minutes, seconds, 0);
+      let now = new Date().getTime();
+
+      dispatch({type: 'start', payload: targetTime.getTime() - now})
     } catch (error) {
       console.error('Error updating timeUjian:', error);
     }
