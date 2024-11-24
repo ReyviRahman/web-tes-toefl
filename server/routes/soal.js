@@ -19,7 +19,6 @@ router.get('/', async (req, res) => {
 
 router.put('/timers', async (req, res) => {
   const { nohp, timeUjian } = req.body;
-  console.log(nohp)
   const user = await UserModel.findByPk(nohp);
   if (user.timeUjian === null) {
     await user.update({ timeUjian });
@@ -61,12 +60,15 @@ router.get('/getsoal', async (req, res) => {
 
 router.post('/jawaban', async (req, res) => {
   try {
-    const { answers } = req.body;
+    const { nohp, answers } = req.body;
     
-    console.log(req.body);
-
     if (!Array.isArray(answers)) {
       return res.status(400).json({ message: 'Invalid data format' });
+    }
+
+    const user = await UserModel.findByPk(nohp)
+    if (user.lastScore !== -1) {
+      return res.status(200).json({ totalPoints : user.lastScore})
     }
 
     // Ambil hanya kolom 'page' dan 'jawaban' dari semua soal
@@ -97,6 +99,8 @@ router.post('/jawaban', async (req, res) => {
         totalPoints += 1; // Tambah poin jika jawaban benar
       }
     }
+
+    await user.update({ lastScore: totalPoints})
 
     // Kirimkan total poin user
     res.status(200).json({ totalPoints });

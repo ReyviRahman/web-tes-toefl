@@ -17,11 +17,16 @@ const FinishScreen = ({ answer }) => {
             Swal.showLoading();
           },
         });
-
-        const response = await axios.post("http://localhost:3001/soal/jawaban", {
-          answers: answer
-        });
-        setScore(response.data.totalPoints)
+        const responseGetLastScore = await axios.get("http://localhost:3001/users/lastScore?nohp=123")
+        if (responseGetLastScore.data.lastScore !== -1) {
+          setScore(responseGetLastScore.data.lastScore)
+        } else {
+          const response = await axios.post("http://localhost:3001/soal/jawaban", {
+            nohp: 123,
+            answers: answer
+          });
+          setScore(response.data.totalPoints)
+        }
 
         Swal.close()
       } catch (error) {

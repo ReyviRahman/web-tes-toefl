@@ -25,6 +25,10 @@ User.init({
   timeUjian: {
     type: DataTypes.TIME,
     allowNull: true
+  },
+  lastScore: {
+    type: DataTypes.INTEGER,
+    allowNull: true
   }
 }, {
   sequelize,

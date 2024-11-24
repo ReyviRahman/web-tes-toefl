@@ -11,12 +11,20 @@ const secretKey = 'reyvisacd123';
 router.get('/', async (req, res) => {
   const users = await UsersModel.findAll()
 
-  console.log('ini cookie token', req.cookies.cookieToken)
-
   res.status(200).json({
     data: users,
     metadata: "Get All User",
     cookieToken: `${req.cookies.cookieToken}`
+  })
+})
+
+router.get('/lastScore', async (req,res) => {
+  const { nohp } = req.query;
+  console.log(nohp)
+  const user = await UsersModel.findByPk(nohp);
+  
+  res.status(200).json({
+    lastScore : user.lastScore
   })
 })
 

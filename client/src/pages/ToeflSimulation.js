@@ -44,7 +44,7 @@ const reducer = (state, action) => {
       return {
         ...state,
         secondsRemaining: action.payload - now,
-        // status: state.secondsRemaining === 0 ? 'finished' : state.status,
+        status: now > action.payload ? 'finished' : state.status,
       }
     case 'prevQuestion':
       return {
@@ -103,14 +103,6 @@ const ToeflSimulation = () => {
 
     fetchDataSoal()
   }, [])
-
-  useEffect(() => {
-    console.log("State changed:");
-    console.log("Questions:", questions);
-    console.log("Status:", status);
-    console.log("Index:", index);
-    console.log("Answer:", answer);
-  }, [questions, status, index, answer]);
 
   return (
     <div>
