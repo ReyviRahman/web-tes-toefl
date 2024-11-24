@@ -83,11 +83,8 @@ const ToeflSimulation = () => {
   useEffect(() => {
     const fetchDataSoal = async () => {
       try {
-        const timeUjian = new Date().getTime(); 
-        const twoHoursInMillis = 2 * 60 * 60 * 1000; 
-        const updatedTime = new Date(timeUjian + twoHoursInMillis); 
-        const formattedTime = updatedTime.toTimeString().split(' ')[0];
-        const response = await axios.get(`http://localhost:3001/soal?nohp=123&timeUjian=${formattedTime}`);
+        
+        const response = await axios.get(`http://localhost:3001/soal`);
 
         const newObject = {petunjuk: "petunjuk"};
 
@@ -97,7 +94,6 @@ const ToeflSimulation = () => {
         soalToefl.splice(2, 0, newObject);
         soalToefl.splice(4, 0, newObject);
 
-        setTimeEnd(response.data.timeUjian) 
         console.log('ini seconds Remaining: ', timeEnd)
         dispatch({type: 'dataReceived', payload: response.data.soal})
       } catch (error) {
@@ -121,7 +117,7 @@ const ToeflSimulation = () => {
       <Main>
         {status === 'loading' && <Loader />}
         {status === 'error' && <Error />}
-        {status === 'ready' && <StartScreen dispatch={dispatch} />}
+        {status === 'ready' && <StartScreen dispatch={dispatch} setTimeEnd={setTimeEnd} />}
         {status === 'active' && (
           <>
             <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch} secondsRemaining={secondsRemaining} timeEnd={timeEnd}/>

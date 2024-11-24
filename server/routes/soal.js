@@ -11,38 +11,28 @@ router.get('/', async (req, res) => {
     },
   })
 
-  const { nohp, timeUjian } = req.query
-  if (nohp) {
-    const user = await UserModel.findByPk(nohp)
-
-    if (user) {
-      if (user.timeUjian === null) {
-        // const timeUjian = new Date();
-        // timeUjian.setHours(timeUjian.getHours() + 2)
-        await user.update({timeUjian})
-        res.status(200).json({
-          soal: soal,
-          metadata: "Get All Soal",
-          timeUjian: timeUjian,
-          message: "timeUjian updated success"
-        });
-        return
-      } else {
-        res.status(200).json({
-          soal: soal,
-          metadata: "Get All Soal",
-          timeUjian: user.timeUjian,
-          message: "timeUjian already set, no update performed",
-        });
-        return;
-      }
-    }
-  }
-
   res.status(200).json({
     soal: soal,
     metadata: "Get All Soal"
   })
+})
+
+router.put('/timers', async (req, res) => {
+  const { nohp, timeUjian } = req.body;
+  console.log(nohp)
+  const user = await UserModel.findByPk(nohp);
+  if (user.timeUjian === null) {
+    await user.update({ timeUjian });
+    return res.status(200).json({
+      message: "timeUjian updated successfully",
+      timeUjian: timeUjian,
+    });
+  }
+
+  res.status(200).json({
+    message: "timeUjian already set, no update performed",
+    timeUjian: user.timeUjian,
+  });
 })
 
 router.get('/getsoal', async (req, res) => {
