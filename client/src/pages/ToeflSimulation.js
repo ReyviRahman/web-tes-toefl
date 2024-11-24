@@ -15,6 +15,19 @@ const initialState = {
   secondsRemaining: null
 }
 
+const initializer = (initialState) => {
+  const savedState = localStorage.getItem('toeflState');
+  if (savedState) {
+    const parsedState = JSON.parse(savedState);
+    return {
+      ...initialState,
+      index: parsedState.index || initialState.index,
+      answer: parsedState.answer || initialState.answer
+    }
+  }
+  return initialState
+}
+
 const reducer = (state, action) => {
   switch(action.type) {
     case 'dataReceived':
@@ -75,10 +88,15 @@ const reducer = (state, action) => {
 }
 
 const ToeflSimulation = () => {
-  const [{questions, status, index, answer, secondsRemaining}, dispatch] = useReducer(reducer, initialState)
+  const [{questions, status, index, answer, secondsRemaining}, dispatch] = useReducer(reducer, initialState, initializer)
   const numQuestions = questions.length
 
   const [timeEnd, setTimeEnd] = useState()
+
+  useEffect(() => {
+    const stateToSave = {index, answer}
+    localStorage.setItem('toeflState', JSON.stringify(stateToSave));
+  }, [index, answer])
 
   useEffect(() => {
     const fetchDataSoal = async () => {

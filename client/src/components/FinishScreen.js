@@ -6,6 +6,7 @@ const FinishScreen = ({ answer }) => {
   const [score, setScore] = useState('')
 
   useEffect(() => {
+    localStorage.removeItem('toeflState');
     const getScore = async () => {
       try {
         Swal.fire({
