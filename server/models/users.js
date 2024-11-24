@@ -22,6 +22,10 @@ User.init({
   role: {
     type: DataTypes.STRING
   },
+  timeUjian: {
+    type: DataTypes.TIME,
+    allowNull: true
+  }
 }, {
   sequelize,
   modelName: 'Users',

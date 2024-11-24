@@ -1,13 +1,43 @@
 const express = require('express')
 const router = express.Router()
 const SoalModel = require('../models/soal')
+const UserModel = require('../models/users')
 
 router.get('/', async (req, res) => {
+  
   const soal = await SoalModel.findAll({
     attributes: {
       exclude: ['jawaban', 'createdAt', 'updatedAt'], 
     },
   })
+
+  const { nohp, timeUjian } = req.query
+  if (nohp) {
+    const user = await UserModel.findByPk(nohp)
+
+    if (user) {
+      if (user.timeUjian === null) {
+        // const timeUjian = new Date();
+        // timeUjian.setHours(timeUjian.getHours() + 2)
+        await user.update({timeUjian})
+        res.status(200).json({
+          soal: soal,
+          metadata: "Get All Soal",
+          timeUjian: timeUjian,
+          message: "timeUjian updated success"
+        });
+        return
+      } else {
+        res.status(200).json({
+          soal: soal,
+          metadata: "Get All Soal",
+          timeUjian: user.timeUjian,
+          message: "timeUjian already set, no update performed",
+        });
+        return;
+      }
+    }
+  }
 
   res.status(200).json({
     soal: soal,

@@ -4,6 +4,14 @@ const cors = require('cors');
 const port = 3001;
 
 const sequelize = require('./db.config');
+sequelize.sync({ alter: true })
+  .then(() => {
+    console.log('Database & tables created!');
+  })
+  .catch((error) => {
+    console.error('Error creating database & tables:', error);
+  });
+  
 sequelize.sync().then(() => console.log('database Ready'))
 
 // Mengimpor endpoint

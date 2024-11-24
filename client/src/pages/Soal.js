@@ -1,17 +1,38 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import ReactAudioPlayer from 'react-audio-player';
 import lagu from './lagu.mp3';
 
-const Soal = ({question, numQuestions, index, answer, dispatch}) => {
+const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining, timeEnd}) => {
+
+  let hours = Math.floor((secondsRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  let minutes = Math.floor((secondsRemaining % (1000 * 60 * 60)) / (1000 * 60));
+  let seconds = Math.floor((secondsRemaining % (1000 * 60)) / 1000);
 
   const userAnswer = answer.find(item => item.id === index)?.answer ?? '-1';
   const answerIds = answer.map(item => item.id);
+
+  useEffect(() => {
+    let targetTime = new Date();
+    let [hours, minutes, seconds] = timeEnd.split(":").map(Number);
+    targetTime.setHours(hours, minutes, seconds, 0);
+    // let countDownDate = new Date("Jan 5, 2030 15:37:25").getTime();
+    const id = setInterval(() => {
+      dispatch({ type: 'tick', payload: targetTime.getTime()})
+    }, 1000);
+    return () => clearInterval(id)
+  }, [dispatch])
 
   return (
     <div>
       <div className='flex justify-end border border-b-0 py-2'>
         <button type='button' className=' bg-green-600 px-3 py-1 me-5 rounded text-white' onClick={() => dispatch({type: 'finish'})}>Selesai</button>
-        <h1 className='px-3 py-1 text-red-600 border me-2 rounded'>02:00:00</h1>
+
+        {secondsRemaining !== undefined && (
+          <h1 className='px-3 py-1 text-red-600 border me-2 rounded'>
+            {hours}:{minutes}:{seconds}
+          </h1>
+        )}
+
       </div>
       <div className='flex flex-row border min-h-[589px]'>
         <div className='basis-1/3 border-r'>
@@ -27,13 +48,13 @@ const Soal = ({question, numQuestions, index, answer, dispatch}) => {
           </div>
         </div>
         <div className='basis-full'>
-        <ReactAudioPlayer
-          src={lagu}
-          autoPlay
-          controls
-        />
+        
           {![0, 2, 4].includes(index) ? (
             <div className='p-10 flex flex-col gap-3'>
+              <ReactAudioPlayer
+                src={lagu}
+                controls
+              />
               <h1>{question.soal}</h1>
               <div className="flex items-center">
                 <input 

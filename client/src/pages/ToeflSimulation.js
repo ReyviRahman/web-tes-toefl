@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Main from '../components/Main'
 import Loader from '../components/Loader'
@@ -13,6 +13,7 @@ const initialState = {
   status: 'loading',
   index: 0,
   answer: [],
+  secondsRemaining: undefined
 }
 
 const reducer = (state, action) => {
@@ -37,6 +38,13 @@ const reducer = (state, action) => {
       return {
         ...state,
         status: 'finished'
+      }
+    case 'tick':
+      let now = new Date().getTime();
+      return {
+        ...state,
+        secondsRemaining: action.payload - now,
+        // status: state.secondsRemaining === 0 ? 'finished' : state.status,
       }
     case 'prevQuestion':
       return {
@@ -67,14 +75,19 @@ const reducer = (state, action) => {
 }
 
 const ToeflSimulation = () => {
-  const [{questions, status, index, answer}, dispatch] = useReducer(reducer, initialState)
-
+  const [{questions, status, index, answer, secondsRemaining}, dispatch] = useReducer(reducer, initialState)
   const numQuestions = questions.length
+
+  const [timeEnd, setTimeEnd] = useState()
 
   useEffect(() => {
     const fetchDataSoal = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/soal')
+        const timeUjian = new Date().getTime(); 
+        const twoHoursInMillis = 2 * 60 * 60 * 1000; 
+        const updatedTime = new Date(timeUjian + twoHoursInMillis); 
+        const formattedTime = updatedTime.toTimeString().split(' ')[0];
+        const response = await axios.get(`http://localhost:3001/soal?nohp=123&timeUjian=${formattedTime}`);
 
         const newObject = {petunjuk: "petunjuk"};
 
@@ -83,8 +96,9 @@ const ToeflSimulation = () => {
         soalToefl.splice(0, 0, newObject);
         soalToefl.splice(2, 0, newObject);
         soalToefl.splice(4, 0, newObject);
-        console.log('ini soalToefl', soalToefl)
 
+        setTimeEnd(response.data.timeUjian) 
+        console.log('ini seconds Remaining: ', timeEnd)
         dispatch({type: 'dataReceived', payload: response.data.soal})
       } catch (error) {
         dispatch({type: 'dataFailed'})
@@ -110,7 +124,7 @@ const ToeflSimulation = () => {
         {status === 'ready' && <StartScreen dispatch={dispatch} />}
         {status === 'active' && (
           <>
-            <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch}/>
+            <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch} secondsRemaining={secondsRemaining} timeEnd={timeEnd}/>
           </>
         )}
         {status === 'finished' && <FinishScreen answer={answer} />}
