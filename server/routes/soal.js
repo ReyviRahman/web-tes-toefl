@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const SoalModel = require('../models/soal')
 const UserModel = require('../models/users')
+const { Sequelize } = require('sequelize')
 
 router.get('/', async (req, res) => {
   
@@ -9,6 +10,7 @@ router.get('/', async (req, res) => {
     attributes: {
       exclude: ['jawaban', 'createdAt', 'updatedAt'], 
     },
+    
   })
 
   res.status(200).json({

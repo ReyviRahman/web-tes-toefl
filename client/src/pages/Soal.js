@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
-import ReactAudioPlayer from 'react-audio-player';
-import lagu from './lagu.mp3';
+import AudioPlayer from 'react-h5-audio-player';
 
 const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining, timeEnd}) => {
 
@@ -47,10 +46,11 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
         
           {![0, 2, 4].includes(index) ? (
             <div className='p-10 flex flex-col gap-3'>
-              <ReactAudioPlayer
-                src={lagu}
-                controls
-              />
+              {question.audio !== "" && (
+                <AudioPlayer
+                  src={`${question.audio}`}
+                />
+              )}
               <h1>{question.soal}</h1>
               <div className="flex items-center">
                 <input 

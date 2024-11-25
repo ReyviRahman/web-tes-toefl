@@ -14,7 +14,6 @@ import SuratList from './features/surat/SuratList'
 import ProsesSurat from './features/admin/prosessurat/ProsesSurat';
 import LandingPage from './features/admin/landingpage/LandingPage';
 import ToeflSimulation from './pages/ToeflSimulation';
-// import Soal from './pages/Soal';
 
 function App() {
   return (
@@ -35,7 +34,6 @@ function App() {
 
         <Route element={<RequireAuth allowedRoles={["User"]} />}>
           <Route path='/' element={<ToeflSimulation />} />
-          {/* <Route path='/soal' element={<Soal />} /> */}
         </Route>
       
       </Route>

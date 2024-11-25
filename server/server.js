@@ -16,7 +16,6 @@ sequelize.sync().then(() => console.log('database Ready'))
 
 // Mengimpor endpoint
 const userEndpoint = require('./routes/users');
-const absensiEndpoint = require('./routes/absensi');
 const soalEndpoint = require('./routes/soal');
 
 // Inisialisasi aplikasi express
@@ -32,7 +31,6 @@ app.use(cookieParser());
 
 // Routing
 app.use('/users', userEndpoint);
-app.use('/absensi', absensiEndpoint);
 app.use('/soal', soalEndpoint);
 app.use('/uploads', express.static('uploads'));
 

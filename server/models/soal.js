@@ -32,6 +32,14 @@ Soal.init({
     type: DataTypes.INTEGER, 
     allowNull: false, 
   },
+  audio: {
+    type: DataTypes.STRING, 
+    allowNull: false, 
+  },
+  audio_question: {
+    type: DataTypes.STRING, 
+    allowNull: false, 
+  },
 }, {
   sequelize,
   modelName: 'Soal'
