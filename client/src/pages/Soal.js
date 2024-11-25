@@ -44,12 +44,25 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
         </div>
         <div className='basis-full'>
         
-          {![0, 2, 4].includes(index) ? (
+          {![0, 51].includes(index) ? (
             <div className='p-10 flex flex-col gap-3'>
+              {question.audio_question !== "" && (
+                <>
+                  <h1>Conversation</h1>
+                  <AudioPlayer
+                    autoPlay={false}
+                    src={`${question.audio_question}`}
+                  />
+                </>
+              )}
               {question.audio !== "" && (
-                <AudioPlayer
-                  src={`${question.audio}`}
-                />
+                <>
+                  <h1>Question</h1>
+                  <AudioPlayer
+                    autoPlay={false}
+                    src={`${question.audio}`}
+                  />
+                </>
               )}
               <h1>{question.soal}</h1>
               <div className="flex items-center">
