@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react'
 import AudioPlayer from 'react-h5-audio-player';
+import DOMPurify from 'dompurify';
 
 const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining, timeEnd}) => {
+  const sanitizedHTML = DOMPurify.sanitize(question.soal);
 
   let hours = Math.floor((secondsRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   let minutes = Math.floor((secondsRemaining % (1000 * 60 * 60)) / (1000 * 60));
@@ -43,9 +45,10 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
           </div>
         </div>
         <div className='basis-full'>
-        
-          {![0, 51].includes(index) ? (
+            
+          {![0, 51, 67].includes(index) ? (
             <div className='p-10 flex flex-col gap-3'>
+
               {question.audio_question !== "" && (
                 <>
                   <h1>Conversation</h1>
@@ -64,7 +67,9 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                   />
                 </>
               )}
-              <h1>{question.soal}</h1>
+
+              <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
+              
               <div className="flex items-center">
                 <input 
                   id="option-1" 
@@ -77,7 +82,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                     dispatch({type: 'newAnswer', payload: e.target.value})
                   }}
                 />
-                <label htmlFor="option-1" className="cursor-pointer ml-2">A. {question.pilihan_satu}</label>
+                <label htmlFor="option-1" className="cursor-pointer ml-2">(A) {question.pilihan_satu}</label>
               </div>
               <div className="flex items-center">
                 <input 
@@ -91,7 +96,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                     dispatch({type: 'newAnswer', payload: e.target.value})
                   }} 
                 />
-                <label htmlFor="option-2" className="cursor-pointer ml-2">B. {question.pilihan_dua}</label>
+                <label htmlFor="option-2" className="cursor-pointer ml-2">(B) {question.pilihan_dua}</label>
               </div>
               <div className="flex items-center">
                 <input 
@@ -105,7 +110,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                     dispatch({type: 'newAnswer', payload: e.target.value})
                   }} 
                 />
-                <label htmlFor="option-3" className="cursor-pointer ml-2">C. {question.pilihan_tiga}</label>
+                <label htmlFor="option-3" className="cursor-pointer ml-2">(C) {question.pilihan_tiga}</label>
               </div>
               <div className="flex items-center">
                 <input 
@@ -119,7 +124,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                     dispatch({type: 'newAnswer', payload: e.target.value})
                   }} 
                 />
-                <label htmlFor="option-4" className="cursor-pointer ml-2">D. {question.pilihan_empat}</label>
+                <label htmlFor="option-4" className="cursor-pointer ml-2">(D) {question.pilihan_empat}</label>
               </div>
               
               <hr className='mt-5' />
@@ -210,7 +215,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                 </div>
               </div>
             </div>
-          ) : index === 91 && (
+          ) : index === 91 ? (
             <div className='flex justify-between'>
                 <div>
                   {index > 0 && (
@@ -235,6 +240,190 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                   )}
                 </div>
               </div>
+          ) : index === 67 && (
+            <div className='p-10 flex flex-col gap-3'>
+              <h1 className='text-center text-xl leading-5 font-medium'>WRITTEN EXPRESSION</h1>
+              <p className='text-justify'>In these questions, each sentence has four underlined words or phrases. The four underlined parts of the sentence are marked (A), (B), (C), and (D). Identify the <b>one</b> underlined word or phrase that must be changed in order for the sentence to be correct. Then, on your answer sheet, find the number of the question and fill in the space that corresponds to the letter of the answer you have chosen.</p>
+              <p>Look at the following examples.</p>
+              
+              <p className='font-bold'>Example I</p>
+              <div className='flex flex-wrap gap-1'>
+                <p className='leading-4 text-center'>
+                  <u>The</u>
+                  <br/>
+                  A
+                </p>
+                <p className='leading-4'>Four</p>
+                <p className='leading-4 text-center'>
+                  <u>string</u>
+                  <br/>
+                  B
+                </p>
+                <p className='leading-4'>on a violin</p>
+                <p className='leading-4 text-center'>
+                  <u>are</u>
+                  <br/>
+                  C
+                </p>
+                <p className='leading-4 text-center'>
+                  <u>tuned</u>
+                  <br/>
+                  D
+                </p>
+                <p className='leading-4'>in fifths</p>
+              </div>
+              <p className='font-bold'>Sample Answer</p>
+              <div>
+                <div className="flex items-center">
+                  <input 
+                    type="radio" 
+                    disabled
+                  />
+                  <label className="ml-2">A</label>
+                </div>
+                <div className="flex items-center">
+                  <input 
+                    type="radio" 
+                    disabled
+                    defaultChecked
+                  />
+                  <label className="ml-2">B</label>
+                </div>
+                <div className="flex items-center">
+                  <input 
+                    type="radio" 
+                    disabled
+                  />
+                  <label className="ml-2">C</label>
+                </div>
+                <div className="flex items-center">
+                  <input 
+                    type="radio" 
+                    disabled
+                  />
+                  <label className="ml-2">D</label>
+                </div>
+              </div>
+              
+              
+              
+              <p>The sentence should read, "The four strings on a violin are tuned in fifths." Therefore, you should choose answer (B)</p>
+
+              <p className='font-bold'>Example II</p>
+              <div className='flex flex-wrap gap-1'>
+                <p className='leading-4'>The</p>
+                <p className='leading-4 text-center'>
+                  <u>research</u>
+                  <br/>
+                  A
+                </p>
+                <p className='leading-4 text-center'>
+                  <u>for the</u>
+                  <br/>
+                  B
+                </p>
+                <p className='leading-4'>book</p>
+                <p className='leading-4 italic'>Roots</p>
+                <p className='leading-4 text-center'>
+                  <u>taking</u>
+                  <br/>
+                  C
+                </p>
+                <p className='leading-4'>Alex Haley</p>
+                <p className='leading-4 text-center'>
+                  <u>twelve years</u>
+                  <br/>
+                  D
+                </p>
+              </div>
+              <p className='font-bold'>Sample Answer</p>
+              <div>
+                <div className="flex items-center">
+                  <input 
+                    type="radio" 
+                    disabled
+                  />
+                  <label className="ml-2">A</label>
+                </div>
+                <div className="flex items-center">
+                  <input 
+                    type="radio"
+                    disabled 
+                  />
+                  <label className="ml-2">B</label>
+                </div>
+                <div className="flex items-center">
+                  <input 
+                    type="radio" 
+                    defaultChecked
+                    disabled
+                  />
+                  <label className="ml-2">C</label>
+                </div>
+                <div className="flex items-center">
+                  <input 
+                    type="radio" 
+                    disabled
+                  />
+                  <label className="ml-2">D</label>
+                </div>
+              </div>
+              
+              
+              <p>The sentence should read, "The research for the book <i>Roots</i> took Alex Haley twelve years." Therefore, you should choose answer (C)</p>
+{/*  */}
+              <div class='flex flex-wrap gap-1'>
+                <p class='leading-4'>Various</p>
+                <p class='leading-4 text-center'>
+                  <u>chemical</u>
+                  <br/>
+                  A
+                </p>
+                <p class='leading-4 text-center'>
+                  <u>element</u>
+                  <br/>
+                  B
+                </p>
+                <p class='leading-4'>have more than</p>
+                <p class='leading-4 text-center'>
+                  <u>one</u>
+                  <br/>
+                  C
+                </p>
+                <p class='leading-4 text-center'>
+                  <u>isotope</u>
+                  <br/>
+                  D
+                </p>
+              </div>
+{/*  */}
+
+              <hr className='mt-5' />
+              <div className='flex justify-between'>
+                <div>
+                  {index > 0 && (
+                    <button type='button' className='flex items-center'
+                    onClick={() => dispatch({type:'prevQuestion'})}>
+                      <span className="material-symbols-outlined border border-secondary rounded-full me-2">
+                        chevron_left
+                      </span>
+                      Sebelumnya
+                    </button>
+                  )}
+                </div>
+                <div>
+                  {index < numQuestions - 1 && (
+                    <button type='button' className='flex items-center'
+                    onClick={() => dispatch({type:'nextQuestion'})}>
+                      Selanjutnya
+                      <span className="material-symbols-outlined border border-secondary rounded-full ms-2">
+                        chevron_right
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>

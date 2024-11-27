@@ -110,6 +110,7 @@ const ToeflSimulation = () => {
 
         soalToefl.splice(0, 0, newObject);
         soalToefl.splice(51, 0, newObject);
+        soalToefl.splice(67, 0, newObject);
 
         console.log('ini seconds Remaining: ', timeEnd)
         dispatch({type: 'dataReceived', payload: response.data.soal})
