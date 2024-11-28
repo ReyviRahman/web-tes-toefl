@@ -5,7 +5,7 @@ class Soal extends Model {}
 
 Soal.init({
   soal: {
-    type: DataTypes.STRING(500),
+    type: DataTypes.STRING(1000),
     allowNull: false, 
   },
   pilihan_satu: {
