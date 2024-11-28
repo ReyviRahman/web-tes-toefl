@@ -1,11 +1,12 @@
 const {Model, DataTypes} = require('sequelize')
 const sequelize = require('../db.config')
+const Question = require('./question')
 
 class Soal extends Model {}
 
 Soal.init({
   soal: {
-    type: DataTypes.STRING(1000),
+    type: DataTypes.STRING(4000),
     allowNull: false, 
   },
   pilihan_satu: {
@@ -41,9 +42,19 @@ Soal.init({
     type: DataTypes.STRING, 
     allowNull: false, 
   },
+  q_reading: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'questions',
+      key: 'id'
+    },
+    allowNull: false
+  },
 }, {
   sequelize,
   modelName: 'Soal'
 })
 
-module.exports = Soal
+Soal.belongsTo(Question, { foreignKey: 'q_reading', as: 'readingQuestion' });
+
+module.exports = Soal;

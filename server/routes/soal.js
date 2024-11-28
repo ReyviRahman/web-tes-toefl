@@ -2,15 +2,19 @@ const express = require('express')
 const router = express.Router()
 const SoalModel = require('../models/soal')
 const UserModel = require('../models/users')
+const Question = require('../models/question')
 const { Sequelize } = require('sequelize')
 
 router.get('/', async (req, res) => {
-  
   const soal = await SoalModel.findAll({
     attributes: {
-      exclude: ['jawaban', 'createdAt', 'updatedAt'], 
+      exclude: ['jawaban', 'createdAt', 'updatedAt', 'q_reading'], 
     },
-    
+    include: {
+      model: Question,
+      as: 'readingQuestion',
+      attributes: ['reading']
+    }
   })
 
   res.status(200).json({

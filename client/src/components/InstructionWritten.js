@@ -40,7 +40,7 @@ const InstructionWritten = (index, dispatch, numQuestions) => {
             type="radio" 
             disabled
           />
-          <label className="ml-2">A</label>
+          <label className="ml-2">(A)</label>
         </div>
         <div className="flex items-center">
           <input 
@@ -48,21 +48,21 @@ const InstructionWritten = (index, dispatch, numQuestions) => {
             disabled
             defaultChecked
           />
-          <label className="ml-2">B</label>
+          <label className="ml-2">(B)</label>
         </div>
         <div className="flex items-center">
           <input 
             type="radio" 
             disabled
           />
-          <label className="ml-2">C</label>
+          <label className="ml-2">(C)</label>
         </div>
         <div className="flex items-center">
           <input 
             type="radio" 
             disabled
           />
-          <label className="ml-2">D</label>
+          <label className="ml-2">(D)</label>
         </div>
       </div>
       
@@ -102,14 +102,14 @@ const InstructionWritten = (index, dispatch, numQuestions) => {
             type="radio" 
             disabled
           />
-          <label className="ml-2">A</label>
+          <label className="ml-2">(A)</label>
         </div>
         <div className="flex items-center">
           <input 
             type="radio"
             disabled 
           />
-          <label className="ml-2">B</label>
+          <label className="ml-2">(B)</label>
         </div>
         <div className="flex items-center">
           <input 
@@ -117,14 +117,14 @@ const InstructionWritten = (index, dispatch, numQuestions) => {
             defaultChecked
             disabled
           />
-          <label className="ml-2">C</label>
+          <label className="ml-2">(C)</label>
         </div>
         <div className="flex items-center">
           <input 
             type="radio" 
             disabled
           />
-          <label className="ml-2">D</label>
+          <label className="ml-2">(D)</label>
         </div>
       </div>
       
