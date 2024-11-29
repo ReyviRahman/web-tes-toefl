@@ -1,6 +1,6 @@
 import React from 'react'
 
-const InstructionWritten = (index, dispatch, numQuestions) => {
+const InstructionWritten = ({index, dispatch, numQuestions}) => {
   return (
     <div className='p-10 flex flex-col gap-3'>
       <h1 className='text-center text-xl leading-5 font-medium'>WRITTEN EXPRESSION</h1>

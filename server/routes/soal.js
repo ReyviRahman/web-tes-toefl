@@ -3,7 +3,6 @@ const router = express.Router()
 const SoalModel = require('../models/soal')
 const UserModel = require('../models/users')
 const Question = require('../models/question')
-const { Sequelize } = require('sequelize')
 
 router.get('/', async (req, res) => {
   const soal = await SoalModel.findAll({

@@ -8,6 +8,11 @@ import InstructionReading from '../components/InstructionReading';
 
 const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining, timeEnd}) => {
   const sanitizedHTML = DOMPurify.sanitize(question.soal);
+ 
+  let sanitizedHTMLReading;
+  if (![0, 51, 67, 93].includes(index)) {
+    sanitizedHTMLReading = DOMPurify.sanitize(question.readingQuestion.reading);
+  }
 
   let hours = Math.floor((secondsRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   let minutes = Math.floor((secondsRemaining % (1000 * 60 * 60)) / (1000 * 60));
@@ -40,7 +45,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
           <div className='p-4'>
             <div className="grid grid-cols-5 gap-4">
             {Array.from({ length: numQuestions }, (_, idx) => (
-              <div key={idx} className={`${index === idx ? 'bg-primary text-white' : answerIds.includes(idx) ? 'bg-secondary border-primary' : ''} cursor-pointer  border py-1 text-center rounded ${[0, 51, 67, 93].includes(idx) ? 'border-secondary' : ''}`}
+              <div key={idx} className={`${index === idx ? 'bg-primary text-white' : answerIds.includes(idx) ? 'bg-secondary border-primary' : ''} cursor-pointer  border py-1 text-center rounded ${[0, 51, 67, 93].includes(idx) ? 'border-secondary' : ''} `}
               onClick={() => dispatch({type: 'moveToIdx', payload: idx})}>
                 { idx === 0 ? (
                   <>
@@ -62,9 +67,13 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                   <>
                     {idx - 1}
                   </>
-                ) : idx > 66 && idx < 93 ? (
+                ) : idx > 67 && idx < 93 ? (
                   <>
                     {idx - 2}
+                  </>
+                ) : idx > 93 ? (
+                  <>
+                    {idx - 3}
                   </>
                 ) : (
                   <>
@@ -99,9 +108,9 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                   />
                 </>
               )}
-
+              <div dangerouslySetInnerHTML={{ __html: sanitizedHTMLReading }} />
               <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
-              
+
               <div className="flex items-center">
                 <input 
                   id="option-1" 
