@@ -7,7 +7,7 @@ const Question = require('../models/question')
 router.get('/', async (req, res) => {
   const soal = await SoalModel.findAll({
     attributes: {
-      exclude: ['jawaban', 'createdAt', 'updatedAt', 'q_reading'], 
+      exclude: ['jawaban', 'createdAt', 'updatedAt', 'q_reading', 'no_soal'], 
     },
     include: {
       model: Question,

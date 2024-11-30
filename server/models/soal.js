@@ -25,6 +25,10 @@ Soal.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
+  no_soal: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   jawaban: {
     type: DataTypes.STRING, 
     allowNull: false, 

@@ -94,7 +94,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                 <>
                   <h1>Conversation</h1>
                   <AudioPlayer
-                    autoPlay={false}
+                    autoPlayAfterSrcChange={false}
                     src={`${question.audio_question}`}
                   />
                 </>
@@ -103,7 +103,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                 <>
                   <h1>Question</h1>
                   <AudioPlayer
-                    autoPlay={false}
+                    autoPlayAfterSrcChange={false}
                     src={`${question.audio}`}
                   />
                 </>
