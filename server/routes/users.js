@@ -24,7 +24,10 @@ router.get('/lastScore', async (req,res) => {
   const user = await UsersModel.findByPk(nohp);
   
   res.status(200).json({
-    lastScore : user.lastScore
+    lastScore : user.lastScore,
+    scoreListening : user.listening, 
+    scoreWritten: user.written, 
+    scoreReading: user.reading
   })
 })
 

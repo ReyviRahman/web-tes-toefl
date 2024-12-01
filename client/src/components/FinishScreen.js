@@ -2,10 +2,14 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import Swal from "sweetalert2";
 
-const FinishScreen = ({ answer }) => {
-  const [score, setScore] = useState('')
+const FinishScreen = ({ answer, status }) => {
+  const [score, setScore] = useState('0')
+  const [scoreListening, setScoreListening] = useState('0')
+  const [scoreWritten, setScoreWritten] = useState('0')
+  const [scoreReading, setScoreReading] = useState('0')
 
   useEffect(() => {
+    console.log('ini status dari Finish', status)
     localStorage.removeItem('toeflState');
     const getScore = async () => {
       try {
@@ -21,12 +25,18 @@ const FinishScreen = ({ answer }) => {
         const responseGetLastScore = await axios.get("http://localhost:3001/users/lastScore?nohp=123")
         if (responseGetLastScore.data.lastScore !== -1) {
           setScore(responseGetLastScore.data.lastScore)
+          setScoreListening(responseGetLastScore.data.scoreListening)
+          setScoreWritten(responseGetLastScore.data.scoreWritten)
+          setScoreReading(responseGetLastScore.data.scoreReading)
         } else {
           const response = await axios.post("http://localhost:3001/soal/jawaban", {
             nohp: 123,
             answers: answer
           });
-          setScore(response.data.totalPoints)
+          setScore(response.data.toeflScore)
+          setScoreListening(response.data.scoreListening)
+          setScoreWritten(response.data.scoreWritten)
+          setScoreReading(response.data.scoreReading)
         }
 
         Swal.close()
@@ -45,11 +55,8 @@ const FinishScreen = ({ answer }) => {
   }, [])
 
   return (
-    <div className='min-h-[590px] border flex items-center justify-center'>
-      <div className='border flex flex-col p-5 rounded justify-center'>
-        <h1>Score TOEFL</h1>
-        <h1 className='text-center'>{score}</h1>
-      </div>
+    <div className='border'>
+      <h1></h1>
     </div>
   )
 }

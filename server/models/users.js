@@ -29,7 +29,19 @@ User.init({
   lastScore: {
     type: DataTypes.INTEGER,
     allowNull: true
-  }
+  },
+  listening: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  written: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  reading: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
 }, {
   sequelize,
   modelName: 'Users',

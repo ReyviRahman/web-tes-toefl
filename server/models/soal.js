@@ -36,7 +36,6 @@ Soal.init({
   page: {
     type: DataTypes.INTEGER, 
     allowNull: false, 
-    unique: true
   },
   audio: {
     type: DataTypes.STRING, 
