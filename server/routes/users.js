@@ -31,6 +31,8 @@ router.get('/lastScore', async (req,res) => {
   })
 })
 
+
+
 router.get('/getAuth', async (req, res) => {
 
   if (req.cookies.cookieToken) {
@@ -79,6 +81,27 @@ router.post('/', async (req, res) => {
     data: users,
     metadata: "test user endpoint"
   })
+})
+
+router.post('/tryagain', async (req,res) => {
+  const { nohp } = req.body
+
+  try {
+    const user = await UsersModel.findByPk(nohp)
+    if (!user) {
+      return res.status(404).json({ message: 'User tidak ditemukan'})
+    }
+
+    await user.update({
+      timeUjian: null,
+      lastScore: -1
+    })
+
+    res.status(200).json({message: 'Ulang ujian berhasil'})
+  } catch (error) {
+    console.error('Error updating user:', error)
+    res.status(500).json({ message: 'Terjadi kesalahan pada server', error})
+  }
 })
 
 router.put('/', async (req, res) => {

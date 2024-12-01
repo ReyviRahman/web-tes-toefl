@@ -134,7 +134,7 @@ const ToeflSimulation = () => {
             <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch} secondsRemaining={secondsRemaining} timeEnd={timeEnd}/>
           </>
         )}
-        {status === 'finished' && <FinishScreen status={status} answer={answer} />}
+        {status === 'finished' && <FinishScreen restartToefl={() => initializer(initialState)} status={status} answer={answer} />}
       </Main>
     </div>
   )

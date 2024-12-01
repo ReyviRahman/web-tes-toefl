@@ -2,11 +2,37 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import Swal from "sweetalert2";
 
-const FinishScreen = ({ answer, status }) => {
+const FinishScreen = ({ answer, status, restartToefl }) => {
   const [score, setScore] = useState('0')
   const [scoreListening, setScoreListening] = useState('0')
   const [scoreWritten, setScoreWritten] = useState('0')
   const [scoreReading, setScoreReading] = useState('0')
+
+  const tryAgain = async () => {
+    Swal.fire({
+      title: 'Mengirim permintaan...',
+      text: 'Mohon tunggu sebentar',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading()
+      }
+    })
+    try {
+      const response = await axios.post('http://localhost:3001/users/tryagain', {
+        nohp: '123'
+      })
+
+      Swal.close()
+      restartToefl()
+      window.location.reload();
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: error.response?.data?.message || 'Terjadi kesalahan pada server',
+      })
+    }
+  }
 
   useEffect(() => {
     console.log('ini status dari Finish', status)
@@ -52,11 +78,35 @@ const FinishScreen = ({ answer, status }) => {
     }
 
     getScore()
+
+    
   }, [])
 
   return (
-    <div className='border'>
-      <h1></h1>
+    <div className='shadow-md rounded'>
+      <h1 className='text-center text-2xl font-semibold mt-4'>Selamat, kamu telah berhasil menyelesaikan simulasi tes TOEFL bahasa inggris</h1>
+      <h1 className='text-center'>Berikut ini adalah hasil tes kamu :</h1>
+      <div className='grid grid-cols-2 px-4 mt-2 mb-4'>
+        {/* <h1>LISTENING COMPREHENSION: {scoreListening}</h1>
+        <h1>STRUCTURE AND WRITTEN EXPRESSION: {scoreWritten}</h1>
+        <h1>READING COMPREHENSION: {scoreReading}</h1> */}
+        <div className='border py-2 px-3 text-center'>Listening Comprehension</div>
+        <div className='border py-2 px-3 text-center'> {scoreListening}</div>
+        <div className='border py-2 px-3 text-center'>Structure And Written Expression</div>
+        <div className='border py-2 px-3 text-center'> {scoreWritten}</div>
+        <div className='border py-2 px-3 text-center'>Reading Comprehension</div>
+        <div className='border py-2 px-3 text-center'> {scoreReading}</div>
+        <div className='border py-2 px-3 text-center text-primary font-semibold'>Overall score</div>
+        <div className='border py-2 px-3 text-center text-primary font-semibold'> {score}</div>
+      </div>
+      <div className='flex'>
+        <button type='button' className='bg-primary flex-auto py-2 text-white font-semibold rounded hover:bg-secondary flex justify-center gap-2' onClick={tryAgain}>
+        <span className="material-symbols-outlined">
+          restart_alt
+        </span>
+          Tes Ulang
+        </button>
+      </div>
     </div>
   )
 }
