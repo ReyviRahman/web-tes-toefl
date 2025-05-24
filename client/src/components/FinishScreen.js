@@ -2,7 +2,7 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import Swal from "sweetalert2";
 
-const FinishScreen = ({ answer, status, restartToefl }) => {
+const FinishScreen = ({ answer, status, dispatch }) => {
   const [score, setScore] = useState('0')
   const [scoreListening, setScoreListening] = useState('0')
   const [scoreWritten, setScoreWritten] = useState('0')
@@ -23,7 +23,7 @@ const FinishScreen = ({ answer, status, restartToefl }) => {
       })
 
       Swal.close()
-      restartToefl()
+      // dispatch({ type: 'restart'})
       window.location.reload();
     } catch (error) {
       Swal.fire({

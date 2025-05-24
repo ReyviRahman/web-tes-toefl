@@ -7,7 +7,7 @@ import InstructionWritten from '../components/InstructionWritten';
 import InstructionReading from '../components/InstructionReading';
 
 const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining, timeEnd}) => {
-  const sanitizedHTML = DOMPurify.sanitize(question.soal);
+  let sanitizedHTML = DOMPurify.sanitize(question.soal);
  
   let sanitizedHTMLReading;
   if (![0, 51, 67, 93].includes(index)) {
@@ -26,11 +26,22 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
     let [hours, minutes, seconds] = timeEnd.split(":").map(Number);
     targetTime.setHours(hours, minutes, seconds, 0);
 
+    // Pastikan targetTime di masa depan
+    if (targetTime < new Date()) {
+      targetTime.setDate(targetTime.getDate() + 1);
+    }
+
     const id = setInterval(() => {
-      dispatch({ type: 'tick', payload: targetTime.getTime()})
+      const now = Date.now();
+      dispatch({ type: 'tick', payload: targetTime.getTime() });
+
+      if (now >= targetTime.getTime()) {
+        clearInterval(id);
+      }
     }, 1000);
-    return () => clearInterval(id)
-  }, [dispatch])
+
+    return () => clearInterval(id);
+  }, [timeEnd]);
 
   return (
     <div>

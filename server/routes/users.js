@@ -145,10 +145,10 @@ router.post('/login', async (req, res) => {
       const token = jwt.sign(
         { nohp: users.nohp }, // Payload yang dikodekan dalam token
         secretKey, // Secret key untuk menandatangani token
-        { expiresIn: '1h' } // Token akan kadaluarsa dalam 1 jam
+        { expiresIn: '3h' } // Token akan kadaluarsa dalam 1 jam
       );
 
-      res.cookie("cookieToken", jwt.sign({ nohp: users.nohp, nama: users.nama, role: users.role, profilePic: users.profilePic }, secretKey), { httpOnly: true, maxAge: 1 * 60 * 60 * 1000});
+      res.cookie("cookieToken", jwt.sign({ nohp: users.nohp, nama: users.nama, role: users.role, profilePic: users.profilePic }, secretKey), { httpOnly: true, maxAge: 3 * 60 * 60 * 1000});
 
       return res.status(200).json({
         role: users.role,

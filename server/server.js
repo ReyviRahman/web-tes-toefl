@@ -17,6 +17,7 @@ const sequelize = require('./db.config');
 // Mengimpor endpoint
 const userEndpoint = require('./routes/users');
 const soalEndpoint = require('./routes/soal');
+const startTestEndpoint = require('./routes/soal-copy');
 
 // Inisialisasi aplikasi express
 const app = express();
@@ -32,6 +33,7 @@ app.use(cookieParser());
 // Routing
 app.use('/users', userEndpoint);
 app.use('/soal', soalEndpoint);
+app.use('/start-test', startTestEndpoint);
 app.use('/uploads', express.static('uploads'));
 
 // Jalankan server

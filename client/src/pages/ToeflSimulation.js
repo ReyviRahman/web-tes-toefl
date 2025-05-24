@@ -47,18 +47,29 @@ const reducer = (state, action) => {
         status: 'active',
         secondsRemaining: action.payload
       }
+    case 'restart':
+      return {
+        status: 'ready'
+      }
     case 'finish':
       return {
         ...state,
         status: 'finished'
       }
     case 'tick':
-      let now = new Date().getTime();
+      let now = Date.now();
       return {
         ...state,
-        secondsRemaining: action.payload - now,
+        secondsRemaining: Math.max(0, action.payload - now),
         status: now > action.payload ? 'finished' : state.status,
       }
+    // case 'tick':
+    //   let now = new Date().getTime();
+    //   return {
+    //     ...state,
+    //     secondsRemaining: action.payload - now,
+    //     status: now > action.payload ? 'finished' : state.status,
+    //   }
     case 'prevQuestion':
       return {
         ...state,
@@ -134,7 +145,7 @@ const ToeflSimulation = () => {
             <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch} secondsRemaining={secondsRemaining} timeEnd={timeEnd}/>
           </>
         )}
-        {status === 'finished' && <FinishScreen restartToefl={() => initializer(initialState)} status={status} answer={answer} />}
+        {status === 'finished' && <FinishScreen dispatch={dispatch} status={status} answer={answer} />}
       </Main>
     </div>
   )

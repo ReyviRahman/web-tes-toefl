@@ -6,7 +6,8 @@ const StartScreen = ({dispatch, setTimeEnd}) => {
   const getTimers = async () => {
     const timeUjian = new Date().getTime(); 
     const twoHoursInMillis = 2 * 60 * 60 * 1000 + 1000; 
-    const updatedTime = new Date(timeUjian + twoHoursInMillis); 
+    const oneHundredFifteenMinutesInMillis = 115 * 60 * 1000 + 1000; 
+    const updatedTime = new Date(timeUjian + oneHundredFifteenMinutesInMillis); 
     const formattedTime = updatedTime.toTimeString().split(' ')[0];
 
     try {

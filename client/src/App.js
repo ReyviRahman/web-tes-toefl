@@ -14,6 +14,7 @@ import SuratList from './features/surat/SuratList'
 import ProsesSurat from './features/admin/prosessurat/ProsesSurat';
 import LandingPage from './features/admin/landingpage/LandingPage';
 import ToeflSimulation from './pages/ToeflSimulation';
+import TestPage from './pages/TestPage';
 
 function App() {
   return (
@@ -21,8 +22,8 @@ function App() {
       <Route path='/' element={<Layout />}>
         {/* <Route path="/" element={<Home />} /> */}
         <Route path='/login' element={<Login />} />
+        <Route path='/testpage' element={<TestPage userId={'123'} />} />
         <Route path='/register' element={<Register />} />
-        <Route path="/keuangan" element={<Keuangan />} />
 
         <Route element={<RequireAuth allowedRoles={["Admin"]} />}>
           <Route path='dashboardadmin' element={<DashboardAdmin />}>

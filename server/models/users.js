@@ -26,6 +26,14 @@ User.init({
     type: DataTypes.TIME,
     allowNull: true
   },
+  start_time: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  end_time: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
   lastScore: {
     type: DataTypes.INTEGER,
     allowNull: true

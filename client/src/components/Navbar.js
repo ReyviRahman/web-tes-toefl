@@ -64,7 +64,7 @@ const Navbar = () => {
 						Login
 					</NavLink>
 
-					<NavLink to='/register' className={({ isActive }) => `rounded-md py-1 px-5 cursor-pointer font-semibold transition-all border-secondary border-2 ${ isActive ? 'bg-secondary text-white' : 'hover:bg-secondary'}`}>
+					<NavLink to='/register' className={({ isActive }) => `hidden rounded-md py-1 px-5 cursor-pointer font-semibold transition-all border-secondary border-2 ${ isActive ? 'bg-secondary text-white' : 'hover:bg-secondary'}`}>
 						Register
 					</NavLink>
 				</div>

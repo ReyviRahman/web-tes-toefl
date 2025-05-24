@@ -26,7 +26,15 @@ router.put('/timers', async (req, res) => {
   const { nohp, timeUjian } = req.body;
   const user = await UserModel.findByPk(nohp);
   if (user.timeUjian === null) {
-    await user.update({ timeUjian });
+    const start_time = Date.now()
+    console.log('ini date now' + Date.now())
+    const end_time = start_time + 115 * 60 * 1000 // 1 jam 55 menit dalam ms
+    await user.update({ 
+      timeUjian,
+      start_time,
+      end_time 
+    });
+
     return res.status(200).json({
       message: "timeUjian updated successfully",
       timeUjian: timeUjian,
