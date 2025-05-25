@@ -1,37 +1,43 @@
 import axios from 'axios';
 import React from 'react'
 
-const StartScreen = ({dispatch, setTimeEnd}) => {
+const StartScreen = ({dispatch}) => {
 
   const getTimers = async () => {
-    const timeUjian = new Date().getTime(); 
-    const twoHoursInMillis = 2 * 60 * 60 * 1000 + 1000; 
-    const oneHundredFifteenMinutesInMillis = 115 * 60 * 1000 + 1000; 
-    const updatedTime = new Date(timeUjian + oneHundredFifteenMinutesInMillis); 
-    const formattedTime = updatedTime.toTimeString().split(' ')[0];
-
     try {
-      const responseGetLastScore = await axios.get("http://localhost:3001/users/lastScore?nohp=123")
-      if (responseGetLastScore.data.lastScore !== -1) {
-        dispatch({type: 'finish'})
-      } else {
-        const response = await axios.put('http://localhost:3001/soal/timers', {
-          nohp: '123',
-          timeUjian: formattedTime
-        });
-        setTimeEnd(response.data.timeUjian)
-        const timeString = response.data.timeUjian;
-        let targetTime = new Date();
-        let [hours, minutes, seconds] = timeString.split(":").map(Number);
-        targetTime.setHours(hours, minutes, seconds, 0);
-        let now = new Date().getTime();
-  
-        dispatch({type: 'start', payload: targetTime.getTime() - now})
+      // ① cek skor terakhir
+      const resScore = await axios.get(
+        "http://localhost:3001/users/lastScore",
+        { params: { nohp: 123 } }
+      );
+
+      if (resScore.data.lastScore !== -1) {
+        dispatch({ type: "finish" });
+        return;
       }
-    } catch (error) {
-      console.error('Error updating timeUjian:', error);
+
+      // ② minta/jalankan timer
+      const resTimer = await axios.put(
+        "http://localhost:3001/soal/timers",
+        { nohp: 123 }
+      );
+
+      console.log("timer payload =", resTimer.data);
+
+      const { end_time, server_now } = resTimer.data;
+
+      // ► selisih antara jam klien & jam server (ms)
+      const skew = Date.now() - server_now;
+      console.log('ini remaining', resTimer.data.secondsRemaining)
+
+      // ► sisa detik = (end_time - (Date.now() - skew)) / 1000
+      const secondsRemaining = resTimer.data.secondsRemaining;
+
+      dispatch({ type: "start", payload: secondsRemaining });
+    } catch (err) {
+      console.error("Error updating timeUjian:", err);
     }
-  }
+  };
 
   return (
     <div className='border border-abu text-center pt-10 mt-20 rounded-md'>

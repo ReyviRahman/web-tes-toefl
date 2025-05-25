@@ -23,29 +23,27 @@ router.get('/', async (req, res) => {
 })
 
 router.put('/timers', async (req, res) => {
-  const { nohp, timeUjian } = req.body;
+  const { nohp } = req.body;
   const user = await UserModel.findByPk(nohp);
-  if (user.timeUjian === null) {
-    const start_time = Date.now()
-    console.log('ini date now' + Date.now())
-    const end_time = start_time + 115 * 60 * 1000 // 1 jam 55 menit dalam ms
-    await user.update({ 
-      timeUjian,
-      start_time,
-      end_time 
-    });
 
-    return res.status(200).json({
-      message: "timeUjian updated successfully",
-      timeUjian: timeUjian,
-    });
+  // selalu pakai waktu server
+  const server_now = Date.now();
+
+  let { start_time, end_time } = user;
+
+  if (user.end_time === null) {
+    start_time = server_now;
+    // end_time   = start_time + 115 * 60 * 1000; 
+    end_time = start_time + 60 * 60 * 1000;
+    await user.update({ start_time, end_time });
   }
 
   res.status(200).json({
-    message: "timeUjian already set, no update performed",
-    timeUjian: user.timeUjian,
+    end_time,
+    server_now,
+    secondsRemaining: Math.floor((end_time - server_now) / 1000)
   });
-})
+});
 
 router.get('/getsoal', async (req, res) => {
   const { page } = req.query; // Mengambil parameter 'page'

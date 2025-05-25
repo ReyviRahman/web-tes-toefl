@@ -22,16 +22,12 @@ User.init({
   role: {
     type: DataTypes.STRING
   },
-  timeUjian: {
-    type: DataTypes.TIME,
-    allowNull: true
-  },
   start_time: {
-    type: DataTypes.DATE,
+    type: DataTypes.BIGINT,
     allowNull: true
   },
   end_time: {
-    type: DataTypes.DATE,
+    type: DataTypes.BIGINT,
     allowNull: true
   },
   lastScore: {

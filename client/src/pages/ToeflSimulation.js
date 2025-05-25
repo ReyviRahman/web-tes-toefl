@@ -54,14 +54,13 @@ const reducer = (state, action) => {
     case 'finish':
       return {
         ...state,
-        status: 'finished'
+        status: 'finished',
+        secondsRemaining: 0
       }
     case 'tick':
-      let now = Date.now();
       return {
         ...state,
-        secondsRemaining: Math.max(0, action.payload - now),
-        status: now > action.payload ? 'finished' : state.status,
+        secondsRemaining: state.secondsRemaining - 1
       }
     // case 'tick':
     //   let now = new Date().getTime();
@@ -102,8 +101,6 @@ const ToeflSimulation = () => {
   const [{questions, status, index, answer, secondsRemaining}, dispatch] = useReducer(reducer, initialState, initializer)
   const numQuestions = questions.length
 
-  const [timeEnd, setTimeEnd] = useState()
-
   useEffect(() => {
     const stateToSave = {index, answer}
     localStorage.setItem('toeflState', JSON.stringify(stateToSave));
@@ -124,7 +121,6 @@ const ToeflSimulation = () => {
         soalToefl.splice(67, 0, newObject);
         soalToefl.splice(93, 0, newObject);
 
-        console.log('ini seconds Remaining: ', timeEnd)
         dispatch({type: 'dataReceived', payload: response.data.soal})
       } catch (error) {
         dispatch({type: 'dataFailed'})
@@ -139,10 +135,10 @@ const ToeflSimulation = () => {
       <Main>
         {status === 'loading' && <Loader />}
         {status === 'error' && <Error />}
-        {status === 'ready' && <StartScreen dispatch={dispatch} setTimeEnd={setTimeEnd} />}
+        {status === 'ready' && <StartScreen dispatch={dispatch} />}
         {status === 'active' && (
           <>
-            <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch} secondsRemaining={secondsRemaining} timeEnd={timeEnd}/>
+            <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch} secondsRemaining={secondsRemaining}/>
           </>
         )}
         {status === 'finished' && <FinishScreen dispatch={dispatch} status={status} answer={answer} />}

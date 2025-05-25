@@ -8,47 +8,39 @@ import InstructionReading from '../components/InstructionReading';
 
 const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining, timeEnd}) => {
   let sanitizedHTML = DOMPurify.sanitize(question.soal);
- 
   let sanitizedHTMLReading;
   if (![0, 51, 67, 93].includes(index)) {
     sanitizedHTMLReading = DOMPurify.sanitize(question.readingQuestion.reading);
   }
 
-  let hours = Math.floor((secondsRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  let minutes = Math.floor((secondsRemaining % (1000 * 60 * 60)) / (1000 * 60));
-  let seconds = Math.floor((secondsRemaining % (1000 * 60)) / 1000);
+  const hours = String(Math.floor(secondsRemaining / 3600)).padStart(2, '0');
+  const minutes = String(Math.floor((secondsRemaining % 3600) / 60)).padStart(2, '0');
+  const seconds = String(secondsRemaining % 60).padStart(2, '0');
 
   const userAnswer = answer.find(item => item.id === index)?.answer ?? '-1';
   const answerIds = answer.map(item => item.id);
 
   useEffect(() => {
-    let targetTime = new Date();
-    let [hours, minutes, seconds] = timeEnd.split(":").map(Number);
-    targetTime.setHours(hours, minutes, seconds, 0);
-
-    // Pastikan targetTime di masa depan
-    if (targetTime < new Date()) {
-      targetTime.setDate(targetTime.getDate() + 1);
-    }
-
-    const id = setInterval(() => {
-      const now = Date.now();
-      dispatch({ type: 'tick', payload: targetTime.getTime() });
-
-      if (now >= targetTime.getTime()) {
-        clearInterval(id);
-      }
+    const interval = setInterval(() => {
+      dispatch({ type: 'tick' });
     }, 1000);
 
-    return () => clearInterval(id);
-  }, [timeEnd]);
+    // Hentikan interval jika waktu habis
+    if (secondsRemaining <= 0) {
+      clearInterval(interval);
+      dispatch({ type: 'finish' });
+    }
+
+    // Cleanup saat komponen unmount
+    return () => clearInterval(interval);
+  }, [secondsRemaining, dispatch]);
 
   return (
     <div>
       <div className='flex justify-end border border-b-0 py-2'>
         <button type='button' className=' bg-green-600 px-3 py-1 me-5 rounded text-white' onClick={() => dispatch({type: 'finish'})}>Selesai</button>
         <h1 className='px-3 py-1 text-red-600 border me-2 rounded'>
-          {hours < 10 && '0'}{hours}:{minutes < 10 && '0'}{minutes}:{seconds < 10 && '0'}{seconds}
+          {hours}:{minutes}:{seconds}
         </h1>
       </div>
       <div className='flex flex-row border min-h-[589px]'>

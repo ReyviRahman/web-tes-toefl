@@ -31,8 +31,6 @@ router.get('/lastScore', async (req,res) => {
   })
 })
 
-
-
 router.get('/getAuth', async (req, res) => {
 
   if (req.cookies.cookieToken) {
@@ -93,7 +91,7 @@ router.post('/tryagain', async (req,res) => {
     }
 
     await user.update({
-      timeUjian: null,
+      end_time: null,
       lastScore: -1
     })
 
