@@ -34,6 +34,7 @@ const StartScreen = ({dispatch}) => {
       const secondsRemaining = resTimer.data.secondsRemaining;
 
       dispatch({ type: "start", payload: secondsRemaining });
+      dispatch({ type: "getSesi", payload: resTimer.data.sesi });
     } catch (err) {
       console.error("Error updating timeUjian:", err);
     }

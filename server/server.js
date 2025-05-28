@@ -3,7 +3,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const port = 3001;
 
-const sequelize = require('./db.config');
+// const sequelize = require('./db.config');
 // sequelize.sync({ alter: true })
 //   .then(() => {
 //     console.log('Database & tables created!');
@@ -12,8 +12,6 @@ const sequelize = require('./db.config');
 //     console.error('Error creating database & tables:', error);
 //   });
   
-// sequelize.sync().then(() => console.log('database Ready'))
-
 // Mengimpor endpoint
 const userEndpoint = require('./routes/users');
 const soalEndpoint = require('./routes/soal');

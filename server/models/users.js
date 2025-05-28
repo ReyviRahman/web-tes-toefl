@@ -46,6 +46,9 @@ User.init({
     type: DataTypes.INTEGER,
     allowNull: true
   },
+  sesi: {
+    type: DataTypes.STRING
+  },
 }, {
   sequelize,
   modelName: 'Users',

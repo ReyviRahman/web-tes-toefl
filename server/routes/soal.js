@@ -22,28 +22,94 @@ router.get('/', async (req, res) => {
   })
 })
 
+// router.put('/timers', async (req, res) => {
+//   const { nohp } = req.body;
+//   const user = await UserModel.findByPk(nohp);
+
+//   // selalu pakai waktu server
+//   const server_now = Date.now();
+
+//   let { start_time, end_time } = user;
+
+//   if (user.end_time === null) {
+//     start_time = server_now;
+//     // end_time   = start_time + 115 * 60 * 1000; 
+//     end_time = start_time + 60 * 60 * 1000;
+//     await user.update({ start_time, end_time });
+//   }
+
+//   res.status(200).json({
+//     end_time,
+//     server_now,
+//     secondsRemaining: Math.floor((end_time - server_now) / 1000)
+//   });
+// });
+
 router.put('/timers', async (req, res) => {
   const { nohp } = req.body;
   const user = await UserModel.findByPk(nohp);
+  if (!user) return res.status(404).json({ message: 'User not found' });
 
-  // selalu pakai waktu server
   const server_now = Date.now();
+  const sessions = ['listening', 'written', 'reading'];
+  const durationMap = {
+    listening: 5000,     // 1 jam
+    written:   10000,     // 30 menit
+    reading:   15000,     // 15 menit
+  };
+  // const durationMap = {
+  //   listening: 60 * 60 * 1000,      1 jam
+  //   written:   30 * 60 * 1000,      30 menit
+  //   reading:   15 * 60 * 1000,      15 menit
+  // };
 
-  let { start_time, end_time } = user;
+  let { sesi, start_time, end_time } = user;
 
-  if (user.end_time === null) {
+  // 1) Jika belum pernah memulai sesi apapun, inisialisasi sesi pertama
+  if (end_time === null) {
+    sesi = sessions[0];
     start_time = server_now;
-    // end_time   = start_time + 115 * 60 * 1000; 
-    end_time = start_time + 60 * 60 * 1000;
-    await user.update({ start_time, end_time });
+    end_time = server_now + durationMap[sesi];
+    await user.update({ sesi, start_time, end_time });
+  }
+  // 2) Jika waktu sekarang sudah melewati end_time, pindah ke sesi berikutnya
+  else if (server_now >= end_time) {
+    const currentIdx = sessions.indexOf(sesi);
+    const nextIdx = currentIdx + 1;
+
+    if (nextIdx < sessions.length) {
+      // masih ada sesi selanjutnya
+      sesi = sessions[nextIdx];
+      start_time = server_now;
+      end_time = server_now + durationMap[sesi];
+      await user.update({ sesi, start_time, end_time });
+    } else {
+      // semua sesi sudah selesai
+      // kamu bisa handle finished di sini, misal:
+      return res.status(200).json({
+        message: 'All sessions completed',
+        server_now,
+        secondsRemaining: 0,
+        sesi: 'finished'
+      });
+    }
   }
 
-  res.status(200).json({
+  // 3) Hitung sisa detik
+  const secondsRemaining = Math.max(
+    0,
+    Math.floor((end_time - server_now) / 1000)
+  );
+
+  return res.status(200).json({
+    sesi,
     end_time,
     server_now,
-    secondsRemaining: Math.floor((end_time - server_now) / 1000)
+    secondsRemaining,
   });
 });
+
+
 
 router.get('/getsoal', async (req, res) => {
   const { page } = req.query; // Mengambil parameter 'page'

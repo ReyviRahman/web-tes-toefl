@@ -9,15 +9,6 @@ const InstructionStructure = ({index, dispatch, numQuestions}) => {
       <hr className='mt-5' />
       <div className='flex justify-between'>
         <div>
-          {index > 0 && (
-            <button type='button' className='flex items-center'
-            onClick={() => dispatch({type:'prevQuestion'})}>
-              <span className="material-symbols-outlined border border-secondary rounded-full me-2">
-                chevron_left
-              </span>
-              Sebelumnya
-            </button>
-          )}
         </div>
         <div>
           {index < numQuestions - 1 && (

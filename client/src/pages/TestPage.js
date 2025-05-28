@@ -1,121 +1,67 @@
-/*  React component  –  hitung mundur + submit
-    Jalankan: npm i react react-dom
-*/
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 
-// HARUS sama dgn backend
-const GRACE_PERIOD_MS = 60 * 1000; // 1 menit
+const questions = [
+  { id: 1, audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+  { id: 2, audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+  { id: 3, audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+];
 
-export default function TestPage({ userId }) {
-  const [remaining, setRemaining]   = useState(null);   // ms (+/-)
-  const [endTime,   setEndTime]     = useState(null);
-  const [isSubmitting, setSubmitting] = useState(false);
-  const intervalRef = useRef(null);
+export default function TestPage() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasPlayed, setHasPlayed] = useState(false);
+  const audioRef = useRef(null);
 
-  // ---------- Start test ----------
+  // Mainkan audio otomatis saat soal berubah
   useEffect(() => {
-    fetch('http://localhost:3001/start-test/', {
-      method : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body   : JSON.stringify({ userId }),
-    })
-      .then(r => r.json())
-      .then(({ endTime: srvEnd }) => {
-        setEndTime(srvEnd);
-        tick(srvEnd);                                // run sekali
-        intervalRef.current = setInterval(() => tick(srvEnd), 1000);
-      })
-      .catch(console.error);
+    setHasPlayed(false);
 
-    return () => clearInterval(intervalRef.current);
-  }, [userId]);
-
-  // ---------- Hitung mundur ----------
-  const tick = (srvEnd) => {
-    const diff = srvEnd - Date.now(); // bisa negatif setelah habis
-    setRemaining(diff);
-
-    // Auto-submit begitu <0 (waktu resmi habis) tapi masih dalam grace
-    if (diff <= 0 && diff > -GRACE_PERIOD_MS && !isSubmitting) {
-      autoSubmit();
-    }
-
-    // Hentikan interval bila grace-period terlewati
-    if (diff <= -GRACE_PERIOD_MS) clearInterval(intervalRef.current);
-  };
-
-  // ---------- Submit ----------
-  const autoSubmit = async () => {
-    await submitAnswers(true);
-  };
-
-  const manualSubmit = async () => {
-    if (remaining <= -GRACE_PERIOD_MS) {
-      alert('Maaf, waktu habis — tidak bisa submit.');
-      return;
-    }
-    await submitAnswers(false);
-  };
-
-  const submitAnswers = async (auto) => {
-    setSubmitting(true);
-    try {
-      const res  = await fetch('http://localhost:3001/submit-test', {
-        method : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify({
-          userId,
-          answers: { /* … kumpulkan jawaban … */ },
-        }),
+    // Coba play audio, jika gagal karena autoplay policy, user harus interaksi dulu
+    const playPromise = audioRef.current.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // autoplay gagal, bisa kasih notifikasi ke user agar klik tombol play manual
+        console.log("Autoplay gagal, butuh interaksi user");
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error);
-      alert(auto ? 'Auto-submit berhasil!' : 'Jawaban terkirim!');
-      // TODO: redirect ke halaman hasil
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setSubmitting(false);
+    }
+  }, [currentIndex]);
+
+  const handlePlay = () => {
+    if (!hasPlayed) {
+      setHasPlayed(true);
+    } else {
+      // Kalau sudah pernah play, langsung pause supaya gak replay
+      audioRef.current.pause();
     }
   };
 
-  // ---------- Util format ----------
-  const fmt = (ms) => {
-    if (ms == null) return '--:--:--';
-    const pos = Math.max(ms, 0);
-    const s   = Math.floor(pos / 1000);
-    const hh  = String(Math.floor(s / 3600)).padStart(2, '0');
-    const mm  = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
-    const ss  = String(s % 60).padStart(2, '0');
-    return `${hh}:${mm}:${ss}`;
+  const handleEnded = () => {
+    setHasPlayed(true);
   };
 
-  // ---------- Flags ----------
-  const inGrace  = remaining !== null && remaining <= 0 && remaining > -GRACE_PERIOD_MS;
-  const locked   = remaining !== null && remaining <= -GRACE_PERIOD_MS;
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % questions.length);
+  };
 
   return (
-    <div style={{ fontFamily: 'sans-serif', maxWidth: 420, margin: '2rem auto' }}>
-      <h2>TOEFL Online Test</h2>
-      <p>Sisa waktu: <strong>{fmt(remaining)}</strong></p>
+    <div style={{ maxWidth: 400, margin: "auto" }}>
+      <h3>Soal Audio #{questions[currentIndex].id}</h3>
 
-      {inGrace && (
-        <p style={{ color: 'orange' }}>
-          ⏳ Waktu resmi habis. Anda punya 1&nbsp;menit grace-period untuk submit!
+      <audio
+        ref={audioRef}
+        src={questions[currentIndex].audio}
+        onPlay={handlePlay}
+        onEnded={handleEnded}
+        controls={false} // sembunyikan kontrol player
+      />
+
+      {!hasPlayed && (
+        <p style={{ color: "blue" }}>
+          Audio sedang diputar otomatis, tunggu sampai selesai...
         </p>
       )}
-      {locked && (
-        <p style={{ color: 'red' }}>
-          ❌ Grace-period selesai. Jawaban tidak akan diterima.
-        </p>
-      )}
 
-      <button
-        onClick={manualSubmit}
-        disabled={locked || isSubmitting}
-        style={{ padding: '0.5rem 1rem', fontSize: '1rem' }}
-      >
-        {isSubmitting ? 'Mengirim…' : 'Submit Sekarang'}
+      <button onClick={handleNext} style={{ marginTop: 10 }}>
+        Soal Berikutnya
       </button>
     </div>
   );

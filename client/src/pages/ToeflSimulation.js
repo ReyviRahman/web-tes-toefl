@@ -12,7 +12,8 @@ const initialState = {
   status: 'loading',
   index: 0,
   answer: [],
-  secondsRemaining: null
+  secondsRemaining: null,
+  sesi: ''
 }
 
 const initializer = (initialState) => {
@@ -62,13 +63,6 @@ const reducer = (state, action) => {
         ...state,
         secondsRemaining: state.secondsRemaining - 1
       }
-    // case 'tick':
-    //   let now = new Date().getTime();
-    //   return {
-    //     ...state,
-    //     secondsRemaining: action.payload - now,
-    //     status: now > action.payload ? 'finished' : state.status,
-    //   }
     case 'prevQuestion':
       return {
         ...state,
@@ -93,12 +87,17 @@ const reducer = (state, action) => {
               item.id === question.page ? { ...item, answer: action.payload } : item
             )
           : [...state.answer, { id: state.index, answer: action.payload }]
-    };
+    }
+    case 'getSesi':
+      return {
+        ...state,
+        sesi: action.payload
+      };
   }
 }
 
 const ToeflSimulation = () => {
-  const [{questions, status, index, answer, secondsRemaining}, dispatch] = useReducer(reducer, initialState, initializer)
+  const [{questions, status, index, answer, secondsRemaining, sesi}, dispatch] = useReducer(reducer, initialState, initializer)
   const numQuestions = questions.length
 
   useEffect(() => {
@@ -111,6 +110,7 @@ const ToeflSimulation = () => {
       try {
         
         const response = await axios.get(`http://localhost:3001/soal`);
+        console.log(response.data);
 
         const newObject = {petunjuk: "petunjuk"};
 
@@ -138,7 +138,7 @@ const ToeflSimulation = () => {
         {status === 'ready' && <StartScreen dispatch={dispatch} />}
         {status === 'active' && (
           <>
-            <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch} secondsRemaining={secondsRemaining}/>
+            <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch} secondsRemaining={secondsRemaining} nohp={123} sesi={sesi}/>
           </>
         )}
         {status === 'finished' && <FinishScreen dispatch={dispatch} status={status} answer={answer} />}

@@ -1,12 +1,44 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import AudioPlayer from 'react-h5-audio-player';
 import DOMPurify from 'dompurify';
 import InstructionListening from '../components/InstructionListening';
 import InstructionStructure from '../components/InstructionStructure';
 import InstructionWritten from '../components/InstructionWritten';
 import InstructionReading from '../components/InstructionReading';
+import axios from 'axios';
 
-const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining, timeEnd}) => {
+
+
+const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining, sesi}) => {
+  const sesiLabels = {
+    listening: 'LISTENING COMPREHENSION',
+    written: 'STRUCTURE AND WRITTEN EXPRESSION',
+    reading: 'READING COMPREHENSION',
+  };
+  const sessionRanges = {
+    listening: [0, 50],
+    written: [51, 92],
+    reading: [93, 143],
+  };
+  const [currentSession, setCurrentSession] = React.useState(sesi);
+  const [start, end] = sessionRanges[currentSession];
+  const isIndexInCurrentSession = () => {
+    const [start, end] = sessionRanges[sesi] || [];
+    return index >= start && index <= end;
+  };
+
+  const [hasPlayed, setHasPlayed] = useState(false);
+  const playerRef = useRef();
+
+  const handlePlay = () => {
+    if (hasPlayed && playerRef.current) {
+      // Stop langsung jika user coba replay
+      playerRef.current.audio.current.pause();
+    } else {
+      setHasPlayed(true);
+    }
+  };
+
   let sanitizedHTML = DOMPurify.sanitize(question.soal);
   let sanitizedHTMLReading;
   if (![0, 51, 67, 93].includes(index)) {
@@ -20,34 +52,122 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
   const userAnswer = answer.find(item => item.id === index)?.answer ?? '-1';
   const answerIds = answer.map(item => item.id);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
+  const intervalRef = useRef(null);
+
+  const startTick = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = window.setInterval(() => {
       dispatch({ type: 'tick' });
     }, 1000);
+  }, [dispatch]);
 
-    // Hentikan interval jika waktu habis
-    if (secondsRemaining <= 0) {
-      clearInterval(interval);
-      dispatch({ type: 'finish' });
-    }
+  // Pasang interval sekali di mount
+  useEffect(() => {
+    startTick();
+    return () => clearInterval(intervalRef.current);
+  }, [startTick]);
 
-    // Cleanup saat komponen unmount
-    return () => clearInterval(interval);
-  }, [secondsRemaining, dispatch]);
+  // Handle timeout & restart
+  useEffect(() => {
+    if (secondsRemaining > 0) return;
+
+    clearInterval(intervalRef.current);
+
+    const refreshTimer = async () => {
+      try {
+        const res = await axios.put("http://localhost:3001/soal/timers", { nohp: 123 });
+        if (res.data.sesi === "finished") {
+          dispatch({ type: "finish" });
+        } else {
+          const newSeconds = res.data.secondsRemaining;
+          dispatch({ type: "getSesi", payload: res.data.sesi });
+          dispatch({ type: "start", payload: newSeconds });
+          setCurrentSession(res.data.sesi)
+          const sesiToIndexMap = {
+            listening: 0,
+            written: 51,
+            reading: 93,
+          };
+
+          const sesi = res.data.sesi;
+          const targetIdx = sesiToIndexMap[sesi];
+
+          if (targetIdx !== undefined) {
+            dispatch({ type: 'moveToIdx', payload: targetIdx });
+          }
+
+          startTick(); // **kunci**: mulai interval ulang
+        }
+      } catch (err) {
+        console.error("Error refreshing timer:", err);
+        // dispatch({ type: "finish" });
+      }
+    };
+
+    refreshTimer();
+  }, [secondsRemaining, dispatch, startTick]);
+
+  const displayLabels = React.useMemo(() => {
+    const arr = [];
+
+    // blok 1 ───────────────────────────────────────────────
+    arr.push('I1');
+    for (let i = 1; i <= 50; i++) arr.push(i);
+
+    // blok 2 ───────────────────────────────────────────────
+    arr.push('I2');
+    for (let i = 1; i <= 15; i++) arr.push(i);
+
+    // blok 3 ───────────────────────────────────────────────
+    arr.push('I3');
+    for (let i = 16; i <= 40; i++) arr.push(i);
+    // penutup
+    arr.push('I4');
+    for (let i = 1; i <= 50; i++) arr.push(i);
+
+    return arr;          // total elemen = 134
+  }, []);
 
   return (
     <div>
-      <div className='flex justify-end border border-b-0 py-2'>
-        <button type='button' className=' bg-green-600 px-3 py-1 me-5 rounded text-white' onClick={() => dispatch({type: 'finish'})}>Selesai</button>
-        <h1 className='px-3 py-1 text-red-600 border me-2 rounded'>
-          {hours}:{minutes}:{seconds}
+      <div className='flex justify-between border border-b-0 py-2'>
+        <h1 className='px-3 py-1 text-primary border ms-2 rounded'>
+          SESI: {sesiLabels[sesi] ?? sesi}
         </h1>
+        <div className='flex'>
+          <button type='button' className=' bg-green-600 px-3 py-1 me-5 rounded text-white' onClick={() => dispatch({type: 'finish'})}>Selesai </button>
+          <h1 className='px-3 py-1 text-red-600 border me-2 rounded'>
+            {hours}:{minutes}:{seconds}
+          </h1>
+        </div>
       </div>
       <div className='flex flex-row border min-h-[589px]'>
         <div className='basis-1/3 border-r'>
           <div className='p-4'>
             <div className="grid grid-cols-5 gap-4">
-            {Array.from({ length: numQuestions }, (_, idx) => (
+            
+            {displayLabels.map((label, idx) => {
+              // abaikan indeks di luar rentang
+              if (idx < start || idx > end) return null;
+
+              return (
+                <div
+                  key={idx}
+                  className={`
+                    ${index === idx ? 'bg-primary text-white'
+                      : answerIds.includes(idx) ? 'bg-secondary border-primary'
+                      : ''} 
+                    cursor-pointer border py-1 text-center rounded
+                    ${['I1','I2','I3','I4'].includes(label) ? 'border-secondary' : ''}
+                  `}
+                  onClick={() => dispatch({ type: 'moveToIdx', payload: idx })}
+                >
+                  {label}
+                </div>
+              );
+            })}
+
+            {/* {Array.from({ length: numQuestions }, (_, idx) => (
               <div key={idx} className={`${index === idx ? 'bg-primary text-white' : answerIds.includes(idx) ? 'bg-secondary border-primary' : ''} cursor-pointer  border py-1 text-center rounded ${[0, 51, 67, 93].includes(idx) ? 'border-secondary' : ''} `}
               onClick={() => dispatch({type: 'moveToIdx', payload: idx})}>
                 { idx === 0 ? (
@@ -84,129 +204,157 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                   </>
                 )}
               </div>
-            ))}
+            ))} */}
             </div>
           </div>
         </div>
-        <div className='basis-full'>
-            
-          {![0, 51, 67, 93].includes(index) ? (
-            <div className='p-10 flex flex-col gap-3'>
+          
+        {/* <div className='basis-full items-center'>
+          <h1 className='text-center'>Sekarang <span className='text-primary'>SESI: {sesiLabels[sesi] ?? sesi}.</span> <br/> Mohon kerjakan <span className='text-primary'>SESI: {sesiLabels[sesi] ?? sesi}</span> terlebih dahulu</h1>
+        </div> */}
 
-              {question.audio_question !== "" && (
-                <>
-                  <h1>Conversation</h1>
-                  <AudioPlayer
-                    autoPlayAfterSrcChange={false}
-                    src={`${question.audio_question}`}
-                  />
-                </>
-              )}
-              {question.audio !== "" && (
-                <>
-                  <h1>Question</h1>
-                  <AudioPlayer
-                    autoPlayAfterSrcChange={false}
-                    src={`${question.audio}`}
-                  />
-                </>
-              )}
-              <div dangerouslySetInnerHTML={{ __html: sanitizedHTMLReading }} />
-              <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
+        {!isIndexInCurrentSession() ? (
+          // ❌ Index tidak sesuai sesi → tampilkan peringatan
+          <div className='basis-full items-center'>
+            <h1 className='text-center'>
+              Sekarang <span className='text-primary'>SESI: {sesiLabels[sesi] ?? sesi}</span>.<br />
+              Mohon kerjakan <span className='text-primary'>SESI: {sesiLabels[sesi] ?? sesi}</span> terlebih dahulu
+            </h1>
+          </div>
+        ) : (
+          // ✅ Index sesuai → tampilkan soal
+          <div className='basis-full'>
+            {![0, 51, 67, 93].includes(index) ? (
+              <div className='p-10 flex flex-col gap-3'>
 
-              <div className="flex items-center">
-                <input 
-                  id="option-1" 
-                  type="radio" 
-                  name="answer" 
-                  value="1"
-                  checked={userAnswer === "1"} 
-                  className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" 
-                  onChange={(e) => {
-                    dispatch({type: 'newAnswer', payload: e.target.value})
-                  }}
-                />
-                <label htmlFor="option-1" className="cursor-pointer ml-2">(A) {question.pilihan_satu}</label>
-              </div>
-              <div className="flex items-center">
-                <input 
-                  id="option-2" 
-                  type="radio" 
-                  name="answer" 
-                  value="2"
-                  checked={userAnswer === "2"}
-                  className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
-                  onChange={(e) => {
-                    dispatch({type: 'newAnswer', payload: e.target.value})
-                  }} 
-                />
-                <label htmlFor="option-2" className="cursor-pointer ml-2">(B) {question.pilihan_dua}</label>
-              </div>
-              <div className="flex items-center">
-                <input 
-                  id="option-3" 
-                  type="radio" 
-                  name="answer" 
-                  value="3" 
-                  checked={userAnswer === "3"}
-                  className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
-                  onChange={(e) => {
-                    dispatch({type: 'newAnswer', payload: e.target.value})
-                  }} 
-                />
-                <label htmlFor="option-3" className="cursor-pointer ml-2">(C) {question.pilihan_tiga}</label>
-              </div>
-              <div className="flex items-center">
-                <input 
-                  id="option-4" 
-                  type="radio" 
-                  name="answer" 
-                  value="4" 
-                  checked={userAnswer === "4"}
-                  className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
-                  onChange={(e) => {
-                    dispatch({type: 'newAnswer', payload: e.target.value})
-                  }} 
-                />
-                <label htmlFor="option-4" className="cursor-pointer ml-2">(D) {question.pilihan_empat}</label>
-              </div>
-              
-              <hr className='mt-5' />
-              <div className='flex justify-between'>
-                <div>
-                  {index > 0 && (
-                    <button type='button' className='flex items-center'
-                    onClick={() => dispatch({type:'prevQuestion'})}>
-                      <span className="material-symbols-outlined border border-secondary rounded-full me-2">
-                        chevron_left
-                      </span>
-                      Sebelumnya
-                    </button>
-                  )}
+                {question.audio_question !== "" && (
+                  <>
+                    <h1>Conversation</h1>
+                    <AudioPlayer
+                      autoPlayAfterSrcChange={false}
+                      src={`${question.audio_question}`}
+                    />
+                  </>
+                )}
+                {question.audio !== "" && (
+                  <>
+                    <h1>Question</h1>
+                    <AudioPlayer
+                      ref={playerRef}
+                      src={question.audio}
+                      autoPlayAfterSrcChange={false}
+                      onPlay={handlePlay}
+                      showJumpControls={false} // hilangkan tombol maju/mundur
+                      customAdditionalControls={[]} // hilangkan volume dll
+                      customVolumeControls={[]}     // hilangkan volume
+                    />
+                  </>
+                )}
+                <div dangerouslySetInnerHTML={{ __html: sanitizedHTMLReading }} />
+                <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
+
+                <div className="flex items-center">
+                  <input 
+                    id="option-1" 
+                    type="radio" 
+                    name="answer" 
+                    value="1"
+                    checked={userAnswer === "1"} 
+                    className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" 
+                    onChange={(e) => {
+                      dispatch({type: 'newAnswer', payload: e.target.value})
+                    }}
+                  />
+                  <label htmlFor="option-1" className="cursor-pointer ml-2">(A) {question.pilihan_satu}</label>
                 </div>
-                <div>
-                  {index < numQuestions - 1 && (
-                    <button type='button' className='flex items-center'
-                    onClick={() => dispatch({type:'nextQuestion'})}>
-                      Selanjutnya
-                      <span className="material-symbols-outlined border border-secondary rounded-full ms-2">
-                        chevron_right
-                      </span>
-                    </button>
-                  )}
+                <div className="flex items-center">
+                  <input 
+                    id="option-2" 
+                    type="radio" 
+                    name="answer" 
+                    value="2"
+                    checked={userAnswer === "2"}
+                    className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                    onChange={(e) => {
+                      dispatch({type: 'newAnswer', payload: e.target.value})
+                    }} 
+                  />
+                  <label htmlFor="option-2" className="cursor-pointer ml-2">(B) {question.pilihan_dua}</label>
+                </div>
+                <div className="flex items-center">
+                  <input 
+                    id="option-3" 
+                    type="radio" 
+                    name="answer" 
+                    value="3" 
+                    checked={userAnswer === "3"}
+                    className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                    onChange={(e) => {
+                      dispatch({type: 'newAnswer', payload: e.target.value})
+                    }} 
+                  />
+                  <label htmlFor="option-3" className="cursor-pointer ml-2">(C) {question.pilihan_tiga}</label>
+                </div>
+                <div className="flex items-center">
+                  <input 
+                    id="option-4" 
+                    type="radio" 
+                    name="answer" 
+                    value="4" 
+                    checked={userAnswer === "4"}
+                    className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                    onChange={(e) => {
+                      dispatch({type: 'newAnswer', payload: e.target.value})
+                    }} 
+                  />
+                  <label htmlFor="option-4" className="cursor-pointer ml-2">(D) {question.pilihan_empat}</label>
+                </div>
+                
+                <hr className='mt-5' />
+                <div className='flex justify-between'>
+                  <div>
+                    {index > 0 && (
+                      <button
+                        type='button'
+                        className='flex items-center'
+                        onClick={() => dispatch({ type: 'prevQuestion' })}
+                      >
+                        <span className="material-symbols-outlined border border-secondary rounded-full me-2">
+                          chevron_left
+                        </span>
+                        Sebelumnya
+                      </button>
+                    )}
+                  </div>
+                  <div>
+                    {index < numQuestions - 1 && index !== 50 && index !== 92 && (
+                      <button
+                        type='button'
+                        className='flex items-center'
+                        onClick={() => dispatch({ type: 'nextQuestion' })}
+                      >
+                        Selanjutnya
+                        <span className="material-symbols-outlined border border-secondary rounded-full ms-2">
+                          chevron_right
+                        </span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : index === 0 ? (
-            <InstructionListening index={index} dispatch={dispatch} numQuestions={numQuestions} />
-          ) : index === 51 ? (
-            <InstructionStructure index={index} dispatch={dispatch} numQuestions={numQuestions} />
-          ) : index === 67 ? (
-            <InstructionWritten index={index} dispatch={dispatch} numQuestions={numQuestions} />
-          ) : index === 93 &&(
-            <InstructionReading index={index} dispatch={dispatch} numQuestions={numQuestions} />
-          )}
-        </div>
+            ) : index === 0 ? (
+              <InstructionListening index={index} dispatch={dispatch} numQuestions={numQuestions} />
+            ) : index === 51 ? (
+              <InstructionStructure index={index} dispatch={dispatch} numQuestions={numQuestions} />
+            ) : index === 67 ? (
+              <InstructionWritten index={index} dispatch={dispatch} numQuestions={numQuestions} />
+            ) : index === 93 &&(
+              <InstructionReading index={index} dispatch={dispatch} numQuestions={numQuestions} />
+            )}
+          </div>
+        )}
+
+        
       </div>
     </div>
   )
