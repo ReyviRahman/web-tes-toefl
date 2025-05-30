@@ -1,14 +1,14 @@
 import axios from 'axios';
 import React from 'react'
 
-const StartScreen = ({dispatch}) => {
+const StartScreen = ({dispatch, nohp}) => {
 
   const getTimers = async () => {
     try {
       // ① cek skor terakhir
       const resScore = await axios.get(
         "http://localhost:3001/users/lastScore",
-        { params: { nohp: 123 } }
+        { params: { nohp: nohp } }
       );
 
       if (resScore.data.lastScore !== -1) {
@@ -19,10 +19,14 @@ const StartScreen = ({dispatch}) => {
       // ② minta/jalankan timer
       const resTimer = await axios.put(
         "http://localhost:3001/soal/timers",
-        { nohp: 123 }
+        { nohp: nohp }
       );
 
       console.log("timer payload =", resTimer.data);
+      if (resTimer.data.sesi === "finished") {
+        dispatch({ type: "finish" });
+        return
+      }
 
       const { end_time, server_now } = resTimer.data;
 
@@ -43,14 +47,13 @@ const StartScreen = ({dispatch}) => {
   return (
     <div className='border border-abu text-center pt-10 mt-20 rounded-md'>
       <h1>SECTION 1 LISTENING COMPREHENSION</h1>
-      
       <h1 className='font-bold'>Question 1-50</h1>
+
       <h1 className='mt-10'>SECTION 2 STRUCTURE AND WRITTEN EXPRESSION</h1>
-      
-      <h1 className='font-bold'>Question 51-90</h1>
+      <h1 className='font-bold'>Question 1-40</h1>
+
       <h1 className='mt-10'>SECTION 3 READING COMPREHENSION</h1>
-      
-      <h1 className='font-bold'>Question 91-140</h1>
+      <h1 className='font-bold'>Question 1-50</h1>
 
       <button type="button" className="mt-10 w-full bg-primary text-white font-bold p-2 hover:bg-blue-600 rounded-b-md" onClick={() => {
         getTimers()

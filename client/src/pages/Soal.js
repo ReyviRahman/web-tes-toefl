@@ -6,10 +6,39 @@ import InstructionStructure from '../components/InstructionStructure';
 import InstructionWritten from '../components/InstructionWritten';
 import InstructionReading from '../components/InstructionReading';
 import axios from 'axios';
+import AudioItem from '../components/AudioItem';
 
+const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining, sesi, nohp}) => {
+  const localStorageKey = `audio-played-${nohp}`;
+  const [hasPlayed, setHasPlayed] = useState(false);
 
+  useEffect(() => {
+    const playedRaw = localStorage.getItem(localStorageKey);
+    const playedList = playedRaw ? JSON.parse(playedRaw) : [];
 
-const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining, sesi}) => {
+    setHasPlayed(playedList.includes(index));
+  }, [index]);
+
+  const handlePlay = (e) => {
+    if (hasPlayed) {
+      e.preventDefault();
+      e.target.pause();
+      e.target.currentTime = 0;
+    }
+  };
+
+  const handleEnded = () => {
+    const playedRaw = localStorage.getItem(localStorageKey);
+    const playedList = playedRaw ? JSON.parse(playedRaw) : [];
+
+    if (!playedList.includes(index)) {
+      playedList.push(index);
+      localStorage.setItem(localStorageKey, JSON.stringify(playedList));
+    }
+
+    setHasPlayed(true);
+  };
+
   const sesiLabels = {
     listening: 'LISTENING COMPREHENSION',
     written: 'STRUCTURE AND WRITTEN EXPRESSION',
@@ -25,18 +54,6 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
   const isIndexInCurrentSession = () => {
     const [start, end] = sessionRanges[sesi] || [];
     return index >= start && index <= end;
-  };
-
-  const [hasPlayed, setHasPlayed] = useState(false);
-  const playerRef = useRef();
-
-  const handlePlay = () => {
-    if (hasPlayed && playerRef.current) {
-      // Stop langsung jika user coba replay
-      playerRef.current.audio.current.pause();
-    } else {
-      setHasPlayed(true);
-    }
   };
 
   let sanitizedHTML = DOMPurify.sanitize(question.soal);
@@ -75,7 +92,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
 
     const refreshTimer = async () => {
       try {
-        const res = await axios.put("http://localhost:3001/soal/timers", { nohp: 123 });
+        const res = await axios.put("http://localhost:3001/soal/timers", { nohp: nohp });
         if (res.data.sesi === "finished") {
           dispatch({ type: "finish" });
         } else {
@@ -239,15 +256,15 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                 {question.audio !== "" && (
                   <>
                     <h1>Question</h1>
-                    <AudioPlayer
-                      ref={playerRef}
-                      src={question.audio}
+                    {/* <AudioPlayer
                       autoPlayAfterSrcChange={false}
+                      src={question.audio}
                       onPlay={handlePlay}
-                      showJumpControls={false} // hilangkan tombol maju/mundur
-                      customAdditionalControls={[]} // hilangkan volume dll
-                      customVolumeControls={[]}     // hilangkan volume
-                    />
+                      onEnded={handleEnded}
+                      showJumpControls={false}
+                      customAdditionalControls={[]}
+                    /> */}
+                    <AudioItem key={index} index={index} audioSrc={question.audio} nohp={nohp}/>
                   </>
                 )}
                 <div dangerouslySetInnerHTML={{ __html: sanitizedHTMLReading }} />

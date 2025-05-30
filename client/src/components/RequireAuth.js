@@ -13,14 +13,14 @@ const RequireAuth = ({ allowedRoles }) => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get('http://localhost:3001/users/getAuth', { withCredentials: true }); // Ganti dengan URL API-mu
-        const nik = response.data.dataUser.nik
+        const nohp = response.data.dataUser.nohp
         const nama = response.data.dataUser.nama
         const profilePic = response.data.dataUser.profilePic
         const role = response.data.dataUser.role
-        setAuth({ nik, nama, role, profilePic})
+        setAuth({ nohp, nama, role, profilePic})
         setIsLoading(false); // Update loading setelah setAuth
         // Menutup Swal setelah data diambil
-        console.log('ini nik dari auth', response.data.dataUser.nik)
+        console.log('ini nohp dari auth', response.data.dataUser.nohp)
       } catch (error) {
         console.error("Error fetching the users", error);
       }

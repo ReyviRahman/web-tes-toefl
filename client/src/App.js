@@ -33,7 +33,7 @@ function App() {
           </Route>
         </Route>
 
-        <Route element={<RequireAuth allowedRoles={["User"]} />}>
+        <Route element={<RequireAuth allowedRoles={["User", "Admin"]} />}>
           <Route path='/' element={<ToeflSimulation />} />
         </Route>
       

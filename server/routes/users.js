@@ -40,7 +40,7 @@ router.get('/getAuth', async (req, res) => {
 
     res.status(200).json({
       dataUser: {
-        "nik" : decoded.nik,
+        "nohp" : decoded.nohp,
         "nama" : decoded.nama,
         "profilePic" : decoded.profilePic,
         "role" : decoded.role
@@ -51,7 +51,7 @@ router.get('/getAuth', async (req, res) => {
   } else {
     res.status(200).json({
       dataUser: {
-        "nik" : "",
+        "nohp" : "",
         "nama": "",
         "profilePic" : "",
         "role" : ""
@@ -69,10 +69,10 @@ router.get('/logout', async (req, res) => {
 
 router.post('/', async (req, res) => {
 
-  const { nik, nama, password } = req.body
+  const { nohp, nama, password } = req.body
 
   const users = await UsersModel.create({
-    nik, nama, password
+    nohp, nama, password
   })
 
   res.status(200).json({
@@ -104,14 +104,14 @@ router.post('/tryagain', async (req,res) => {
 
 router.put('/', async (req, res) => {
 
-  const { nik, nama, password, passwordBaru } = req.body
+  const { nohp, nama, password, passwordBaru } = req.body
 
-  const userData = await UsersModel.findOne({ where: {nik: nik}})
+  const userData = await UsersModel.findOne({ where: {nohp: nohp}})
 
   if (userData.password === password) {
     const users = await UsersModel.update({
       nama, password: passwordBaru
-    }, {where: {nik: nik}})
+    }, {where: {nohp: nohp}})
 
     res.status(200).json({
       users,
@@ -149,6 +149,7 @@ router.post('/login', async (req, res) => {
       res.cookie("cookieToken", jwt.sign({ nohp: users.nohp, nama: users.nama, role: users.role, profilePic: users.profilePic }, secretKey), { httpOnly: true, maxAge: 3 * 60 * 60 * 1000});
 
       return res.status(200).json({
+        nohp: users.nohp,
         role: users.role,
         nama: users.nama,
         profilePic: users.profilePic,
@@ -175,18 +176,18 @@ router.post('/register', (req, res) => {
       return res.status(500).json({ message: err });
     }
 
-    const { nik, nama, ttl, jk, alamat, agama, statusPerkawinan, pekerjaan, email, password } = req.body;
+    const { nohp, nama, ttl, jk, alamat, agama, statusPerkawinan, pekerjaan, email, password } = req.body;
 
     try {
       // Cek apakah user sudah ada
-      const userExist = await UsersModel.findOne({ where: { nik }});
+      const userExist = await UsersModel.findOne({ where: { nohp }});
       if (userExist) {
         return res.status(400).json({ message: 'User Already Exist' });
       }
 
       // Buat user baru dengan path foto
       const newUser = await UsersModel.create({
-        nik,
+        nohp,
         nama,
         ttl, 
         jk, 
@@ -226,22 +227,22 @@ router.get('/refreshtoken', async (req, res) => {
     // Verifikasi token
     const decoded = jwt.verify(token, secretKey);
 
-    // Cari pengguna berdasarkan nik
-    const user = await UsersModel.findByPk(decoded.nik);
+    // Cari pengguna berdasarkan nohp
+    const user = await UsersModel.findByPk(decoded.nohp);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     // Buat token baru
     const newToken = jwt.sign(
-      { nik: user.nik }, // Payload yang dikodekan dalam token
+      { nohp: user.nohp }, // Payload yang dikodekan dalam token
       secretKey, // Secret key untuk menandatangani token
       { expiresIn: '1h' } // Token akan kadaluarsa dalam 1 jam
     );
 
     return res.status(200).json({
       role: user.role,
-      nik: user.nik,
+      nohp: user.nohp,
       token: newToken,
       metadata: 'Token refreshed successfully',
     });

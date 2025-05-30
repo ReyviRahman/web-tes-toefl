@@ -6,6 +6,7 @@ import axios from 'axios'
 import StartScreen from '../components/StartScreen'
 import Soal from './Soal'
 import FinishScreen from '../components/FinishScreen'
+import useAuth from '../hooks/useAuth'
 
 const initialState = {
   questions: [],
@@ -97,7 +98,10 @@ const reducer = (state, action) => {
 }
 
 const ToeflSimulation = () => {
+  const { auth } = useAuth()
+  console.log('auth dari toefl simulation', auth)
   const [{questions, status, index, answer, secondsRemaining, sesi}, dispatch] = useReducer(reducer, initialState, initializer)
+  console.log('ini sesi', sesi)
   const numQuestions = questions.length
 
   useEffect(() => {
@@ -135,13 +139,13 @@ const ToeflSimulation = () => {
       <Main>
         {status === 'loading' && <Loader />}
         {status === 'error' && <Error />}
-        {status === 'ready' && <StartScreen dispatch={dispatch} />}
+        {status === 'ready' && <StartScreen dispatch={dispatch} nohp={auth.nohp}/>}
         {status === 'active' && (
           <>
-            <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch} secondsRemaining={secondsRemaining} nohp={123} sesi={sesi}/>
+            <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch} secondsRemaining={secondsRemaining} nohp={auth.nohp} sesi={sesi}/>
           </>
         )}
-        {status === 'finished' && <FinishScreen dispatch={dispatch} status={status} answer={answer} />}
+        {status === 'finished' && <FinishScreen dispatch={dispatch} nohp={auth.nohp} status={status} answer={answer} />}
       </Main>
     </div>
   )

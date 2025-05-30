@@ -2,7 +2,7 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import Swal from "sweetalert2";
 
-const FinishScreen = ({ answer, status, dispatch }) => {
+const FinishScreen = ({ answer, status, dispatch, nohp }) => {
   const [score, setScore] = useState('0')
   const [scoreListening, setScoreListening] = useState('0')
   const [scoreWritten, setScoreWritten] = useState('0')
@@ -18,8 +18,8 @@ const FinishScreen = ({ answer, status, dispatch }) => {
       }
     })
     try {
-      const response = await axios.post('http://localhost:3001/users/tryagain', {
-        nohp: '123'
+      await axios.post('http://localhost:3001/users/tryagain', {
+        nohp: nohp
       })
 
       Swal.close()
@@ -37,6 +37,7 @@ const FinishScreen = ({ answer, status, dispatch }) => {
   useEffect(() => {
     console.log('ini status dari Finish', status)
     localStorage.removeItem('toeflState');
+    localStorage.removeItem(`audio-played-${nohp}`);
     const getScore = async () => {
       try {
         Swal.fire({
@@ -48,7 +49,7 @@ const FinishScreen = ({ answer, status, dispatch }) => {
             Swal.showLoading();
           },
         });
-        const responseGetLastScore = await axios.get("http://localhost:3001/users/lastScore?nohp=123")
+        const responseGetLastScore = await axios.get(`http://localhost:3001/users/lastScore?nohp=${nohp}`)
         if (responseGetLastScore.data.lastScore !== -1) {
           setScore(responseGetLastScore.data.lastScore)
           setScoreListening(responseGetLastScore.data.scoreListening)
@@ -56,7 +57,7 @@ const FinishScreen = ({ answer, status, dispatch }) => {
           setScoreReading(responseGetLastScore.data.scoreReading)
         } else {
           const response = await axios.post("http://localhost:3001/soal/jawaban", {
-            nohp: 123,
+            nohp: nohp,
             answers: answer
           });
           setScore(response.data.toeflScore)
