@@ -7,6 +7,7 @@ import StartScreen from '../components/StartScreen'
 import Soal from './Soal'
 import FinishScreen from '../components/FinishScreen'
 import useAuth from '../hooks/useAuth'
+import Navbar from '../components/Navbar'
 
 const initialState = {
   questions: [],
@@ -136,6 +137,7 @@ const ToeflSimulation = () => {
 
   return (
     <div>
+      <Navbar />
       <Main>
         {status === 'loading' && <Loader />}
         {status === 'error' && <Error />}

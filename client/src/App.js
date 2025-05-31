@@ -1,4 +1,3 @@
-import './App.css';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import Register from './pages/Register'
 import Home from './pages/Home';
@@ -15,6 +14,7 @@ import ProsesSurat from './features/admin/prosessurat/ProsesSurat';
 import LandingPage from './features/admin/landingpage/LandingPage';
 import ToeflSimulation from './pages/ToeflSimulation';
 import TestPage from './pages/TestPage';
+import './App.css';
 
 function App() {
   return (
@@ -34,8 +34,9 @@ function App() {
         </Route>
 
         <Route element={<RequireAuth allowedRoles={["User", "Admin"]} />}>
-          <Route path='/' element={<ToeflSimulation />} />
+          <Route path='/simulasi-toefl' element={<ToeflSimulation />} />
         </Route>
+          <Route path='/' element={<Home />} />
       
       </Route>
     </Routes>
