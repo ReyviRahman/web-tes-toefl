@@ -92,7 +92,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
 
     const refreshTimer = async () => {
       try {
-        const res = await axios.put("http://localhost:3001/soal/timers", { nohp: nohp });
+        const res = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/soal/timers`, { nohp: nohp });
         if (res.data.sesi === "finished") {
           dispatch({ type: "finish" });
         } else {
@@ -147,84 +147,19 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
 
   return (
     <div>
-      <div className='flex justify-between border border-b-0 py-2'>
-        <h1 className='px-3 py-1 text-primary border ms-2 rounded'>
-          SESI: {sesiLabels[sesi] ?? sesi}
-        </h1>
-        <div className='flex'>
-          <button type='button' className=' bg-green-600 px-3 py-1 me-5 rounded text-white' onClick={() => dispatch({type: 'finish'})}>Selesai </button>
-          <h1 className='px-3 py-1 text-red-600 border me-2 rounded'>
+      <div className='flex sm:flex-row flex-col justify-between border border-b-0 py-2'>
+        <div className='flex sm:ms-5 mx-2'>
+          <button type='button' className='sm:w-fit w-full bg-green-600 px-3 py-1  rounded text-white' onClick={() => dispatch({type: 'finish'})}>Selesai </button>
+          <h1 className='sm:w-fit w-full px-3 py-1 text-red-600 border ms-2 rounded text-center'>
             {hours}:{minutes}:{seconds}
           </h1>
         </div>
+        <h1 className='px-3 py-1 text-primary text-center border ms-2 me-2 mt-2 sm:mt-0 rounded'>
+          SESI: {sesiLabels[sesi] ?? sesi}
+        </h1>
       </div>
-      <div className='flex flex-row border min-h-[589px]'>
-        <div className='basis-1/3 border-r'>
-          <div className='p-4'>
-            <div className="grid grid-cols-5 gap-4">
-            
-            {displayLabels.map((label, idx) => {
-              // abaikan indeks di luar rentang
-              if (idx < start || idx > end) return null;
-
-              return (
-                <div
-                  key={idx}
-                  className={`
-                    ${index === idx ? 'bg-primary text-white'
-                      : answerIds.includes(idx) ? 'bg-secondary border-primary'
-                      : ''} 
-                    cursor-pointer border py-1 text-center rounded
-                    ${['I1','I2','I3','I4'].includes(label) ? 'border-secondary' : ''}
-                  `}
-                  onClick={() => dispatch({ type: 'moveToIdx', payload: idx })}
-                >
-                  {label}
-                </div>
-              );
-            })}
-
-            {/* {Array.from({ length: numQuestions }, (_, idx) => (
-              <div key={idx} className={`${index === idx ? 'bg-primary text-white' : answerIds.includes(idx) ? 'bg-secondary border-primary' : ''} cursor-pointer  border py-1 text-center rounded ${[0, 51, 67, 93].includes(idx) ? 'border-secondary' : ''} `}
-              onClick={() => dispatch({type: 'moveToIdx', payload: idx})}>
-                { idx === 0 ? (
-                  <>
-                    I1
-                  </>
-                ) : idx === 51 ? (
-                  <>
-                    I2
-                  </>
-                ) : idx === 67 ? (
-                  <>
-                    I3
-                  </>
-                ) : idx === 93 ? (
-                  <>
-                    I4
-                  </>
-                ) : idx > 51 && idx < 67 ? (
-                  <>
-                    {idx - 1}
-                  </>
-                ) : idx > 67 && idx < 93 ? (
-                  <>
-                    {idx - 2}
-                  </>
-                ) : idx > 93 ? (
-                  <>
-                    {idx - 3}
-                  </>
-                ) : (
-                  <>
-                    {idx}
-                  </>
-                )}
-              </div>
-            ))} */}
-            </div>
-          </div>
-        </div>
+      <div className='flex sm:flex-row flex-col border min-h-[589px]'>
+        
           
         {/* <div className='basis-full items-center'>
           <h1 className='text-center'>Sekarang <span className='text-primary'>SESI: {sesiLabels[sesi] ?? sesi}.</span> <br/> Mohon kerjakan <span className='text-primary'>SESI: {sesiLabels[sesi] ?? sesi}</span> terlebih dahulu</h1>
@@ -370,6 +305,73 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
             )}
           </div>
         )}
+
+        <div className='basis-1/3 border-l sm:border-t-0 border-t-1'>
+          <div className='p-4'>
+            <div className="grid grid-cols-5 gap-4">
+            
+            {displayLabels.map((label, idx) => {
+              // abaikan indeks di luar rentang
+              if (idx < start || idx > end) return null;
+
+              return (
+                <div
+                  key={idx}
+                  className={`
+                    ${index === idx ? 'bg-primary text-white'
+                      : answerIds.includes(idx) ? 'bg-secondary border-primary'
+                      : ''} 
+                    cursor-pointer border py-1 text-center rounded
+                    ${['I1','I2','I3','I4'].includes(label) ? 'border-secondary' : ''}
+                  `}
+                  onClick={() => dispatch({ type: 'moveToIdx', payload: idx })}
+                >
+                  {label}
+                </div>
+              );
+            })}
+
+            {/* {Array.from({ length: numQuestions }, (_, idx) => (
+              <div key={idx} className={`${index === idx ? 'bg-primary text-white' : answerIds.includes(idx) ? 'bg-secondary border-primary' : ''} cursor-pointer  border py-1 text-center rounded ${[0, 51, 67, 93].includes(idx) ? 'border-secondary' : ''} `}
+              onClick={() => dispatch({type: 'moveToIdx', payload: idx})}>
+                { idx === 0 ? (
+                  <>
+                    I1
+                  </>
+                ) : idx === 51 ? (
+                  <>
+                    I2
+                  </>
+                ) : idx === 67 ? (
+                  <>
+                    I3
+                  </>
+                ) : idx === 93 ? (
+                  <>
+                    I4
+                  </>
+                ) : idx > 51 && idx < 67 ? (
+                  <>
+                    {idx - 1}
+                  </>
+                ) : idx > 67 && idx < 93 ? (
+                  <>
+                    {idx - 2}
+                  </>
+                ) : idx > 93 ? (
+                  <>
+                    {idx - 3}
+                  </>
+                ) : (
+                  <>
+                    {idx}
+                  </>
+                )}
+              </div>
+            ))} */}
+            </div>
+          </div>
+        </div>
 
         
       </div>

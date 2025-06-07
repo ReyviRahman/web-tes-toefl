@@ -3,7 +3,7 @@ import { IoIosEye, IoIosEyeOff  } from "react-icons/io";
 import axios from 'axios';
 import useAuth from '../hooks/useAuth';
 import { Link, useNavigate, useLocation} from 'react-router-dom'
-import Navbar from '../components/Navbar';
+import NavbarUser from '../components/NavbarUser';
 
 const Login = () => {
   const { setAuth } = useAuth()
@@ -20,7 +20,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault()
     try {
-      const response = await axios.post('http://localhost:3001/users/login', 
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/login`, 
       {
         nohp,
         password
@@ -49,10 +49,10 @@ const Login = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="container mx-auto">
-        <div className='flex justify-center'>
-          <form className='border border-primary rounded px-6 py-4 w-1/2 mt-5' onSubmit={handleLogin}>
+      <NavbarUser />
+      <div className="">
+        <div className='flex justify-center px-2'>
+          <form className='border border-primary rounded px-6 py-4 sm:w-1/2 w-full mt-5' onSubmit={handleLogin}>
             <h1 className='text-2xl font-bold mb-2 text-primary'>Login</h1>
 
             <label htmlFor="nohp" className="block mb-3">

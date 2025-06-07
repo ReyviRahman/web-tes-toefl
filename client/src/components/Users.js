@@ -74,11 +74,11 @@ const Users = () => {
           Authorization: `Bearer ${accessToken}` // Header Authorization dengan token
         }
       });
-      const nik = response.data.nik;
+      const nohp = response.data.nohp;
       const role = response.data.role;
       const newToken = response.data.token;
 
-      setAuth({ nik, role, newToken })
+      setAuth({ nohp, role, newToken })
       console.log('ini token baru', response.data.token);
 
       // Menyimpan token dan role baru

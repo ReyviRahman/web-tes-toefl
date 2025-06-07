@@ -12,7 +12,7 @@ const RequireAuth = ({ allowedRoles }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/users/getAuth', { withCredentials: true }); // Ganti dengan URL API-mu
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/getAuth`, { withCredentials: true });
         const nohp = response.data.dataUser.nohp
         const nama = response.data.dataUser.nama
         const profilePic = response.data.dataUser.profilePic

@@ -55,7 +55,8 @@ Soal.init({
   },
 }, {
   sequelize,
-  modelName: 'Soal'
+  modelName: 'Soal',
+  tableName: 'soals'
 })
 
 Soal.belongsTo(Question, { foreignKey: 'q_reading', as: 'readingQuestion' });

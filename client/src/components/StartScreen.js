@@ -1,46 +1,67 @@
 import axios from 'axios';
-import React from 'react'
+import Swal from 'sweetalert2';
 
 const StartScreen = ({dispatch, nohp}) => {
 
   const getTimers = async () => {
     try {
+      // 🔁 Tampilkan loading
+      Swal.fire({
+        title: 'Memuat...',
+        text: 'Mengambil data sesi dan timer...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
       // ① cek skor terakhir
       const resScore = await axios.get(
-        "http://localhost:3001/users/lastScore",
+        `${process.env.REACT_APP_API_BASE_URL}/users/lastScore`,
         { params: { nohp: nohp } }
       );
 
       if (resScore.data.lastScore !== -1) {
+        Swal.close(); // ❌ Tutup loading sebelum keluar
         dispatch({ type: "finish" });
         return;
       }
 
       // ② minta/jalankan timer
       const resTimer = await axios.put(
-        "http://localhost:3001/soal/timers",
+        `${process.env.REACT_APP_API_BASE_URL}/soal/timers`,
         { nohp: nohp }
       );
 
       console.log("timer payload =", resTimer.data);
+
       if (resTimer.data.sesi === "finished") {
+        Swal.close();
         dispatch({ type: "finish" });
-        return
+        return;
       }
 
       const { end_time, server_now } = resTimer.data;
 
       // ► selisih antara jam klien & jam server (ms)
       const skew = Date.now() - server_now;
-      console.log('ini remaining', resTimer.data.secondsRemaining)
+      console.log('ini remaining', resTimer.data.secondsRemaining);
 
-      // ► sisa detik = (end_time - (Date.now() - skew)) / 1000
+      // ► sisa detik
       const secondsRemaining = resTimer.data.secondsRemaining;
 
       dispatch({ type: "start", payload: secondsRemaining });
       dispatch({ type: "getSesi", payload: resTimer.data.sesi });
+
+      Swal.close(); // ✅ Tutup loading setelah selesai
     } catch (err) {
       console.error("Error updating timeUjian:", err);
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: 'Terjadi kesalahan saat mengambil data timer.',
+      });
     }
   };
 

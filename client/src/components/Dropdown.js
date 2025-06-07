@@ -10,7 +10,7 @@ const Dropdown = ({nama, profilePic}) => {
   const { setAuth } = useAuth()
   const handleLogout = async () => {
 		try {
-			await axios.get('http://localhost:3001/users/logout', { withCredentials: true }); 
+			await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/logout`, { withCredentials: true }); 
 			setAuth({"nik": "", "nama": "", "role": "", "profilePic" : ""})
       navigate('/')
 		} catch (error) {
@@ -23,7 +23,7 @@ const Dropdown = ({nama, profilePic}) => {
       <div className='flex items-center'>
         <MenuButton>
           <div className='flex items-center'>
-            <h1 className='font-semibold me-3'>{nama}</h1>
+            <h1 className='sm:block hidden font-semibold text-sm text-white me-3'>{nama}</h1>
             <div className="w-9 h-9 rounded-full overflow-hidden cursor-pointer">
               <img 
                   className='object-cover w-full h-full' 
@@ -31,7 +31,6 @@ const Dropdown = ({nama, profilePic}) => {
                   src={profilePic} 
               />
             </div>
-            <ChevronDownIcon className='w-8 h-8'/>
           </div>
         </MenuButton>
       </div>

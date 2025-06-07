@@ -1,0 +1,56 @@
+const { Model, DataTypes } = require('sequelize');
+const sequelize = require('../db.config');
+
+class ExamHistory extends Model {}
+
+ExamHistory.init({
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  userNohp: { // foreign key ke Users.nohp
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  startedAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  endedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  listeningScore: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  structureScore: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  readingScore: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  totalScore: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+}, {
+  sequelize,
+  modelName: 'ExamHistory',
+  tableName: 'exam_histories',
+  timestamps: true,
+  underscored: true,
+});
+
+// Relasi dengan Users
+const User = require('./users'); // pastikan path sesuai
+ExamHistory.belongsTo(User, {
+  foreignKey: 'userNohp',
+  targetKey: 'nohp',
+  as: 'user',
+});
+
+module.exports = ExamHistory;

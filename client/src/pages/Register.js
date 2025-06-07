@@ -46,7 +46,7 @@ const Register = () => {
       });
   
       // Hit API registrasi
-      const response = await axios.post('http://localhost:3001/users/register', formData, {
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/register`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

@@ -11,7 +11,7 @@ const port = 3001;
 //   .catch((error) => {
 //     console.error('Error creating database & tables:', error);
 //   });
-  
+
 // Mengimpor endpoint
 const userEndpoint = require('./routes/users');
 const soalEndpoint = require('./routes/soal');
@@ -22,13 +22,17 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000', // Ganti dengan URL front-end Anda
-  credentials: true // Izinkan pengiriman cookie
+  origin: process.env.CLIENT_ORIGIN,
+  credentials: true
 }));
 app.use(express.json());
 app.use(cookieParser());
 
 // Routing
+app.get('/', (req, res) => {
+  res.send('Server is running!');
+});
+
 app.use('/users', userEndpoint);
 app.use('/soal', soalEndpoint);
 app.use('/start-test', startTestEndpoint);

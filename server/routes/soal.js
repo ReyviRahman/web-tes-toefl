@@ -3,6 +3,7 @@ const router = express.Router()
 const SoalModel = require('../models/soal')
 const UserModel = require('../models/users')
 const Question = require('../models/question')
+const ExamHistory = require('../models/exam_history');
 
 router.get('/', async (req, res) => {
   const soal = await SoalModel.findAll({
@@ -54,13 +55,13 @@ router.put('/timers', async (req, res) => {
   const sessions = ['listening', 'written', 'reading'];
   const durationMap = {
     listening: 5000,     // 1 jam
-    written:   5000,     // 30 menit
-    reading:   5000,     // 15 menit
+    written:   1000,     // 30 menit
+    reading:   55 * 60 * 1000,     // 15 menit
   };
   // const durationMap = {
-  //   listening: 60 * 60 * 1000,      1 jam
-  //   written:   30 * 60 * 1000,      30 menit
-  //   reading:   15 * 60 * 1000,      15 menit
+  //   listening: 40 * 60 * 1000,      30 menit
+  //   written:   25 * 60 * 1000,      25 menit
+  //   reading:   55 * 60 * 1000,      55 menit
   // };
 
   let { sesi, start_time, end_time } = user;
@@ -344,7 +345,24 @@ router.post('/jawaban', async (req, res) => {
     let scoreReading = readingMap[readingCorrect]
     let toeflScore = Math.round((scoreListening + scoreWritten + scoreReading) / 3 * 10) 
 
-    await user.update({ lastScore: toeflScore, listening: scoreListening, written: scoreWritten, reading: scoreReading })
+    await user.update({ 
+      lastScore: toeflScore, 
+      listening: scoreListening, 
+      written: scoreWritten, 
+      reading: scoreReading 
+    });
+
+    console.log('terjalan kan ini mahh')
+
+    await ExamHistory.create({
+      userNohp: nohp,
+      startedAt: new Date(user.start_time || Date.now()), 
+      endedAt: new Date(user.end_time || Date.now()),     
+      listeningScore: scoreListening,
+      structureScore: scoreWritten,
+      readingScore: scoreReading,
+      totalScore: toeflScore
+    });
 
     // Kirimkan total poin user
     res.status(200).json({ toeflScore, scoreListening, scoreWritten, scoreReading });

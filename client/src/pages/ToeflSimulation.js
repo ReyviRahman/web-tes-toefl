@@ -8,6 +8,7 @@ import Soal from './Soal'
 import FinishScreen from '../components/FinishScreen'
 import useAuth from '../hooks/useAuth'
 import Navbar from '../components/Navbar'
+import NavbarUser from '../components/NavbarUser'
 
 const initialState = {
   questions: [],
@@ -114,7 +115,7 @@ const ToeflSimulation = () => {
     const fetchDataSoal = async () => {
       try {
         
-        const response = await axios.get(`http://localhost:3001/soal`);
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/soal`);
         console.log(response.data);
 
         const newObject = {petunjuk: "petunjuk"};
@@ -137,17 +138,19 @@ const ToeflSimulation = () => {
 
   return (
     <div>
-      <Navbar />
+      <NavbarUser />
       <Main>
-        {status === 'loading' && <Loader />}
-        {status === 'error' && <Error />}
-        {status === 'ready' && <StartScreen dispatch={dispatch} nohp={auth.nohp}/>}
-        {status === 'active' && (
-          <>
-            <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch} secondsRemaining={secondsRemaining} nohp={auth.nohp} sesi={sesi}/>
-          </>
-        )}
-        {status === 'finished' && <FinishScreen dispatch={dispatch} nohp={auth.nohp} status={status} answer={answer} />}
+        <div className='container mx-auto'>
+          {status === 'loading' && <Loader />}
+          {status === 'error' && <Error />}
+          {status === 'ready' && <StartScreen dispatch={dispatch} nohp={auth.nohp}/>}
+          {status === 'active' && (
+            <>
+              <Soal question={questions[index]} numQuestions={numQuestions} index={index} answer={answer} dispatch={dispatch} secondsRemaining={secondsRemaining} nohp={auth.nohp} sesi={sesi}/>
+            </>
+          )}
+          {status === 'finished' && <FinishScreen dispatch={dispatch} nohp={auth.nohp} status={status} answer={answer} />}
+        </div>
       </Main>
     </div>
   )

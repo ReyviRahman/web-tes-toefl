@@ -18,7 +18,7 @@ const FinishScreen = ({ answer, status, dispatch, nohp }) => {
       }
     })
     try {
-      await axios.post('http://localhost:3001/users/tryagain', {
+      await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/tryagain`, {
         nohp: nohp
       })
 
@@ -49,14 +49,14 @@ const FinishScreen = ({ answer, status, dispatch, nohp }) => {
             Swal.showLoading();
           },
         });
-        const responseGetLastScore = await axios.get(`http://localhost:3001/users/lastScore?nohp=${nohp}`)
+        const responseGetLastScore = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/lastScore?nohp=${nohp}`)
         if (responseGetLastScore.data.lastScore !== -1) {
           setScore(responseGetLastScore.data.lastScore)
           setScoreListening(responseGetLastScore.data.scoreListening)
           setScoreWritten(responseGetLastScore.data.scoreWritten)
           setScoreReading(responseGetLastScore.data.scoreReading)
         } else {
-          const response = await axios.post("http://localhost:3001/soal/jawaban", {
+          const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/soal/jawaban`, {
             nohp: nohp,
             answers: answer
           });
