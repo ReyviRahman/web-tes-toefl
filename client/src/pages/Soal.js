@@ -7,8 +7,11 @@ import InstructionWritten from '../components/InstructionWritten';
 import InstructionReading from '../components/InstructionReading';
 import axios from 'axios';
 import AudioItem from '../components/AudioItem';
+import Zoom from 'react-medium-image-zoom';
+import 'react-medium-image-zoom/dist/styles.css'
 
 const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining, sesi, nohp}) => {
+  const baseUrl = process.env.REACT_APP_API_BASE_URL;
   const localStorageKey = `audio-played-${nohp}`;
   const [hasPlayed, setHasPlayed] = useState(false);
 
@@ -191,10 +194,24 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                       showJumpControls={false}
                       customAdditionalControls={[]}
                     /> */}
-                    <AudioItem key={index} index={index} audioSrc={question.audio} nohp={nohp}/>
+                    <AudioItem key={index} index={index} audioSrc={`${baseUrl}${question.audio}`} nohp={nohp}/>
                   </>
                 )}
-                <div dangerouslySetInnerHTML={{ __html: sanitizedHTMLReading }} />
+                {/* <div dangerouslySetInnerHTML={{ __html: sanitizedHTMLReading }} /> */}
+                
+                {question.readingQuestion?.reading !== "" && question.type !== "group" && (
+  <div className="">
+    <Zoom>
+      <img
+        alt="Soal Reading"
+        src={`${baseUrl}${question.readingQuestion?.reading}`}
+        className="w-full mx-auto"
+      />
+    </Zoom>
+  </div>
+)}
+
+                
                 <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
 
                 {question?.type === 'group' ? (

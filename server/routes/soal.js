@@ -54,9 +54,9 @@ router.put('/timers', async (req, res) => {
   const server_now = Date.now();
   const sessions = ['listening', 'written', 'reading'];
   const durationMap = {
-    listening: 60000,     // 1 jam
-    written:   60000,     // 30 menit
-    reading:   60000,     // 15 menit
+    listening: 5000,     // 1 jam
+    written:   5000,     // 30 menit
+    reading:   5 * 60 * 1000,     // 15 menit
   };
   // const durationMap = {
   //   listening: 40 * 60 * 1000,      30 menit
@@ -329,9 +329,9 @@ router.post('/jawaban', async (req, res) => {
       if (soal && soal.jawaban === answer) {
         if (id >= 1 && id <= 50) {
           listeningCorrect += 1;
-        } else if (id >= 51 && id <= 90) {
+        } else if (id >= 52 && id <= 92) {
           writtenCorrect += 1;
-        } else if (id >= 91 && id <= 140) {
+        } else if (id >= 94 && id <= 143) {
           readingCorrect += 1;
         }
         totalPoints += 1; // Tambah poin jika jawaban benar
