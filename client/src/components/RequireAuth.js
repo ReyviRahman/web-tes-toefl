@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import useAuth from '../hooks/useAuth';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import axios from 'axios'
+import Loader from './Loader';
 
 const RequireAuth = ({ allowedRoles }) => {
   const { auth, setAuth } = useAuth();
@@ -35,7 +36,7 @@ const RequireAuth = ({ allowedRoles }) => {
 
   // Tampilkan loading jika sedang memproses
   if (isLoading) {
-    return <div>Loading...</div>; // atau komponen loading lainnya
+    return <Loader />; // atau komponen loading lainnya
   }
 
   // Setelah loading selesai, lakukan pengecekan auth

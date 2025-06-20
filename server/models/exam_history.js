@@ -37,6 +37,18 @@ ExamHistory.init({
     type: DataTypes.INTEGER,
     allowNull: true,
   },
+  listening_correct: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  written_correct: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  reading_correct: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
 }, {
   sequelize,
   modelName: 'ExamHistory',

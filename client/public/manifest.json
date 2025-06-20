@@ -1,25 +1,26 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Yanto Tanjung",
+  "name": "Yanto Tanjung English Academy - Kursus TOEFL Online",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "logolagi.png",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "logolagi.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "logo512.png",
+      "src": "logolagi.png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background_color": "#ffffff",
+  "description": "Akses kursus TOEFL online, simulasi tes, dan membership eksklusif YouTube bersama Yanto Tanjung."
 }

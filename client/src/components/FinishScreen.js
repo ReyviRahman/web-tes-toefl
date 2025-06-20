@@ -7,6 +7,9 @@ const FinishScreen = ({ answer, status, dispatch, nohp }) => {
   const [scoreListening, setScoreListening] = useState('0')
   const [scoreWritten, setScoreWritten] = useState('0')
   const [scoreReading, setScoreReading] = useState('0')
+  const [correctListening, setCorrectListening] = useState('0')
+  const [correctWritten, setCorrectWritten] = useState('0')
+  const [correctReading, setCorrectReading] = useState('0')
 
   const tryAgain = async () => {
     Swal.fire({
@@ -55,6 +58,10 @@ const FinishScreen = ({ answer, status, dispatch, nohp }) => {
           setScoreListening(responseGetLastScore.data.scoreListening)
           setScoreWritten(responseGetLastScore.data.scoreWritten)
           setScoreReading(responseGetLastScore.data.scoreReading)
+          setCorrectListening(responseGetLastScore.data.listeningCorrect)
+          setCorrectWritten(responseGetLastScore.data.writtenCorrect)
+          setCorrectReading(responseGetLastScore.data.readingCorrect)
+          Swal.close()
         } else {
           const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/soal/jawaban`, {
             nohp: nohp,
@@ -64,6 +71,9 @@ const FinishScreen = ({ answer, status, dispatch, nohp }) => {
           setScoreListening(response.data.scoreListening)
           setScoreWritten(response.data.scoreWritten)
           setScoreReading(response.data.scoreReading)
+          setCorrectListening(response.data.listeningCorrect)
+          setCorrectWritten(response.data.writtenCorrect)
+          setCorrectReading(response.data.readingCorrect)
         }
 
         Swal.close()
@@ -84,21 +94,25 @@ const FinishScreen = ({ answer, status, dispatch, nohp }) => {
   }, [])
 
   return (
-    <div className='shadow-md rounded'>
+    <div className='shadow-md rounded px-4'>
       <h1 className='text-center text-2xl font-semibold mt-4'>Selamat, kamu telah berhasil menyelesaikan simulasi tes TOEFL bahasa inggris</h1>
       <h1 className='text-center'>Berikut ini adalah hasil tes kamu :</h1>
-      <div className='grid grid-cols-2 px-4 mt-2 mb-4'>
-        {/* <h1>LISTENING COMPREHENSION: {scoreListening}</h1>
-        <h1>STRUCTURE AND WRITTEN EXPRESSION: {scoreWritten}</h1>
-        <h1>READING COMPREHENSION: {scoreReading}</h1> */}
-        <div className='border py-2 px-3 text-center'>Listening Comprehension</div>
-        <div className='border py-2 px-3 text-center'> {scoreListening}</div>
-        <div className='border py-2 px-3 text-center'>Structure And Written Expression</div>
-        <div className='border py-2 px-3 text-center'> {scoreWritten}</div>
-        <div className='border py-2 px-3 text-center'>Reading Comprehension</div>
-        <div className='border py-2 px-3 text-center'> {scoreReading}</div>
-        <div className='border py-2 px-3 text-center text-primary font-semibold'>Overall score</div>
-        <div className='border py-2 px-3 text-center text-primary font-semibold'> {score}</div>
+      <div className='grid sm:grid-cols-3 grid-cols-4  mt-2 mb-4 border'>
+        <div className='border py-2 px-3 text-center sm:col-span-1 col-span-2'>Sesi</div>
+        <div className='border py-2 px-3 text-center'>Correct</div>
+        <div className='border py-2 px-3 text-center'>Score</div>
+        <div className='border py-2 px-3 text-center sm:col-span-1 col-span-2'>Listening Comprehension</div>
+        <div className='border py-2 px-3 text-center flex items-center justify-center'>{correctListening}</div>
+        <div className='border py-2 px-3 text-center flex items-center justify-center'>{scoreListening}</div>
+        <div className='border py-2 px-3 text-center sm:col-span-1 col-span-2'>Structure And Written Expression</div>
+        <div className='border py-2 px-3 text-center flex items-center justify-center'>{correctWritten}</div>
+        <div className='border py-2 px-3 text-center flex items-center justify-center'>{scoreWritten}</div>
+        <div className='border py-2 px-3 text-center sm:col-span-1 col-span-2'>Reading Comprehension</div>
+        <div className='border py-2 px-3 text-center flex items-center justify-center'>{correctReading}</div>
+        <div className='border py-2 px-3 text-center flex items-center justify-center'>{scoreReading}</div>
+      </div>
+      <div className='mt-2 mb-4'>
+          <div className='border py-2 px-3 text-center text-primary font-semibold'>Overall Score: {score}</div>
       </div>
       <div className='flex'>
         <button type='button' className='bg-primary flex-auto py-2 text-white font-semibold rounded hover:bg-secondary flex justify-center gap-2' onClick={tryAgain}>

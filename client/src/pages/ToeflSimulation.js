@@ -67,30 +67,54 @@ const reducer = (state, action) => {
         secondsRemaining: state.secondsRemaining - 1
       }
     case 'prevQuestion':
+      const jumpMap = {
+        35: 31,
+        39: 35,
+        43: 39,
+        47: 43,
+      };
+
       return {
         ...state,
-        index: state.index - 1,
+        index: jumpMap[state.index] ?? state.index - 1,
       }
-    case 'nextQuestion':
+    case 'nextQuestion': {
+      // Mapping indeks khusus ➜ target lompatan
+      const jumpMap = {
+        31: 35,
+        35: 39,
+        39: 43,
+        43: 47,
+      };
       return {
         ...state,
-        index: state.index + 1,
-      }
+        // Jika index saat ini ada di jumpMap pakai nilai lompatannya,
+        // kalau tidak, lanjut naik satu seperti biasa.
+        index: jumpMap[state.index] ?? state.index + 1,
+      };
+    }
     case 'moveToIdx':
       return {
         ...state,
         index: action.payload
       }
-    case 'newAnswer':
-      const question = state.questions.at(state.index)
+    case 'newAnswer': {
+      const { page, answer } = action.payload;
+      
+      const alreadyAnswered = state.answer.some(item => item.id === page);
+
+      const updatedAnswers = alreadyAnswered
+        ? state.answer.map(item =>
+            item.id === page ? { ...item, answer } : item
+          )
+        : [...state.answer, { id: page, answer }];
+
       return {
         ...state,
-        answer: state.answer.some(item => item.id === state.index)
-          ? state.answer.map(item =>
-              item.id === question.page ? { ...item, answer: action.payload } : item
-            )
-          : [...state.answer, { id: state.index, answer: action.payload }]
+        answer: updatedAnswers
+      };
     }
+
     case 'getSesi':
       return {
         ...state,
@@ -111,30 +135,78 @@ const ToeflSimulation = () => {
     localStorage.setItem('toeflState', JSON.stringify(stateToSave));
   }, [index, answer])
 
+  // useEffect(() => {
+  //   const fetchDataSoal = async () => {
+  //     try {
+        
+  //       const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/soal`);
+  //       console.log('ini data soal', response.data);
+
+  //       const newObject = {petunjuk: "petunjuk"};
+
+  //       let soalToefl = response.data.soal
+
+  //       soalToefl.splice(0, 0, newObject);
+  //       soalToefl.splice(51, 0, newObject);
+  //       soalToefl.splice(67, 0, newObject);
+  //       soalToefl.splice(93, 0, newObject);
+
+  //       dispatch({type: 'dataReceived', payload: response.data.soal})
+  //     } catch (error) {
+  //       dispatch({type: 'dataFailed'})
+  //     }
+  //   }
+
+  //   fetchDataSoal()
+  // }, [])
+
   useEffect(() => {
     const fetchDataSoal = async () => {
       try {
-        
         const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/soal`);
-        console.log(response.data);
+        let soalToefl = [...response.data.soal]; // clone untuk aman
 
-        const newObject = {petunjuk: "petunjuk"};
+        const petunjukObj = { petunjuk: 'petunjuk' };
 
-        let soalToefl = response.data.soal
+        // Step 1: Gabungkan Part B dan Part C
+        const gabungGrup = (startIndex, endIndex, type = 'group') => {
+          const groupItems = soalToefl.slice(startIndex, endIndex + 1);
+          const groupObject = {
+            type,
+            audio: groupItems[0].audio,
+            items: groupItems,
+          };
+          // soalToefl.splice(startIndex, endIndex - startIndex + 1, groupObject);
+          soalToefl.splice(startIndex, 1, groupObject);
+        };
 
-        soalToefl.splice(0, 0, newObject);
-        soalToefl.splice(51, 0, newObject);
-        soalToefl.splice(67, 0, newObject);
-        soalToefl.splice(93, 0, newObject);
+        // Gabung Part B
+        gabungGrup(30, 33); // index ke-31 sampai 34
+        gabungGrup(34, 37); // setelah gabung di atas, index geser -3, jadi 35–38 jadi 31–34
 
-        dispatch({type: 'dataReceived', payload: response.data.soal})
+        // // Gabung Part C
+        gabungGrup(38, 41); // 39–42
+        gabungGrup(42, 45); // 43–46
+        gabungGrup(46, 49); // 47–50
+
+        // Step 2: Sisipkan petunjuk (setelah penggabungan agar index benar)
+        soalToefl.splice(0, 0, petunjukObj);    // Awal
+        soalToefl.splice(51, 0, petunjukObj);   // Sebelum structure
+        soalToefl.splice(67, 0, petunjukObj);
+        soalToefl.splice(93, 0, petunjukObj);
+
+        console.log('ini soal toefl', soalToefl)
+
+        // Step 3: Dispatch ke reducer
+        dispatch({ type: 'dataReceived', payload: soalToefl });
       } catch (error) {
-        dispatch({type: 'dataFailed'})
+        dispatch({ type: 'dataFailed' });
       }
-    }
+    };
 
-    fetchDataSoal()
-  }, [])
+    fetchDataSoal();
+  }, []);
+
 
   return (
     <div>

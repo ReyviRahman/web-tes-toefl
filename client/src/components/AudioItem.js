@@ -29,7 +29,7 @@ const AudioItem = ({ index, audioSrc,   nohp }) => {
   };
 
   return (
-    <div className={hasPlayed ? 'hidden' : ''}>
+    <div className="relative">
       <AudioPlayer
         autoPlayAfterSrcChange={false}
         src={audioSrc}
@@ -38,6 +38,14 @@ const AudioItem = ({ index, audioSrc,   nohp }) => {
         showJumpControls={false}
         customAdditionalControls={[]}
       />
+      {hasPlayed && (
+        <div
+          className="absolute inset-0 z-10"
+          style={{ cursor: 'not-allowed' }}
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.preventDefault()}
+        />
+      )}
     </div>
   );
 };

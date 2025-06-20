@@ -8,7 +8,7 @@ const ExamHistory = require('../models/exam_history');
 router.get('/', async (req, res) => {
   const soal = await SoalModel.findAll({
     attributes: {
-      exclude: ['jawaban', 'createdAt', 'updatedAt', 'q_reading', 'no_soal'], 
+      exclude: ['jawaban', 'createdAt', 'updatedAt', 'q_reading'], 
     },
     include: {
       model: Question,
@@ -54,9 +54,9 @@ router.put('/timers', async (req, res) => {
   const server_now = Date.now();
   const sessions = ['listening', 'written', 'reading'];
   const durationMap = {
-    listening: 5000,     // 1 jam
-    written:   1000,     // 30 menit
-    reading:   55 * 60 * 1000,     // 15 menit
+    listening: 60000,     // 1 jam
+    written:   60000,     // 30 menit
+    reading:   60000,     // 15 menit
   };
   // const durationMap = {
   //   listening: 40 * 60 * 1000,      30 menit
@@ -109,8 +109,6 @@ router.put('/timers', async (req, res) => {
     secondsRemaining,
   });
 });
-
-
 
 router.get('/getsoal', async (req, res) => {
   const { page } = req.query; // Mengambil parameter 'page'
@@ -331,9 +329,9 @@ router.post('/jawaban', async (req, res) => {
       if (soal && soal.jawaban === answer) {
         if (id >= 1 && id <= 50) {
           listeningCorrect += 1;
-        } else if (id >= 52 && id <= 92) {
+        } else if (id >= 51 && id <= 90) {
           writtenCorrect += 1;
-        } else if (id >= 94 && id <= 143) {
+        } else if (id >= 91 && id <= 140) {
           readingCorrect += 1;
         }
         totalPoints += 1; // Tambah poin jika jawaban benar
@@ -349,10 +347,11 @@ router.post('/jawaban', async (req, res) => {
       lastScore: toeflScore, 
       listening: scoreListening, 
       written: scoreWritten, 
-      reading: scoreReading 
+      reading: scoreReading,
+      listening_correct: listeningCorrect,
+      written_correct: writtenCorrect,
+      reading_correct: readingCorrect,
     });
-
-    console.log('terjalan kan ini mahh')
 
     await ExamHistory.create({
       userNohp: nohp,
@@ -361,11 +360,14 @@ router.post('/jawaban', async (req, res) => {
       listeningScore: scoreListening,
       structureScore: scoreWritten,
       readingScore: scoreReading,
-      totalScore: toeflScore
+      totalScore: toeflScore,
+      listening_correct: listeningCorrect,
+      written_correct: writtenCorrect,
+      reading_correct: readingCorrect,
     });
 
     // Kirimkan total poin user
-    res.status(200).json({ toeflScore, scoreListening, scoreWritten, scoreReading });
+    res.status(200).json({ toeflScore, scoreListening, scoreWritten, scoreReading, listeningCorrect, writtenCorrect, readingCorrect });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error', error: error.message });

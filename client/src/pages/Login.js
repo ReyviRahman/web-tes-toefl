@@ -4,6 +4,7 @@ import axios from 'axios';
 import useAuth from '../hooks/useAuth';
 import { Link, useNavigate, useLocation} from 'react-router-dom'
 import NavbarUser from '../components/NavbarUser';
+import Swal from 'sweetalert2';
 
 const Login = () => {
   const { setAuth } = useAuth()
@@ -18,34 +19,54 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState(null)
 
   const handleLogin = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
+
+    // Tampilkan loading swal
+    Swal.fire({
+      title: 'Logging in...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/login`, 
-      {
-        nohp,
-        password
-      }, 
-      {
-        withCredentials: true
-      })
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/users/login`,
+        { nohp, password },
+        { withCredentials: true }
+      );
+
+      Swal.close(); // Tutup loading swal
+
       console.log('Login success:', response.data);
-      const nama = response.data.nama
-      const role = response.data.role
-      const profilePic = response.data.profilePic
-      setAuth({ nohp, nama, role, profilePic })
-      if (role === "Admin") {
-        navigate('/simulasi-toefl')
-      } else if (role === "User") {
-        navigate('/simulasi-toefl')
+      const nama = response.data.nama;
+      const role = response.data.role;
+      const profilePic = response.data.profilePic;
+
+      setAuth({ nohp, nama, role, profilePic });
+
+      if (role === "Admin" || role === "User") {
+        navigate('/simulasi-toefl');
       }
     } catch (error) {
+      Swal.close(); // Tutup loading swal meskipun gagal
+
       if (error.response) {
-        setErrorMessage(error.response.data.error)
+        setErrorMessage(error.response.data.error);
       } else {
-        setErrorMessage(error.message)
+        setErrorMessage(error.message);
       }
+
+      // Tampilkan pesan error swal
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Gagal',
+        text: error.response?.data?.error || error.message,
+      });
     }
-  }
+  };
+
 
   return (
     <>

@@ -34,7 +34,9 @@ function App() {
         </Route>
 
         <Route element={<RequireAuth allowedRoles={["User", "Admin"]} />}>
+
           <Route path='/simulasi-toefl' element={<ToeflSimulation />} />
+          
         </Route>
           <Route path='/' element={<Home />} />
       

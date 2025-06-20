@@ -41,10 +41,6 @@ Soal.init({
     type: DataTypes.STRING, 
     allowNull: false, 
   },
-  audio_question: {
-    type: DataTypes.STRING, 
-    allowNull: false, 
-  },
   q_reading: {
     type: DataTypes.INTEGER,
     references: {

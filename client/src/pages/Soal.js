@@ -59,14 +59,15 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
   let sanitizedHTML = DOMPurify.sanitize(question.soal);
   let sanitizedHTMLReading;
   if (![0, 51, 67, 93].includes(index)) {
-    sanitizedHTMLReading = DOMPurify.sanitize(question.readingQuestion.reading);
+    sanitizedHTMLReading = DOMPurify.sanitize(question.readingQuestion?.reading);
   }
 
   const hours = String(Math.floor(secondsRemaining / 3600)).padStart(2, '0');
   const minutes = String(Math.floor((secondsRemaining % 3600) / 60)).padStart(2, '0');
   const seconds = String(secondsRemaining % 60).padStart(2, '0');
 
-  const userAnswer = answer.find(item => item.id === index)?.answer ?? '-1';
+  const userAnswer = answer.find(item => item.id === question.page)?.answer ?? '-1';
+
   const answerIds = answer.map(item => item.id);
 
   const intervalRef = useRef(null);
@@ -177,17 +178,8 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
           // ✅ Index sesuai → tampilkan soal
           <div className='basis-full'>
             {![0, 51, 67, 93].includes(index) ? (
-              <div className='p-10 flex flex-col gap-3'>
+              <div className='sm:p-10 p-2 flex flex-col gap-3'>
 
-                {question.audio_question !== "" && (
-                  <>
-                    <h1>Conversation</h1>
-                    <AudioPlayer
-                      autoPlayAfterSrcChange={false}
-                      src={`${question.audio_question}`}
-                    />
-                  </>
-                )}
                 {question.audio !== "" && (
                   <>
                     <h1>Question</h1>
@@ -205,63 +197,150 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                 <div dangerouslySetInnerHTML={{ __html: sanitizedHTMLReading }} />
                 <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
 
-                <div className="flex items-center">
-                  <input 
-                    id="option-1" 
-                    type="radio" 
-                    name="answer" 
-                    value="1"
-                    checked={userAnswer === "1"} 
-                    className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" 
-                    onChange={(e) => {
-                      dispatch({type: 'newAnswer', payload: e.target.value})
-                    }}
-                  />
-                  <label htmlFor="option-1" className="cursor-pointer ml-2">(A) {question.pilihan_satu}</label>
-                </div>
-                <div className="flex items-center">
-                  <input 
-                    id="option-2" 
-                    type="radio" 
-                    name="answer" 
-                    value="2"
-                    checked={userAnswer === "2"}
-                    className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
-                    onChange={(e) => {
-                      dispatch({type: 'newAnswer', payload: e.target.value})
-                    }} 
-                  />
-                  <label htmlFor="option-2" className="cursor-pointer ml-2">(B) {question.pilihan_dua}</label>
-                </div>
-                <div className="flex items-center">
-                  <input 
-                    id="option-3" 
-                    type="radio" 
-                    name="answer" 
-                    value="3" 
-                    checked={userAnswer === "3"}
-                    className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
-                    onChange={(e) => {
-                      dispatch({type: 'newAnswer', payload: e.target.value})
-                    }} 
-                  />
-                  <label htmlFor="option-3" className="cursor-pointer ml-2">(C) {question.pilihan_tiga}</label>
-                </div>
-                <div className="flex items-center">
-                  <input 
-                    id="option-4" 
-                    type="radio" 
-                    name="answer" 
-                    value="4" 
-                    checked={userAnswer === "4"}
-                    className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
-                    onChange={(e) => {
-                      dispatch({type: 'newAnswer', payload: e.target.value})
-                    }} 
-                  />
-                  <label htmlFor="option-4" className="cursor-pointer ml-2">(D) {question.pilihan_empat}</label>
-                </div>
-                
+                {question?.type === 'group' ? (
+                  <div className='grid sm:grid-cols-2 gap-y-6 gap-x-4'>
+
+                    {question.items?.map((item) => {
+                      // ① hitung jawaban user utk item ini
+                      const userAnswerItem =
+                        answer.find(a => a.id === item.page)?.answer ?? "-1";
+
+                      // ② kembalikan elemen JSX
+                      return (
+                        <div className="flex mb-4" key={item.id}>
+                          <div className="pe-2">
+                            <p className="border border-secondary px-3 py-1 rounded-md">
+                              {item.no_soal}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-col gap-4">
+                            {[1, 2, 3, 4].map((num) => (
+                              <div className="flex items-center" key={num}>
+                                <input
+                                  id={`option-${item.id}-${num}`}
+                                  type="radio"
+                                  name={`answer-${item.page}`}          
+                                  value={num.toString()}
+                                  checked={userAnswerItem === num.toString()}  
+                                  className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                                  onChange={(e) =>
+                                    dispatch({
+                                      type: "newAnswer",
+                                      payload: { page: item.page, answer: e.target.value },
+                                    })
+                                  }
+                                />
+                                <label
+                                  htmlFor={`option-${item.id}-${num}`}
+                                  className="cursor-pointer ml-2 break-words"
+                                >
+                                  {(num === 1 && `(A) ${item.pilihan_satu}`) ||
+                                    (num === 2 && `(B) ${item.pilihan_dua}`) ||
+                                    (num === 3 && `(C) ${item.pilihan_tiga}`) ||
+                                    (num === 4 && `(D) ${item.pilihan_empat}`)}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                  
+                  </div>
+                ) : (
+                  <div className='flex'>
+                    <div className='pe-2'>
+                      <p className='border border-secondary px-3 py-1 rounded-md '>{question.no_soal}</p>
+                    </div>
+                    <div className='flex flex-col gap-4'>
+                      <div className="flex items-center mt-2">
+                        <input 
+                          id="option-1" 
+                          type="radio" 
+                          name="answer" 
+                          value="1"
+                          checked={userAnswer === "1"} 
+                          className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" 
+                          onChange={(e) => {
+                            dispatch({
+                              type: 'newAnswer',
+                              payload: {
+                                page: question.page,        // atau soal.id kalau kamu pakai id
+                                answer: e.target.value
+                              }
+                            });
+                          }}
+                        />
+                        <label htmlFor="option-1" className="cursor-pointer ml-2 break-words">(A) {question.pilihan_satu}</label>
+                      </div>
+                      <div className="flex items-center">
+                        <input 
+                          id="option-2" 
+                          type="radio" 
+                          name="answer" 
+                          value="2"
+                          checked={userAnswer === "2"}
+                          className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                          onChange={(e) => {
+                            dispatch({
+                              type: 'newAnswer',
+                              payload: {
+                                page: question.page,        // atau soal.id kalau kamu pakai id
+                                answer: e.target.value
+                              }
+                            });
+                          }}
+                        />
+                        <label htmlFor="option-2" className="cursor-pointer ml-2">(B) {question.pilihan_dua}</label>
+                      </div>
+                      <div className="flex items-center">
+                        <input 
+                          id="option-3" 
+                          type="radio" 
+                          name="answer" 
+                          value="3" 
+                          checked={userAnswer === "3"}
+                          className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                          onChange={(e) => {
+                            dispatch({
+                              type: 'newAnswer',
+                              payload: {
+                                page: question.page,        // atau soal.id kalau kamu pakai id
+                                answer: e.target.value
+                              }
+                            });
+                          }}
+                        />
+                        <label htmlFor="option-3" className="cursor-pointer ml-2">(C) {question.pilihan_tiga}</label>
+                      </div>
+                      <div className="flex items-center">
+                        <input 
+                          id="option-4" 
+                          type="radio" 
+                          name="answer" 
+                          value="4" 
+                          checked={userAnswer === "4"}
+                          className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                          onChange={(e) => {
+                            dispatch({
+                              type: 'newAnswer',
+                              payload: {
+                                page: question.page,        // atau soal.id kalau kamu pakai id
+                                answer: e.target.value
+                              }
+                            });
+                          }}
+                        />
+                        <label htmlFor="option-4" className="cursor-pointer ml-2">(D) {question.pilihan_empat}</label>
+                      </div>
+
+
+                    </div>
+                  </div>
+                )}
+
                 <hr className='mt-5' />
                 <div className='flex justify-between'>
                   <div>
@@ -279,7 +358,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                     )}
                   </div>
                   <div>
-                    {index < numQuestions - 1 && index !== 50 && index !== 92 && (
+                    {index < numQuestions - 1 && index !== 50 && index !== 92 && index !== 47 &&(
                       <button
                         type='button'
                         className='flex items-center'
@@ -311,8 +390,11 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
             <div className="grid grid-cols-5 gap-4">
             
             {displayLabels.map((label, idx) => {
-              // abaikan indeks di luar rentang
+              // Abaikan indeks di luar rentang
               if (idx < start || idx > end) return null;
+
+              const disabledIndices = [32, 33, 34, 36, 37, 38, 40, 41, 42, 44, 45, 46, 48, 49, 50];
+              const isDisabled = disabledIndices.includes(idx);
 
               return (
                 <div
@@ -320,55 +402,17 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                   className={`
                     ${index === idx ? 'bg-primary text-white'
                       : answerIds.includes(idx) ? 'bg-secondary border-primary'
-                      : ''} 
-                    cursor-pointer border py-1 text-center rounded
+                      : ''}
                     ${['I1','I2','I3','I4'].includes(label) ? 'border-secondary' : ''}
+                    ${isDisabled ? '' : 'cursor-pointer'}
+                    border py-1 text-center rounded
                   `}
-                  onClick={() => dispatch({ type: 'moveToIdx', payload: idx })}
+                  onClick={isDisabled ? undefined : () => dispatch({ type: 'moveToIdx', payload: idx })}
                 >
                   {label}
                 </div>
               );
             })}
-
-            {/* {Array.from({ length: numQuestions }, (_, idx) => (
-              <div key={idx} className={`${index === idx ? 'bg-primary text-white' : answerIds.includes(idx) ? 'bg-secondary border-primary' : ''} cursor-pointer  border py-1 text-center rounded ${[0, 51, 67, 93].includes(idx) ? 'border-secondary' : ''} `}
-              onClick={() => dispatch({type: 'moveToIdx', payload: idx})}>
-                { idx === 0 ? (
-                  <>
-                    I1
-                  </>
-                ) : idx === 51 ? (
-                  <>
-                    I2
-                  </>
-                ) : idx === 67 ? (
-                  <>
-                    I3
-                  </>
-                ) : idx === 93 ? (
-                  <>
-                    I4
-                  </>
-                ) : idx > 51 && idx < 67 ? (
-                  <>
-                    {idx - 1}
-                  </>
-                ) : idx > 67 && idx < 93 ? (
-                  <>
-                    {idx - 2}
-                  </>
-                ) : idx > 93 ? (
-                  <>
-                    {idx - 3}
-                  </>
-                ) : (
-                  <>
-                    {idx}
-                  </>
-                )}
-              </div>
-            ))} */}
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ const router = express.Router()
 const UsersModel = require('../models/users')
 const upload = require('../middleware/upload')
 const jwt = require('jsonwebtoken');
+const { body, validationResult } = require('express-validator');
 
 const secretKey = 'reyvisacd123';
 
@@ -27,7 +28,10 @@ router.get('/lastScore', async (req,res) => {
     lastScore : user.lastScore,
     scoreListening : user.listening, 
     scoreWritten: user.written, 
-    scoreReading: user.reading
+    scoreReading: user.reading,
+    listeningCorrect: user.listening_correct,
+    writtenCorrect: user.written_correct,
+    readingCorrect: user.reading_correct,
   })
 })
 
@@ -124,7 +128,24 @@ router.put('/', async (req, res) => {
   }
 })
 
-router.post('/login', async (req, res) => {
+router.post(
+  '/login', 
+  [
+    body('nohp')
+      .trim()
+      .isMobilePhone('id-ID')
+      .withMessage('Nomor HP tidak valid')
+      .escape(),
+    body('password')
+      .isLength({ min: 6 })
+      .withMessage('Password minimal 6 karakter')
+      .escape()
+  ],
+  async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: errors.array()[0].msg });
+  }
   const { nohp, password } = req.body;
 
   try {
