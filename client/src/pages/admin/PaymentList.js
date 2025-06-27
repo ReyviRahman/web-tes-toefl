@@ -1,0 +1,116 @@
+import React from 'react'
+import { useEffect } from 'react';
+import { useState } from 'react';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+const PaymentList = () => {
+  const [payments, setPayments] = useState([]);
+  const [error, setError] = useState(null);
+
+  const fetchPayments = async () => {
+    Swal.fire({
+      title: 'Loading...',
+      text: 'Mohon tunggu sebentar',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+    try {
+      const res = await axios.get(`${API_BASE_URL}/admin/payments`, { withCredentials: true });
+      Swal.close()
+      setPayments(res.data);
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+      Swal.close()
+    }
+  };
+
+  useEffect(() => {
+    fetchPayments();
+  }, []);
+
+  const updateStatus = async (id, status) => {
+    Swal.fire({
+      title: 'Memproses...',
+      text: 'Mohon tunggu sebentar',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+    try {
+      const response = await axios.put(
+        `${API_BASE_URL}/admin/payments/${id}/status`,
+        { status }, 
+        { withCredentials: true } 
+      );
+      await fetchPayments();
+      Swal.close()
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: error.response?.data?.message || 'Terjadi kesalahan',
+      });
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="text-2xl mb-4">Daftar Pembayaran</h2>
+      <div class="card">
+        <div class="p-6">
+            <div class="relative overflow-auto">
+                <table class="border-collapse min-w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm shadow-sm">
+                    <thead class="bg-slate-50 dark:bg-slate-700">
+                        <tr>
+                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">No</th>
+                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">No Hp</th>
+                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Nama</th>
+                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Paket Soal</th>
+                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Bukti Pembayaran</th>
+                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Status</th>
+                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                      {payments.map((p, index) => (
+                        <tr key={p.id} className="p-4">
+                          <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400">{index + 1}</td>
+                          <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400">{p.userNohp}</td>
+                          <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400">{p.User.nama}</td>
+                          <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400">{p.paket_soal_id}</td>
+                          <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400">
+                            <a href={`${API_BASE_URL}/uploads/bukti/${p.buktiBayar}`} target="_blank" rel="noopener noreferrer" className="underline">
+                              Lihat Bukti Pembayaran
+                            </a>
+                          </td>
+                          <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400">{p.status}</td>
+                          <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400">
+                            {p.status === 'pending' && (
+                              <>
+                                <button onClick={() => updateStatus(p.id, 'confirmed')} className="px-3 py-1 bg-green-500 text-white rounded">
+                                  Konfirmasi
+                                </button>
+                                <button onClick={() => updateStatus(p.id, 'rejected')} className="px-3 py-1 bg-red-500 text-white rounded">
+                                  Tolak
+                                </button>
+                              </>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PaymentList

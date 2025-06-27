@@ -2,7 +2,7 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import Swal from "sweetalert2";
 
-const FinishScreen = ({ answer, status, dispatch, nohp }) => {
+const FinishScreen = ({ answer, status, dispatch, nohp, role }) => {
   const [score, setScore] = useState('0')
   const [scoreListening, setScoreListening] = useState('0')
   const [scoreWritten, setScoreWritten] = useState('0')
@@ -114,14 +114,22 @@ const FinishScreen = ({ answer, status, dispatch, nohp }) => {
       <div className='mt-2 mb-4'>
           <div className='border py-2 px-3 text-center text-primary font-semibold'>Overall Score: {score}</div>
       </div>
-      <div className='flex'>
-        <button type='button' className='bg-primary flex-auto py-2 text-white font-semibold rounded hover:bg-secondary flex justify-center gap-2' onClick={tryAgain}>
-        <span className="material-symbols-outlined">
-          restart_alt
-        </span>
-          Tes Ulang
-        </button>
-      </div>
+
+      {role === 'Admin' && (
+        <div className='flex'>
+          <button
+            type='button'
+            className='bg-primary flex-auto py-2 text-white font-semibold rounded hover:bg-secondary flex justify-center gap-2'
+            onClick={tryAgain}
+          >
+            <span className="material-symbols-outlined">
+              restart_alt
+            </span>
+            Tes Ulang
+          </button>
+        </div>
+      )}
+
     </div>
   )
 }

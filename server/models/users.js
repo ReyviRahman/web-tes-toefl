@@ -61,6 +61,14 @@ User.init({
     type: DataTypes.INTEGER,
     allowNull: true
   },
+  status_ujian: {
+    type: DataTypes.ENUM('idle', 'sedang_ujian'),
+    defaultValue: 'idle'
+  },
+  paket_soal_id_aktif: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  }
 }, {
   sequelize,
   modelName: 'Users',

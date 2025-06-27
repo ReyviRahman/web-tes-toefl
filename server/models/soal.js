@@ -49,6 +49,14 @@ Soal.init({
     },
     allowNull: false
   },
+  paket_soal_id: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'paket_soals',  // Nama tabel yang di-referensikan
+      key: 'id',
+    },
+    allowNull: false,  // Kolom ini tidak boleh null
+  }
 }, {
   sequelize,
   modelName: 'Soal',

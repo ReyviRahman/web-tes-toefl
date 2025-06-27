@@ -79,7 +79,7 @@ export default function NavbarUser() {
               <a href='/'>
                 <img
                   alt="Your Company"
-                  src="./logoYTEAnav.jpg"
+                  src="/logoYTEAnav.jpg"
                   className="h-14 w-auto rounded-full"
                 />
               </a>

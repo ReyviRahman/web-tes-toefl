@@ -1,8 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import Register from './pages/Register'
-import Home from './pages/Home';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import Register from './pages/auth/Register'
+import Home from './pages/user/Home';
 import Navbar from './components/Navbar';
-import Login from './pages/Login';
+import Login from './pages/auth/Login';
 import Layout from './components/Layout';
 import DashboardAdmin from './pages/DashboardAdmin';
 import RequireAuth from './components/RequireAuth';
@@ -12,14 +12,19 @@ import SuratEdit from './features/surat/SuratEdit'
 import SuratList from './features/surat/SuratList'
 import ProsesSurat from './features/admin/prosessurat/ProsesSurat';
 import LandingPage from './features/admin/landingpage/LandingPage';
-import ToeflSimulation from './pages/ToeflSimulation';
+import ToeflSimulation from './pages/toefl/ToeflSimulation';
 import TestPage from './pages/TestPage';
 import './App.css';
+import PilihPaketSoal from "./pages/user/PilihPaketSoal";
+import Bayar from "./pages/user/Bayar";
+import AdminLayout from "./pages/admin/AdminLayout";
+import PaymentList from "./pages/admin/PaymentList";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import RequirePaid from "./components/RequirePaid";
 
 function App() {
   return (
     <Routes>
-      <Route path='/' element={<Layout />}>
         {/* <Route path="/" element={<Home />} /> */}
         <Route path='/login' element={<Login />} />
         <Route path='/testpage' element={<TestPage userId={'123'} />} />
@@ -34,13 +39,39 @@ function App() {
         </Route>
 
         <Route element={<RequireAuth allowedRoles={["User", "Admin"]} />}>
-
-          <Route path='/simulasi-toefl' element={<ToeflSimulation />} />
-          
+          <Route element={<RequirePaid />}>
+            <Route path="/simulasi-toefl/:paketId" element={<ToeflSimulation />} />
+          </Route>
+          <Route path='/paketsoal' element={<PilihPaketSoal />} />
+          <Route path='/bayar/:paketId' element={<Bayar />} />
         </Route>
+        
           <Route path='/' element={<Home />} />
+        <Route element={<RequireAuth allowedRoles={['Admin']} />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            {/* kalau buka /admin → langsung redirect ke /admin/payments */}
+            <Route
+              index
+              element={<Navigate to="payments" replace />}
+            />
+
+              {/* /admin/payments */}
+              <Route path="payments" element={<PaymentList />} />
+
+              {/* /admin/dashboard jika butuh */}
+              <Route path="dashboard" element={<AdminDashboard />} />
+
+              {/* contoh jika nanti mau detail payment */}
+              {/* <Route path="payments/:id" element={<PaymentDetail />} /> */}
+
+              {/* catch-all di bawah jika perlu */}
+              {/* <Route path="*" element={<Navigate to="payments" replace />} /> */}
+          </Route>
+
       
-      </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
     
   );

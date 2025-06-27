@@ -6,8 +6,10 @@ const UsersModel = require('../models/users')
 const upload = require('../middleware/upload')
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
-
-const secretKey = 'reyvisacd123';
+const Payment = require('../models/payment')
+const verifyToken = require('../middleware/verifyToken');
+const User = require('../models/users')
+const secretKey = process.env.JWT_SECRET;
 
 router.get('/', async (req, res) => {
   const users = await UsersModel.findAll()
@@ -270,6 +272,76 @@ router.get('/refreshtoken', async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(401).json({ error: 'Invalid token' });
+  }
+});
+
+router.get('/cek-akses/:paketId', verifyToken, async (req, res) => {
+  const { paketId } = req.params;
+  const user_nohp = req.user.nohp;
+
+  try {
+    // 1. Ambil user
+    const user = await User.findOne({ where: { nohp: user_nohp } });
+
+    // 2. Cek apakah status sedang ujian dan paket yang sama
+    if (
+      user.status_ujian === 'sedang_ujian' &&
+      parseInt(user.paket_soal_id_aktif) === parseInt(paketId)
+    ) {
+      return res.json({ bolehAkses: true });
+    }
+
+    // 3. Cek apakah ada payment yang dikonfirmasi
+    const payment = await Payment.findOne({
+      where: {
+        user_nohp,
+        status: 'pending'
+      }
+    });
+
+    if (payment) {
+      return res.json({ pending: true, alasan: 'Mohon tunggu pembayaran anda sedang diverifikasi Admin' });
+    }
+
+    return res.json({
+      bolehAkses: false,
+      alasan: 'Anda Belum Membayar untuk paket ini',
+      bayar: false,
+    });
+
+  } catch (error) {
+    console.error('Gagal cek akses:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan di server' });
+  }
+});
+
+router.get('/cek-akses', verifyToken, async (req, res) => {
+  const user_nohp = req.user.nohp;
+
+  try {
+    // 1. Ambil user
+    const user = await User.findOne({ where: { nohp: user_nohp } });
+
+    // 2. Cek apakah status sedang ujian dan paket yang sama
+    if (
+      user.status_ujian === 'sedang_ujian' &&
+      parseInt(user.paket_soal_id_aktif) !== null
+    ) {
+      return res.json({ 
+        bolehAkses: true, 
+        paketId: user.paket_soal_id_aktif
+      });
+    }
+
+    return res.json({
+      bolehAkses: false,
+      alasan: 'Anda Belum Membayar untuk paket ini',
+      bayar: false,
+    });
+
+  } catch (error) {
+    console.error('Gagal cek akses:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan di server' });
   }
 });
 
