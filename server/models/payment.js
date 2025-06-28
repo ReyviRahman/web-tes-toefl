@@ -27,7 +27,7 @@ Payment.init({
   },
   alasanPenolakan: {
     type: DataTypes.STRING, // Path atau filename bukti bayar
-    allowNull: false,
+    allowNull: true,
   },
 }, {
   sequelize,

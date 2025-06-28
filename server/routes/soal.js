@@ -278,6 +278,7 @@ router.post('/jawaban', verifyToken, async (req, res) => {
       listening_correct: listeningCorrect,
       written_correct: writtenCorrect,
       reading_correct: readingCorrect,
+      nama_paket: namaPaket,
     });
 
     // Kirimkan total poin user

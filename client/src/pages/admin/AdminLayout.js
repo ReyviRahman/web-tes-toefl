@@ -3,8 +3,8 @@ import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import axios from 'axios';
 import { FiMenu, FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { RiDashboardLine, RiMoneyDollarCircleLine, RiLogoutBoxLine } from "react-icons/ri";
-
+import { RiDashboardLine, RiMoneyDollarCircleLine, RiLogoutBoxLine} from "react-icons/ri";
+import { PiExam } from "react-icons/pi";
 const AdminLayout = () => {
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // desktop only
@@ -88,7 +88,7 @@ const AdminLayout = () => {
             </li>
             <li className={`w-full ${sidebarCollapsed ? 'flex justify-center' : ''}`}>
               <NavLink 
-                to="/admin/dashboard" 
+                to="/admin/riwayat-ujian" 
                 className={({ isActive }) => 
                   `flex items-center px-2 py-2 rounded-lg transition font-medium ${
                     isActive ? 'bg-blue-100 text-blue-700' : 'hover:bg-blue-50 text-gray-700'
@@ -96,8 +96,8 @@ const AdminLayout = () => {
                 }
                 onClick={() => setSidebarOpenMobile(false)}
               >
-                <RiDashboardLine size={22} />
-                {!sidebarCollapsed && <span className="ml-3">Dashboard</span>}
+                <PiExam size={22} />
+                {!sidebarCollapsed && <span className="ml-3">Riwayat Ujian</span>}
               </NavLink>
             </li>
           </ul>

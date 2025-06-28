@@ -9,7 +9,7 @@ ExamHistory.init({
     autoIncrement: true,
     primaryKey: true,
   },
-  userNohp: { // foreign key ke Users.nohp
+  userNohp: { 
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -48,6 +48,10 @@ ExamHistory.init({
   reading_correct: {
     type: DataTypes.INTEGER,
     allowNull: true
+  },
+  nama_paket: { 
+    type: DataTypes.STRING,
+    allowNull: false,
   },
 }, {
   sequelize,

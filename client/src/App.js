@@ -19,7 +19,7 @@ import PilihPaketSoal from "./pages/user/PilihPaketSoal";
 import Bayar from "./pages/user/Bayar";
 import AdminLayout from "./pages/admin/AdminLayout";
 import PaymentList from "./pages/admin/PaymentList";
-import AdminDashboard from "./pages/admin/AdminDashboard";
+import RiwayatUjian from "./pages/admin/RiwayatUjian";
 import RequirePaid from "./components/RequirePaid";
 import PaketSaya from "./pages/user/PaketSaya";
 
@@ -62,7 +62,7 @@ function App() {
               <Route path="payments" element={<PaymentList />} />
 
               {/* /admin/dashboard jika butuh */}
-              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="riwayat-ujian" element={<RiwayatUjian />} />
 
               {/* contoh jika nanti mau detail payment */}
               {/* <Route path="payments/:id" element={<PaymentDetail />} /> */}

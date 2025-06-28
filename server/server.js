@@ -50,18 +50,18 @@ app.get('/', (req, res) => {
 // Mengimpor endpoint
 const userEndpoint = require('./routes/users');
 const soalEndpoint = require('./routes/soal');
-const startTestEndpoint = require('./routes/soal-copy');
 const paketSoalEndpoint = require('./routes/paketSoal');
 const paymentEndpoint = require('./routes/payment');
 const adminPayments = require('./routes/adminPayments');
+const riwayatUjian = require('./routes/riwayatUjian');
 
 app.use('/users', userEndpoint);
 app.use('/soal', soalEndpoint);
-app.use('/start-test', startTestEndpoint);
 app.use('/uploads', express.static('uploads'));
 app.use('/paket-soal', paketSoalEndpoint);
 app.use('/payment', paymentEndpoint);
 app.use('/admin/payments', adminPayments);
+app.use('/admin/riwayat-ujian', riwayatUjian);
 
 // Jalankan server
 app.listen(port, () => console.log(`Running server on port ${port}`));

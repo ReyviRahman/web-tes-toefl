@@ -128,7 +128,7 @@ export default function NavbarUser() {
             {/* Profile dropdown */}
             {auth?.nama ? (
                 <Dropdown nama={auth?.nama} 
-                profilePic={`${process.env.REACT_APP_API_BASE_URL}/${auth?.profilePic}`} />
+                profilePic={`${process.env.REACT_APP_API_BASE_URL}/${auth?.profilePic}`} role={auth?.role}/>
               ) : (
                 <div>
                   <NavLink to='/login' className={({ isActive }) => `text-sm text-white me-2 rounded-md py-1 sm:px-5 px-2 cursor-pointer transition-all bg-[#6528F7]`}>

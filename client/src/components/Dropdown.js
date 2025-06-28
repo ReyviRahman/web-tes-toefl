@@ -5,7 +5,7 @@ import axios from 'axios'
 import useAuth from '../hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
 
-const Dropdown = ({nama, profilePic}) => {
+const Dropdown = ({nama, profilePic, role}) => {
   const navigate = useNavigate()
   const { setAuth } = useAuth()
   const handleLogout = async () => {
@@ -39,9 +39,22 @@ const Dropdown = ({nama, profilePic}) => {
         className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
       >
         <div className="py-1">
+          {/* Menu Dashboard Admin hanya untuk Admin */}
+          {role === "Admin" && (
+            <MenuItem>
+              <button
+                type="button"
+                className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
+                onClick={() => navigate("/admin")}
+              >
+                Dashboard Admin
+              </button>
+            </MenuItem>
+          )}
+
           <MenuItem>
             <button
-            type='button'
+              type="button"
               className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
               onClick={handleLogout}
             >
