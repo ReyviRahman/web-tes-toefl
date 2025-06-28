@@ -4,7 +4,7 @@ const cors = require('cors');
 const port = 3001;
 
 const sequelize = require('./db.config');
-const PaketSoal = require('./models/paket_soal'); 
+require('./models/paket_soal'); 
 require('./models/payment');
 
 // sequelize.sync({ alter: true })

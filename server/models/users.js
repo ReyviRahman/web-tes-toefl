@@ -68,7 +68,10 @@ User.init({
   paket_soal_id_aktif: {
     type: DataTypes.INTEGER,
     allowNull: true
-  }
+  },
+  paket_terakhir: {
+    type: DataTypes.STRING
+  },
 }, {
   sequelize,
   modelName: 'Users',

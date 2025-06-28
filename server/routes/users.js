@@ -11,19 +11,8 @@ const verifyToken = require('../middleware/verifyToken');
 const User = require('../models/users')
 const secretKey = process.env.JWT_SECRET;
 
-router.get('/', async (req, res) => {
-  const users = await UsersModel.findAll()
-
-  res.status(200).json({
-    data: users,
-    metadata: "Get All User",
-    cookieToken: `${req.cookies.cookieToken}`
-  })
-})
-
-router.get('/lastScore', async (req,res) => {
-  const { nohp } = req.query;
-  console.log(nohp)
+router.get('/lastScore', verifyToken, async (req,res) => {
+  const nohp = req.user.nohp;
   const user = await UsersModel.findByPk(nohp);
   
   res.status(200).json({
@@ -34,11 +23,26 @@ router.get('/lastScore', async (req,res) => {
     listeningCorrect: user.listening_correct,
     writtenCorrect: user.written_correct,
     readingCorrect: user.reading_correct,
+    lastPaket : user.paket_terakhir,
   })
 })
 
-router.get('/getAuth', async (req, res) => {
+router.get('/payment', verifyToken, async (req, res) => {
+  const nohp = req.user.nohp;
+  try {
+    const list = await Payment.findAll({
+      where: { user_nohp: nohp },
+      order: [['createdAt', 'DESC']],
+      attributes: ['nama_paket', 'buktiBayar', 'status', 'alasan_penolakan'], // ambil hanya kolom ini
+    });
+    res.json(list);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Gagal mengambil data pembayaran' });
+  }
+});
 
+router.get('/getAuth', async (req, res) => {
   if (req.cookies.cookieToken) {
     const decoded = jwt.verify(req.cookies.cookieToken, secretKey);
 
@@ -65,7 +69,6 @@ router.get('/getAuth', async (req, res) => {
       metadata: "Cookie is Empty",
     })
   }
-  
 })
 
 router.get('/logout', async (req, res) => {
@@ -87,48 +90,53 @@ router.post('/', async (req, res) => {
   })
 })
 
-router.post('/tryagain', async (req,res) => {
-  const { nohp } = req.body
+router.post('/tryagain', async (req, res) => {
+  const { nohp } = req.body;
 
   try {
-    const user = await UsersModel.findByPk(nohp)
+    const user = await UsersModel.findByPk(nohp);
     if (!user) {
-      return res.status(404).json({ message: 'User tidak ditemukan'})
+      return res.status(404).json({ message: 'User tidak ditemukan' });
+    }
+
+    if (user.role !== "Admin") {
+      return res.status(403).json({ message: 'Akses ditolak. Hanya Admin yang diizinkan.' });
     }
 
     await user.update({
       end_time: null,
-      lastScore: -1
-    })
+      lastScore: -1,
+    });
 
-    res.status(200).json({message: 'Ulang ujian berhasil'})
+    res.status(200).json({ message: 'Ulang ujian berhasil' });
   } catch (error) {
-    console.error('Error updating user:', error)
-    res.status(500).json({ message: 'Terjadi kesalahan pada server', error})
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan pada server' });
   }
-})
+});
 
-router.put('/', async (req, res) => {
 
-  const { nohp, nama, password, passwordBaru } = req.body
+// router.put('/', async (req, res) => {
 
-  const userData = await UsersModel.findOne({ where: {nohp: nohp}})
+//   const { nohp, nama, password, passwordBaru } = req.body
 
-  if (userData.password === password) {
-    const users = await UsersModel.update({
-      nama, password: passwordBaru
-    }, {where: {nohp: nohp}})
+//   const userData = await UsersModel.findOne({ where: {nohp: nohp}})
 
-    res.status(200).json({
-      users,
-      metadata: "user updated"
-    })
-  } else {
-    res.status(400).json({
-      error: "data invalid"
-    })
-  }
-})
+//   if (userData.password === password) {
+//     const users = await UsersModel.update({
+//       nama, password: passwordBaru
+//     }, {where: {nohp: nohp}})
+
+//     res.status(200).json({
+//       users,
+//       metadata: "user updated"
+//     })
+//   } else {
+//     res.status(400).json({
+//       error: "data invalid"
+//     })
+//   }
+// })
 
 router.post(
   '/login', 

@@ -2,7 +2,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuIt
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Link } from 'react-scroll';
 import useAuth from '../hooks/useAuth';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import Dropdown from './Dropdown';
 import { useEffect } from 'react';
 import Swal from 'sweetalert2';
@@ -61,6 +61,11 @@ export default function NavbarUser() {
     }
   }, [auth, setAuth]);
 
+  const location = useLocation();
+  const isActiveCustom =
+    location.pathname.startsWith("/paketsoal") ||
+    location.pathname.startsWith("/simulasi-toefl");
+
   return (
     <Disclosure as="nav" className="sticky top-0 z-10 bg-primary shadow-xl ">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -86,25 +91,28 @@ export default function NavbarUser() {
               <a href='/' className='md:text-xl ms-2 text-xl text-white font-semibold sm:block' style={{lineHeight: 1}}>Yanto Tanjung <br /> English Academy</a>
             </div>
             <div className="hidden sm:ml-6 sm:flex items-center">
-              <div className="flex space-x-4">
-                {/* {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.to}
-                    spy={true}
-                    smooth={true}
-                    duration={500}
-                    offset={-64}
-                    activeClass="bg-[#4300FF] text-white"
-                    className={classNames(
-                      'text-gray-300 hover:bg-[#6528F7] hover:text-white',
-                      'rounded-md px-3 py-2 text-sm font-medium cursor-pointer'
-                    )}
-                  >
-                    {item.name}
-                  </Link>
-                ))} */}
-              </div>
+              <nav className="flex space-x-4">
+                <NavLink
+                  to="/paketsoal"
+                  className={`px-3 py-2 rounded-lg transition text-sm
+                    ${isActiveCustom
+                      ? "bg-[#4300FF] text-white"
+                      : "text-gray-300 hover:bg-[#6528F7] hover:text-white"}`}
+                >
+                  Simulasi
+                </NavLink>
+                <NavLink
+                  to="/paket-saya"
+                  className={({ isActive }) =>
+                    `px-3 py-2 rounded-lg transition text-sm
+                    ${isActive
+                      ? "bg-[#4300FF] text-white"
+                      : "text-gray-300 hover:bg-[#6528F7] hover:text-white"}`
+                  }
+                >
+                  Paket Saya
+                </NavLink>
+              </nav>
             </div>
           </div>
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
@@ -139,24 +147,28 @@ export default function NavbarUser() {
 
       <DisclosurePanel className="sm:hidden">
         <div className="space-y-1 px-2 pt-2 pb-3">
-          {navigation.map((item) => (
-            <DisclosureButton
-              key={item.name}
-              as={Link}
-              to={item.to}
-              spy={true}
-              smooth={true}
-              duration={500}
-              offset={-64}
-              activeClass="bg-[#4300FF] text-white"
-              className={classNames(
-                'text-gray-300 hover:bg-gray-700 hover:text-white',
-                'block rounded-md px-3 py-2 text-base font-medium cursor-pointer'
-              )}
+          <nav className="flex flex-col space-y-2">
+            <NavLink
+              to="/paketsoal"
+              className={`px-3 py-2 rounded-lg transition text-sm
+                ${isActiveCustom
+                  ? "bg-[#4300FF] text-white"
+                  : "text-gray-300 hover:bg-[#6528F7] hover:text-white"}`}
             >
-              {item.name}
-            </DisclosureButton>
-          ))}
+              Simulasi
+            </NavLink>
+            <NavLink
+              to="/paket-saya"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-lg transition text-sm
+                ${isActive
+                  ? "bg-[#4300FF] text-white"
+                  : "text-gray-300 hover:bg-[#6528F7] hover:text-white"}`
+              }
+            >
+              Paket Saya
+            </NavLink>
+          </nav>
         </div>
       </DisclosurePanel>
     </Disclosure>

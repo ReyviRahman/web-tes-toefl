@@ -6,7 +6,7 @@ const Question = require('../models/question')
 const ExamHistory = require('../models/exam_history');
 const verifyToken = require('../middleware/verifyToken');
 const User = require('../models/users')
-
+const PaketSoal = require('../models/paket_soal'); 
 
 router.get('/', verifyToken, async (req, res) => {
   try {
@@ -248,6 +248,12 @@ router.post('/jawaban', verifyToken, async (req, res) => {
     let scoreReading = readingMap[readingCorrect]
     let toeflScore = Math.round((scoreListening + scoreWritten + scoreReading) / 3 * 10) 
 
+    const paket = await PaketSoal.findByPk(user.paket_soal_id_aktif);
+    if (!paket) {
+      return res.status(404).json({ message: 'Paket soal tidak ditemukan' });
+    }
+    const namaPaket = paket.nama_paket;
+
     await user.update({ 
       lastScore: toeflScore, 
       listening: scoreListening, 
@@ -257,7 +263,8 @@ router.post('/jawaban', verifyToken, async (req, res) => {
       written_correct: writtenCorrect,
       reading_correct: readingCorrect,
       status_ujian: "idle",
-      paket_soal_id_aktif: null
+      paket_soal_id_aktif: null,
+      paket_terakhir: namaPaket
     });
 
     await ExamHistory.create({
@@ -367,31 +374,5 @@ router.put('/timers', async (req, res) => {
     secondsRemaining,
   });
 });
-
-router.get('/getsoal', async (req, res) => {
-  const { page } = req.query; // Mengambil parameter 'page'
-
-  if (!page) {
-    return res.status(400).json({ message: 'Page query parameter is required.' });
-  }
-
-  try {
-    // Fetch soal berdasarkan page (hanya satu page)
-    const soalPage = await SoalModel.findOne({
-      where: { page: page },
-    });
-
-    if (!soalPage) {
-      return res.status(404).json({ message: `No questions found for page ${page}` });
-    }
-
-    res.status(200).json({ soal: soalPage });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'An error occurred while fetching the question.', error: error.message });
-  }
-});
-
-
 
 module.exports = router

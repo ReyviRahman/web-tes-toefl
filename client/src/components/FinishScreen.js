@@ -38,9 +38,6 @@ const FinishScreen = ({ answer, status, dispatch, nohp, role }) => {
   }
 
   useEffect(() => {
-    console.log('ini status dari Finish', status)
-    localStorage.removeItem('toeflState');
-    localStorage.removeItem(`audio-played-${nohp}`);
     const getScore = async () => {
       try {
         Swal.fire({
@@ -64,15 +61,15 @@ const FinishScreen = ({ answer, status, dispatch, nohp, role }) => {
         //   Swal.close()
         // } else {
           const response = await axios.post(
-  `${process.env.REACT_APP_API_BASE_URL}/soal/jawaban`,
-  {
-    nohp: nohp,
-    answers: answer
-  },
-  {
-    withCredentials: true
-  }
-);
+            `${process.env.REACT_APP_API_BASE_URL}/soal/jawaban`,
+            {
+              nohp: nohp,
+              answers: answer
+            },
+            {
+              withCredentials: true
+            }
+          );
 
           setScore(response.data.toeflScore)
           setScoreListening(response.data.scoreListening)
@@ -82,11 +79,11 @@ const FinishScreen = ({ answer, status, dispatch, nohp, role }) => {
           setCorrectWritten(response.data.writtenCorrect)
           setCorrectReading(response.data.readingCorrect)
         // }
-
+        localStorage.removeItem('toeflState');
+        localStorage.removeItem(`audio-played-${nohp}`);
         Swal.close()
       } catch (error) {
         console.error("Error fetching score:", error);
-
         Swal.fire({
           icon: "error",
           title: "Error",
@@ -94,10 +91,7 @@ const FinishScreen = ({ answer, status, dispatch, nohp, role }) => {
         });
       }
     }
-
     getScore()
-
-    
   }, [])
 
   return (

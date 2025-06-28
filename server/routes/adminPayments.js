@@ -23,16 +23,12 @@ router.get('/', async (req, res) => {
   }
 });
 
-/**
- * PUT /admin/payments/:id/status
- * Body: { status: 'confirmed' | 'rejected' }
- */
 router.put('/:id/status', async (req, res) => {
   try {
     const { id }     = req.params;
-    const { status } = req.body;
+    const { status, alasanPenolakan } = req.body;
 
-    if (!['pending','confirmed','rejected'].includes(status)) {
+    if (!['pending', 'confirmed', 'rejected'].includes(status)) {
       return res.status(400).json({ message: 'Status tidak valid' });
     }
 
@@ -44,6 +40,14 @@ router.put('/:id/status', async (req, res) => {
 
     // 2) update status payment
     payment.status = status;
+
+    // Jika status rejected, update alasanPenolakan juga
+    if (status === 'rejected') {
+      payment.alasanPenolakan = alasanPenolakan || null;
+    } else {
+      payment.alasanPenolakan = null; // reset kalau bukan rejected
+    }
+
     await payment.save();
 
     // 3) jika sudah confirmed, update status_ujian di users
@@ -52,13 +56,12 @@ router.put('/:id/status', async (req, res) => {
         { 
           status_ujian: 'sedang_ujian',
           paket_soal_id_aktif: payment.paket_soal_id,
-          end_time: null
-         },
+          end_time: null,
+        },
         { where: { nohp: payment.userNohp } }
       );
     }
 
-    // 4) kirim response
     res.json({
       message: 'Status pembayaran diupdate',
       payment

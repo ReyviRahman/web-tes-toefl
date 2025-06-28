@@ -21,6 +21,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import PaymentList from "./pages/admin/PaymentList";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import RequirePaid from "./components/RequirePaid";
+import PaketSaya from "./pages/user/PaketSaya";
 
 function App() {
   return (
@@ -42,7 +43,9 @@ function App() {
           <Route element={<RequirePaid />}>
             <Route path="/simulasi-toefl/:paketId" element={<ToeflSimulation />} />
           </Route>
+
           <Route path='/paketsoal' element={<PilihPaketSoal />} />
+          <Route path='/paket-saya' element={<PaketSaya />} />
           <Route path='/bayar/:paketId' element={<Bayar />} />
         </Route>
         

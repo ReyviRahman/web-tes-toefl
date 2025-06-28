@@ -9,6 +9,10 @@ Payment.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
+  nama_paket: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   paket_soal_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -20,6 +24,10 @@ Payment.init({
   status: {
     type: DataTypes.ENUM('pending', 'confirmed', 'rejected'),
     defaultValue: 'pending',
+  },
+  alasanPenolakan: {
+    type: DataTypes.STRING, // Path atau filename bukti bayar
+    allowNull: false,
   },
 }, {
   sequelize,

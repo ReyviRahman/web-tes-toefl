@@ -6,6 +6,15 @@ import Main from '../../components/Main';
 import { useNavigate } from 'react-router-dom';
 
 const PilihPaketSoal = () => {
+  const [score, setScore] = useState('0')
+  const [isLastScore, setIsLastScore] = useState(false)
+  const [scoreListening, setScoreListening] = useState('0')
+  const [scoreWritten, setScoreWritten] = useState('0')
+  const [scoreReading, setScoreReading] = useState('0')
+  const [correctListening, setCorrectListening] = useState('0')
+  const [correctWritten, setCorrectWritten] = useState('0')
+  const [correctReading, setCorrectReading] = useState('0')
+  const [lastPaket, setLastPaket] = useState('')
   const navigate = useNavigate();
   const [paketList, setPaketList] = useState([]);
 
@@ -61,7 +70,46 @@ const PilihPaketSoal = () => {
       });
     }
   };
+  const getScore = async () => {
+    try {
+      Swal.fire({
+        title: "Loading...",
+        text: "Checking your answers",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+          Swal.showLoading();
+        },
+      });
+      const responseGetLastScore = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/users/lastScore`,
+        { withCredentials: true }
+      );
+      if (responseGetLastScore.data.lastScore !== -1) {
+        setScore(responseGetLastScore.data.lastScore)
+        setScoreListening(responseGetLastScore.data.scoreListening)
+        setScoreWritten(responseGetLastScore.data.scoreWritten)
+        setScoreReading(responseGetLastScore.data.scoreReading)
+        setCorrectListening(responseGetLastScore.data.listeningCorrect)
+        setCorrectWritten(responseGetLastScore.data.writtenCorrect)
+        setCorrectReading(responseGetLastScore.data.readingCorrect)
+        setLastPaket(responseGetLastScore.data.lastPaket)
+        setIsLastScore(true)
+        Swal.close()
+      }  
+      Swal.close()
+    } catch (error) {
+      console.error("Error fetching score:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch score. Please try again later.",
+      });
+    }
+  }
+
   useEffect(() => {
+    getScore();
     cekAkses();
     fetchPaketSoal();
   }, [navigate]);
@@ -109,6 +157,29 @@ const PilihPaketSoal = () => {
       <Main>
         <div className='container mx-auto'>
           <div className="grid sm:grid-cols-3 grid-cols-2 gap-4 p-4">
+            {isLastScore === true && (
+              <div className="border p-4 rounded-xl shadow-md col-span-3">
+                <h1 className='text-center'>Skor Terakhir Simulasi Kamu :</h1>
+                <h1 className='text-center font-bold'>{lastPaket}</h1>
+                <div className='grid sm:grid-cols-3 grid-cols-4  mt-2 mb-4 border'>
+                  <div className='border py-2 px-3 text-center sm:col-span-1 col-span-2'>Sesi</div>
+                  <div className='border py-2 px-3 text-center'>Correct</div>
+                  <div className='border py-2 px-3 text-center'>Score</div>
+                  <div className='border py-2 px-3 text-center sm:col-span-1 col-span-2'>Listening Comprehension</div>
+                  <div className='border py-2 px-3 text-center flex items-center justify-center'>{correctListening}</div>
+                  <div className='border py-2 px-3 text-center flex items-center justify-center'>{scoreListening}</div>
+                  <div className='border py-2 px-3 text-center sm:col-span-1 col-span-2'>Structure And Written Expression</div>
+                  <div className='border py-2 px-3 text-center flex items-center justify-center'>{correctWritten}</div>
+                  <div className='border py-2 px-3 text-center flex items-center justify-center'>{scoreWritten}</div>
+                  <div className='border py-2 px-3 text-center sm:col-span-1 col-span-2'>Reading Comprehension</div>
+                  <div className='border py-2 px-3 text-center flex items-center justify-center'>{correctReading}</div>
+                  <div className='border py-2 px-3 text-center flex items-center justify-center'>{scoreReading}</div>
+                </div>
+                <div className='mt-2 mb-4'>
+                    <div className='border py-2 px-3 text-center text-primary font-semibold'>Overall Score: {score}</div>
+                </div>
+              </div>
+            )}
             {paketList.map((paket) => (
               <div key={paket.id} className="border p-4 rounded-xl shadow-md">
                 <h3 className="text-xl font-bold">Soal {paket.nama_paket}</h3>

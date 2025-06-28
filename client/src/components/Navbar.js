@@ -102,6 +102,16 @@ export default function Navbar() {
                     {item.name}
                   </Link>
                 ))}
+                  <NavLink
+                    to='/paketsoal'
+                    activeClass="bg-[#4300FF] text-white"
+                    className={classNames(
+                      'border text-[#FFD700] hover:bg-white',
+                      'rounded-md px-3 py-2 text-sm font-bold cursor-pointer'
+                    )}
+                  >
+                    Simulasi TOEFL
+                  </NavLink>
               </div>
             </div>
           </div>
@@ -149,12 +159,22 @@ export default function Navbar() {
               activeClass="bg-[#4300FF] text-white"
               className={classNames(
                 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                'block rounded-md px-3 py-2 text-base font-medium cursor-pointer'
+                'block rounded-md px-3 py-2 text-sm font-medium cursor-pointer'
               )}
             >
               {item.name}
             </DisclosureButton>
           ))}
+          <NavLink
+            to='/paketsoal'
+            activeClass="bg-[#4300FF] text-white"
+            className={classNames(
+              'border text-[#FFD700] hover:bg-white',
+              'rounded-md px-3 py-2 text-sm font-bold cursor-pointer block text-center'
+            )}
+          >
+            Simulasi TOEFL
+          </NavLink>
         </div>
       </DisclosurePanel>
     </Disclosure>
