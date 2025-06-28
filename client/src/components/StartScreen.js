@@ -16,16 +16,16 @@ const StartScreen = ({dispatch, nohp}) => {
       });
 
       // ① cek skor terakhir
-      const resScore = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/users/lastScore`,
-        { params: { nohp: nohp } }
-      );
+      // const resScore = await axios.get(
+      //   `${process.env.REACT_APP_API_BASE_URL}/users/lastScore`,
+      //   { params: { nohp: nohp } }
+      // );
 
-      if (resScore.data.lastScore !== -1) {
-        Swal.close(); // ❌ Tutup loading sebelum keluar
-        dispatch({ type: "finish" });
-        return;
-      }
+      // if (resScore.data.lastScore !== -1) {
+      //   Swal.close(); 
+      //   dispatch({ type: "finish" });
+      //   return;
+      // }
 
       // ② minta/jalankan timer
       const resTimer = await axios.put(

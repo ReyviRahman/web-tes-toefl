@@ -9,6 +9,7 @@ import axios from 'axios';
 import AudioItem from '../../components/AudioItem';
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css'
+import Swal from 'sweetalert2';
 
 const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining, sesi, nohp}) => {
   const baseUrl = process.env.REACT_APP_API_BASE_URL;
@@ -153,7 +154,28 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
     <div>
       <div className='flex sm:flex-row flex-col justify-between border border-b-0 py-2'>
         <div className='flex sm:ms-5 mx-2'>
-          <button type='button' className='sm:w-fit w-full bg-green-600 px-3 py-1  rounded text-white' onClick={() => dispatch({type: 'finish'})}>Selesai </button>
+          {sesi === "reading" && (
+            <button
+              type="button"
+              className="sm:w-fit w-full bg-green-600 px-3 py-1 rounded text-white"
+              onClick={() => {
+                Swal.fire({
+                  title: 'Yakin ingin menyelesaikan?',
+                  text: 'Setelah klik selesai, Ujian akan berakhir.',
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonText: 'Ya, Selesai',
+                  cancelButtonText: 'Batal'
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    dispatch({ type: "finish" });
+                  }
+                });
+              }}
+            >
+              Selesai
+            </button>
+          )}
           <h1 className='sm:w-fit w-full px-3 py-1 text-red-600 border ms-2 rounded text-center'>
             {hours}:{minutes}:{seconds}
           </h1>

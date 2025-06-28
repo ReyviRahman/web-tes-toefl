@@ -51,7 +51,8 @@ router.put('/:id/status', async (req, res) => {
       await User.update(
         { 
           status_ujian: 'sedang_ujian',
-          paket_soal_id_aktif: payment.paket_soal_id
+          paket_soal_id_aktif: payment.paket_soal_id,
+          end_time: null
          },
         { where: { nohp: payment.userNohp } }
       );

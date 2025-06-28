@@ -30,7 +30,7 @@ router.post('/upload', verifyToken, upload.single('bukti'), async (req, res) => 
   try {
     await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       chat_id: TELEGRAM_CHAT_ID,
-      text: `Notifikasi Pembayaran Masuk!\n\nUser: ${userNohp}\nPaket ID: ${paket_soal_id}\nStatus: pending`,
+      text: `Notifikasi Pembayaran Masuk!\n\nUser: ${userNohp}\nPaket ID: ${paket_soal_id}\nStatus: pending\n${process.env.CLIENT_ORIGIN}/admin/payments`,
     });
 
     const payment = await Payment.create({

@@ -33,7 +33,7 @@ const PaymentList = () => {
     fetchPayments();
   }, []);
 
-  const updateStatus = async (id, status) => {
+  const updateStatus = async (id, status, userNohp, userNama) => {
     Swal.fire({
       title: 'Memproses...',
       text: 'Mohon tunggu sebentar',
@@ -49,7 +49,23 @@ const PaymentList = () => {
         { withCredentials: true } 
       );
       await fetchPayments();
-      Swal.close()
+      Swal.close();
+
+      // Siapkan pesan otomatis
+      let pesan = '';
+      if (status === 'confirmed') {
+        pesan = `Halo ${userNama}, pembayaran Anda telah dikonfirmasi. Silakan mulai kerjakan simulasi TOEFL.`;
+      } else if (status === 'rejected') {
+        pesan = `Halo ${userNama}, mohon maaf pembayaran Anda belum dapat kami konfirmasi. Silakan hubungi admin untuk info lebih lanjut.`;
+      } else {
+        pesan = `Halo ${userNama}, status pembayaran Anda: ${status}.`;
+      }
+
+      // Redirect ke WhatsApp Web
+      window.open(
+        `https://wa.me/${userNohp}?text=${encodeURIComponent(pesan)}`,
+        '_blank'
+      );
     } catch (error) {
       Swal.fire({
         icon: 'error',
@@ -59,22 +75,23 @@ const PaymentList = () => {
     }
   };
 
+
   return (
     <div>
       <h2 className="text-2xl mb-4">Daftar Pembayaran</h2>
-      <div class="card">
-        <div class="p-6">
-            <div class="relative overflow-auto">
-                <table class="border-collapse min-w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm shadow-sm">
-                    <thead class="bg-slate-50 dark:bg-slate-700">
+      <div className="card">
+        <div className="">
+            <div className="relative overflow-auto">
+                <table className="border-collapse min-w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm shadow-sm">
+                    <thead className="bg-slate-50 dark:bg-slate-700">
                         <tr>
-                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">No</th>
-                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">No Hp</th>
-                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Nama</th>
-                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Paket Soal</th>
-                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Bukti Pembayaran</th>
-                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Status</th>
-                            <th class="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Aksi</th>
+                            <th className="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">No</th>
+                            <th className="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">No Hp</th>
+                            <th className="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Nama</th>
+                            <th className="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Paket Soal</th>
+                            <th className="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Bukti Pembayaran</th>
+                            <th className="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Status</th>
+                            <th className="border border-slate-300 dark:border-slate-600 font-semibold px-4 py-4 text-slate-900 dark:text-slate-200 text-start">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,14 +106,36 @@ const PaymentList = () => {
                               Lihat Bukti Pembayaran
                             </a>
                           </td>
-                          <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400">{p.status}</td>
+                          <td
+                            className={
+                              `border border-slate-300 dark:border-slate-700 px-4 py-4
+                              ${
+                                p.status === 'pending'
+                                  ? 'text-yellow-500'
+                                  : p.status === 'confirmed'
+                                  ? 'text-green-600'
+                                  : p.status === 'rejected'
+                                  ? 'text-red-600'
+                                  : 'text-slate-500 dark:text-slate-400'
+                              }
+                              dark:text-slate-400`
+                            }
+                          >
+                            {p.status}
+                          </td>
                           <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400">
                             {p.status === 'pending' && (
                               <>
-                                <button onClick={() => updateStatus(p.id, 'confirmed')} className="px-3 py-1 bg-green-500 text-white rounded">
+                                <button 
+                                  onClick={() => updateStatus(p.id, 'confirmed', p.userNohp, p.User.nama)}
+                                  className="px-3 py-1 bg-green-500 text-white rounded me-2"
+                                >
                                   Konfirmasi
                                 </button>
-                                <button onClick={() => updateStatus(p.id, 'rejected')} className="px-3 py-1 bg-red-500 text-white rounded">
+                                <button 
+                                  onClick={() => updateStatus(p.id, 'rejected', p.userNohp, p.User.nama)}
+                                  className="px-3 py-1 bg-red-500 text-white rounded"
+                                >
                                   Tolak
                                 </button>
                               </>

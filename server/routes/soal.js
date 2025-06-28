@@ -4,137 +4,41 @@ const SoalModel = require('../models/soal')
 const UserModel = require('../models/users')
 const Question = require('../models/question')
 const ExamHistory = require('../models/exam_history');
+const verifyToken = require('../middleware/verifyToken');
+const User = require('../models/users')
 
-router.get('/', async (req, res) => {
-  const soal = await SoalModel.findAll({
-    attributes: {
-      exclude: ['jawaban', 'createdAt', 'updatedAt', 'q_reading'], 
-    },
-    include: {
-      model: Question,
-      as: 'readingQuestion',
-      attributes: ['reading']
-    }
-  })
 
-  res.status(200).json({
-    soal: soal,
-    metadata: "Get All Soal"
-  })
-})
-
-// router.put('/timers', async (req, res) => {
-//   const { nohp } = req.body;
-//   const user = await UserModel.findByPk(nohp);
-
-//   // selalu pakai waktu server
-//   const server_now = Date.now();
-
-//   let { start_time, end_time } = user;
-
-//   if (user.end_time === null) {
-//     start_time = server_now;
-//     // end_time   = start_time + 115 * 60 * 1000; 
-//     end_time = start_time + 60 * 60 * 1000;
-//     await user.update({ start_time, end_time });
-//   }
-
-//   res.status(200).json({
-//     end_time,
-//     server_now,
-//     secondsRemaining: Math.floor((end_time - server_now) / 1000)
-//   });
-// });
-
-router.put('/timers', async (req, res) => {
-  const { nohp } = req.body;
-  const user = await UserModel.findByPk(nohp);
-  if (!user) return res.status(404).json({ message: 'User not found' });
-
-  const server_now = Date.now();
-  const sessions = ['listening', 'written', 'reading'];
-  const durationMap = {
-    listening: 5000,     // 1 jam
-    written:   5000,     // 30 menit
-    reading:   5 * 60 * 1000,     // 15 menit
-  };
-  // const durationMap = {
-  //   listening: 40 * 60 * 1000,      30 menit
-  //   written:   25 * 60 * 1000,      25 menit
-  //   reading:   55 * 60 * 1000,      55 menit
-  // };
-
-  let { sesi, start_time, end_time } = user;
-
-  // 1) Jika belum pernah memulai sesi apapun, inisialisasi sesi pertama
-  if (end_time === null) {
-    sesi = sessions[0];
-    start_time = server_now;
-    end_time = server_now + durationMap[sesi];
-    await user.update({ sesi, start_time, end_time });
-  }
-  // 2) Jika waktu sekarang sudah melewati end_time, pindah ke sesi berikutnya
-  else if (server_now >= end_time) {
-    const currentIdx = sessions.indexOf(sesi);
-    const nextIdx = currentIdx + 1;
-
-    if (nextIdx < sessions.length) {
-      // masih ada sesi selanjutnya
-      sesi = sessions[nextIdx];
-      start_time = server_now;
-      end_time = server_now + durationMap[sesi];
-      await user.update({ sesi, start_time, end_time });
-    } else {
-      // semua sesi sudah selesai
-      // kamu bisa handle finished di sini, misal:
-      return res.status(200).json({
-        message: 'All sessions completed',
-        server_now,
-        secondsRemaining: 0,
-        sesi: 'finished'
-      });
-    }
-  }
-
-  // 3) Hitung sisa detik
-  const secondsRemaining = Math.max(
-    0,
-    Math.floor((end_time - server_now) / 1000)
-  );
-
-  return res.status(200).json({
-    sesi,
-    end_time,
-    server_now,
-    secondsRemaining,
-  });
-});
-
-router.get('/getsoal', async (req, res) => {
-  const { page } = req.query; // Mengambil parameter 'page'
-
-  if (!page) {
-    return res.status(400).json({ message: 'Page query parameter is required.' });
-  }
-
+router.get('/', verifyToken, async (req, res) => {
   try {
-    // Fetch soal berdasarkan page (hanya satu page)
-    const soalPage = await SoalModel.findOne({
-      where: { page: page },
+    const user = await User.findOne({ where: { nohp: req.user.nohp } });
+
+    if (!user || !user.paket_soal_id_aktif) {
+      return res.status(404).json({ message: "User belum punya paket aktif" });
+    }
+
+    const soal = await SoalModel.findAll({
+      where: { paket_soal_id: user.paket_soal_id_aktif },
+      attributes: {
+        exclude: ['jawaban', 'createdAt', 'updatedAt', 'q_reading'],
+      },
+      include: {
+        model: Question,
+        as: 'readingQuestion',
+        attributes: ['reading'],
+      },
     });
 
-    if (!soalPage) {
-      return res.status(404).json({ message: `No questions found for page ${page}` });
-    }
-
-    res.status(200).json({ soal: soalPage });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'An error occurred while fetching the question.', error: error.message });
+    res.status(200).json({
+      soal,
+      metadata: "Get soal by paket_soal_id_aktif user",
+    });
+  } catch (err) {
+    console.error("Error fetching soal:", err);
+    res.status(500).json({ message: "Gagal mengambil soal" });
   }
 });
 
-router.post('/jawaban', async (req, res) => {
+router.post('/jawaban', verifyToken, async (req, res) => {
   const listeningMap = {
     0: 24,
     1: 25,
@@ -295,13 +199,14 @@ router.post('/jawaban', async (req, res) => {
     }
 
     const user = await UserModel.findByPk(nohp)
-    if (user.lastScore !== -1) {
-      return res.status(200).json({ toeflScore : user.lastScore, scoreListening : user.listening, scoreWritten: user.written, scoreReading: user.reading})
+    if (!user) {
+      return res.status(404).json({ message: 'User tidak ditemukan' });
     }
 
     // Ambil hanya kolom 'page' dan 'jawaban' dari semua soal
     const allSoal = await SoalModel.findAll({
-      attributes: ['page', 'jawaban'], // Kolom yang diambil
+      where: { paket_soal_id: user.paket_soal_id_aktif },
+      attributes: ['page', 'jawaban'],
     });
 
     let totalPoints = 0;
@@ -351,6 +256,8 @@ router.post('/jawaban', async (req, res) => {
       listening_correct: listeningCorrect,
       written_correct: writtenCorrect,
       reading_correct: readingCorrect,
+      status_ujian: "idle",
+      paket_soal_id_aktif: null
     });
 
     await ExamHistory.create({
@@ -373,5 +280,118 @@ router.post('/jawaban', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+// router.put('/timers', async (req, res) => {
+//   const { nohp } = req.body;
+//   const user = await UserModel.findByPk(nohp);
+
+//   // selalu pakai waktu server
+//   const server_now = Date.now();
+
+//   let { start_time, end_time } = user;
+
+//   if (user.end_time === null) {
+//     start_time = server_now;
+//     // end_time   = start_time + 115 * 60 * 1000; 
+//     end_time = start_time + 60 * 60 * 1000;
+//     await user.update({ start_time, end_time });
+//   }
+
+//   res.status(200).json({
+//     end_time,
+//     server_now,
+//     secondsRemaining: Math.floor((end_time - server_now) / 1000)
+//   });
+// });
+
+router.put('/timers', async (req, res) => {
+  const { nohp } = req.body;
+  const user = await UserModel.findByPk(nohp);
+  if (!user) return res.status(404).json({ message: 'User not found' });
+
+  const server_now = Date.now();
+  const sessions = ['listening', 'written', 'reading'];
+  const durationMap = {
+    listening: 5000,     // 1 jam
+    written:   5000,     // 30 menit
+    reading:   60000,     // 15 menit
+  };
+  // const durationMap = {
+  //   listening: 40 * 60 * 1000,      30 menit
+  //   written:   25 * 60 * 1000,      25 menit
+  //   reading:   55 * 60 * 1000,      55 menit
+  // };
+
+  let { sesi, start_time, end_time } = user;
+
+  // 1) Jika belum pernah memulai sesi apapun, inisialisasi sesi pertama
+  if (end_time === null) {
+    sesi = sessions[0];
+    start_time = server_now;
+    end_time = server_now + durationMap[sesi];
+    await user.update({ sesi, start_time, end_time });
+  }
+  // 2) Jika waktu sekarang sudah melewati end_time, pindah ke sesi berikutnya
+  else if (server_now >= end_time) {
+    const currentIdx = sessions.indexOf(sesi);
+    const nextIdx = currentIdx + 1;
+
+    if (nextIdx < sessions.length) {
+      // masih ada sesi selanjutnya
+      sesi = sessions[nextIdx];
+      start_time = server_now;
+      end_time = server_now + durationMap[sesi];
+      await user.update({ sesi, start_time, end_time });
+    } else {
+      // semua sesi sudah selesai
+      // kamu bisa handle finished di sini, misal:
+      return res.status(200).json({
+        message: 'All sessions completed',
+        server_now,
+        secondsRemaining: 0,
+        sesi: 'finished'
+      });
+    }
+  }
+
+  // 3) Hitung sisa detik
+  const secondsRemaining = Math.max(
+    0,
+    Math.floor((end_time - server_now) / 1000)
+  );
+
+  return res.status(200).json({
+    sesi,
+    end_time,
+    server_now,
+    secondsRemaining,
+  });
+});
+
+router.get('/getsoal', async (req, res) => {
+  const { page } = req.query; // Mengambil parameter 'page'
+
+  if (!page) {
+    return res.status(400).json({ message: 'Page query parameter is required.' });
+  }
+
+  try {
+    // Fetch soal berdasarkan page (hanya satu page)
+    const soalPage = await SoalModel.findOne({
+      where: { page: page },
+    });
+
+    if (!soalPage) {
+      return res.status(404).json({ message: `No questions found for page ${page}` });
+    }
+
+    res.status(200).json({ soal: soalPage });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An error occurred while fetching the question.', error: error.message });
+  }
+});
+
+
 
 module.exports = router

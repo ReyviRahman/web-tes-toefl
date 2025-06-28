@@ -163,7 +163,10 @@ const ToeflSimulation = () => {
   useEffect(() => {
     const fetchDataSoal = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/soal`);
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_BASE_URL}/soal`,
+          { withCredentials: true }
+        );
         let soalToefl = [...response.data.soal]; // clone untuk aman
 
         const petunjukObj = { petunjuk: 'petunjuk' };

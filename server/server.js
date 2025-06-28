@@ -7,22 +7,38 @@ const sequelize = require('./db.config');
 const PaketSoal = require('./models/paket_soal'); 
 require('./models/payment');
 
-sequelize.sync({ alter: true })
-  .then(() => {
-    console.log('Database & tables created!');
-  })
-  .catch((error) => {
-    console.error('Error creating database & tables:', error);
-  });
+// sequelize.sync({ alter: true })
+//   .then(() => {
+//     console.log('Database & tables created!');
+//   })
+//   .catch((error) => {
+//     console.error('Error creating database & tables:', error);
+//   });
 
 // Inisialisasi aplikasi express
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: process.env.CLIENT_ORIGIN,
-  credentials: true
-}));
+const allowedOrigins = [
+  'https://yantotanjung.com',
+  'https://www.yantotanjung.com',
+  'http://localhost:3000'
+];
+
+app.use(
+  cors({
+    credentials: true,
+    origin: (origin, cb) => {
+      // request dari Postman / curl kadang tanpa origin → langsung lolos
+      if (!origin) return cb(null, true);
+
+      // cek apakah origin ada di whitelist (string) atau cocok regex
+      const ok = allowedOrigins.includes(origin);
+      return ok ? cb(null, true) : cb(new Error('Origin not allowed by CORS'));
+    },
+  }),
+);
+
 app.use(express.json());
 app.use(cookieParser());
 
