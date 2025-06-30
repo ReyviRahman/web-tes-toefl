@@ -54,6 +54,7 @@ const paketSoalEndpoint = require('./routes/paketSoal');
 const paymentEndpoint = require('./routes/payment');
 const adminPayments = require('./routes/adminPayments');
 const riwayatUjian = require('./routes/riwayatUjian');
+const paketSoal = require('./routes/adminSoal');
 
 app.use('/users', userEndpoint);
 app.use('/soal', soalEndpoint);
@@ -62,6 +63,7 @@ app.use('/paket-soal', paketSoalEndpoint);
 app.use('/payment', paymentEndpoint);
 app.use('/admin/payments', adminPayments);
 app.use('/admin/riwayat-ujian', riwayatUjian);
+app.use('/admin/paket-soal', paketSoal);
 
 // Jalankan server
 app.listen(port, () => console.log(`Running server on port ${port}`));

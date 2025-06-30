@@ -9,12 +9,18 @@ PaketSoal.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
+  status: {
+    type: DataTypes.ENUM('siap', 'belum'),
+    allowNull: false,
+    defaultValue: 'belum',
+  }
 }, {
   sequelize,
   modelName: 'PaketSoal',
   tableName: 'paket_soals',
 });
 
+// Relasi
 PaketSoal.hasMany(Soal, { foreignKey: 'paket_soal_id', as: 'soals' });
 Soal.belongsTo(PaketSoal, { foreignKey: 'paket_soal_id', as: 'paketSoal' });
 

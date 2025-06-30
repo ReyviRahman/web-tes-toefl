@@ -20,8 +20,12 @@ import Bayar from "./pages/user/Bayar";
 import AdminLayout from "./pages/admin/AdminLayout";
 import PaymentList from "./pages/admin/PaymentList";
 import RiwayatUjian from "./pages/admin/RiwayatUjian";
+import RiwayatUjianUser from "./pages/user/RiwayatUjian";
 import RequirePaid from "./components/RequirePaid";
 import PaketSaya from "./pages/user/PaketSaya";
+import SoalSimulasi from "./pages/admin/SoalSimulasi";
+import TambahPaketSoal from "./pages/admin/TambahPaketSoal";
+import EditPaketSoal from "./pages/admin/EditPaketSoal";
 
 function App() {
   return (
@@ -43,7 +47,7 @@ function App() {
           <Route element={<RequirePaid />}>
             <Route path="/simulasi-toefl/:paketId" element={<ToeflSimulation />} />
           </Route>
-
+          <Route path="/riwayat-ujian" element={<RiwayatUjianUser/>} />
           <Route path='/paketsoal' element={<PilihPaketSoal />} />
           <Route path='/paket-saya' element={<PaketSaya />} />
           <Route path='/bayar/:paketId' element={<Bayar />} />
@@ -63,6 +67,9 @@ function App() {
 
               {/* /admin/dashboard jika butuh */}
               <Route path="riwayat-ujian" element={<RiwayatUjian />} />
+              <Route path="soal-simulasi" element={<SoalSimulasi />} />
+              <Route path="soal-simulasi/add" element={<TambahPaketSoal />} />
+              <Route path="soal-simulasi/edit/:id" element={<EditPaketSoal />} />
 
               {/* contoh jika nanti mau detail payment */}
               {/* <Route path="payments/:id" element={<PaymentDetail />} /> */}

@@ -3,7 +3,7 @@ import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import axios from 'axios';
 import { FiMenu, FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { RiDashboardLine, RiMoneyDollarCircleLine, RiLogoutBoxLine} from "react-icons/ri";
+import { RiQuestionAnswerLine, RiMoneyDollarCircleLine, RiLogoutBoxLine} from "react-icons/ri";
 import { PiExam } from "react-icons/pi";
 const AdminLayout = () => {
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
@@ -98,6 +98,20 @@ const AdminLayout = () => {
               >
                 <PiExam size={22} />
                 {!sidebarCollapsed && <span className="ml-3">Riwayat Ujian</span>}
+              </NavLink>
+            </li>
+            <li className={`w-full ${sidebarCollapsed ? 'flex justify-center' : ''}`}>
+              <NavLink 
+                to="/admin/soal-simulasi" 
+                className={({ isActive }) => 
+                  `flex items-center px-2 py-2 rounded-lg transition font-medium ${
+                    isActive ? 'bg-blue-100 text-blue-700' : 'hover:bg-blue-50 text-gray-700'
+                  } ${sidebarCollapsed ? 'justify-center' : ''}`
+                }
+                onClick={() => setSidebarOpenMobile(false)}
+              >
+                <RiQuestionAnswerLine  size={22} />
+                {!sidebarCollapsed && <span className="ml-3">Soal Simulasi</span>}
               </NavLink>
             </li>
           </ul>

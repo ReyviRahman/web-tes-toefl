@@ -3,6 +3,7 @@ const csurf = require("csurf")
 const csrfProtection = csurf({ cookie: { httpOnly: true } })
 const router = express.Router()
 const UsersModel = require('../models/users')
+const ExamHistory = require('../models/exam_history')
 const upload = require('../middleware/upload')
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
@@ -10,6 +11,30 @@ const Payment = require('../models/payment')
 const verifyToken = require('../middleware/verifyToken');
 const User = require('../models/users')
 const secretKey = process.env.JWT_SECRET;
+
+router.get('/riwayat-ujian', verifyToken, async (req, res) => {
+  try {
+    const nohp = req.user.nohp;
+
+    // Ambil semua exam history milik user ini
+    const histories = await ExamHistory.findAll({
+      where: { userNohp: nohp },
+      include: [
+        {
+          model: UsersModel,
+          as: 'user',
+          attributes: ['nama'],
+        }
+      ],
+      order: [['created_at', 'DESC']],
+    });
+
+    res.json(histories);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Gagal mengambil histori simulasi' });
+  }
+});
 
 router.get('/lastScore', verifyToken, async (req,res) => {
   const nohp = req.user.nohp;

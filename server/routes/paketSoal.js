@@ -7,7 +7,6 @@ const Soal = require('../models/soal'); // jika ingin include soal
 router.get('/', async (req, res) => {
   try {
     const paketSoals = await PaketSoal.findAll();
-
     res.status(200).json(paketSoals);
   } catch (error) {
     console.error('Error fetching paket soal:', error);
