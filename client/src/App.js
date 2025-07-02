@@ -30,6 +30,9 @@ import SesiSoal from "./pages/admin/SesiSoal";
 import TambahSoalListening from "./pages/admin/soal-simulasi/tambah-soal-simulasi/TambahSoalListening";
 import SoalListening from "./pages/admin/soal-simulasi/tambah-soal-simulasi/SoalListening";
 import EditSoalListening from "./pages/admin/soal-simulasi/tambah-soal-simulasi/EditSoalListening";
+import SoalStructure from "./pages/admin/soal-simulasi/tambah-soal-simulasi/SoalStructure";
+import TambahSoalStructure from "./pages/admin/soal-simulasi/tambah-soal-simulasi/TambahSoalStructure";
+import EditSoalStructure from "./pages/admin/soal-simulasi/tambah-soal-simulasi/EditSoalStructure";
 
 function App() {
   return (
@@ -79,6 +82,10 @@ function App() {
               <Route path="soal-simulasi/soal-listening/:paketId" element={<SoalListening />} />
               <Route path="soal-simulasi/add-soal-listening/:paketId" element={<TambahSoalListening />} />
               <Route path="soal-simulasi/edit-soal-listening/:soalId" element={<EditSoalListening />} />
+
+              <Route path="soal-simulasi/soal-structure/:paketId" element={<SoalStructure />} />
+              <Route path="soal-simulasi/add-soal-structure/:paketId" element={<TambahSoalStructure />} />
+              <Route path="soal-simulasi/edit-soal-structure/:soalId" element={<EditSoalStructure />} />
 
               {/* contoh jika nanti mau detail payment */}
               {/* <Route path="payments/:id" element={<PaymentDetail />} /> */}

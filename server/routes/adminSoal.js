@@ -64,13 +64,13 @@ router.get('/:paketSoalId/soal-listening', async (req, res) => {
   }
 });
 
-router.get('/:paketId/soal-listening/last', async (req, res) => {
+router.get('/:paketId/:kategori/last', async (req, res) => {
   try {
-    const { paketId } = req.params;
+    const { paketId, kategori } = req.params;
 
     // Ambil soal terakhir berdasarkan no_soal terbesar
     const lastSoal = await Soal.findOne({
-      where: { paket_soal_id: paketId },
+      where: { paket_soal_id: paketId,  kategori: kategori},
       order: [['no_soal', 'DESC']],
       attributes: ['no_soal', 'page'],
     });
@@ -152,6 +152,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<LISTENING>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 router.post('/:paketSoalId/soal-listening', upload.single('audio'), async (req, res) => {
   try {
     const { paketSoalId } = req.params;
@@ -177,6 +178,18 @@ router.post('/:paketSoalId/soal-listening', upload.single('audio'), async (req, 
     // Validasi maksimal page dan no_soal
     if (Number(page) > 50 || Number(no_soal) > 50) {
       return res.status(400).json({ message: 'Nomor soal dan halaman (page) untuk listening maksimal 50.' });
+    }
+
+    // Periksa apakah sudah ada 50 soal listening
+    const totalListeningSoal = await Soal.count({
+      where: {
+        kategori: 'listening',
+        paket_soal_id: paketSoalId,
+      }
+    });
+
+    if (totalListeningSoal >= 50) {
+      return res.status(400).json({ message: 'Jumlah soal listening sudah mencapai batas maksimal (50 soal).' });
     }
 
     // Path relatif untuk audio
@@ -207,7 +220,7 @@ router.post('/:paketSoalId/soal-listening', upload.single('audio'), async (req, 
   }
 });
 
-router.get('/soal-listening/:soalId', async (req, res) => {
+router.get('/soal/:soalId', async (req, res) => {
   try {
     const { soalId } = req.params;
     
@@ -325,6 +338,171 @@ router.delete('/soal/:soalId', async (req, res) => {
   }
 });
 
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<STRUCTURE>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+router.post('/:paketSoalId/soal-structure', async (req, res) => {
+  try {
+    const { paketSoalId } = req.params;
+    const {
+      soal,
+      pilihan_satu,
+      pilihan_dua,
+      pilihan_tiga,
+      pilihan_empat,
+      jawaban,
+      no_soal,
+      page,
+    } = req.body;
+
+    // Validasi field
+    if (![soal, pilihan_satu, pilihan_dua, pilihan_tiga, pilihan_empat, jawaban, no_soal, page].every(Boolean)) {
+      return res.status(400).json({ message: 'Semua field wajib diisi, termasuk nomor soal dan halaman.' });
+    }
+
+    if (!['1', '2', '3', '4'].includes(jawaban)) {
+      return res.status(400).json({ message: 'Jawaban harus 1-4.' });
+    }
+
+    // Validasi maksimal page dan no_soal
+    if (Number(page) > 66 || Number(no_soal) > 15) {
+      return res.status(400).json({ message: 'Nomor soal max 15 dan halaman (page) untuk structure maksimal 66.' });
+    }
+
+    if (Number(page) < 52 ) {
+      return res.status(400).json({ message: 'Halaman (page) untuk structure minimal 52.' });
+    }
+
+    // Periksa apakah sudah ada 15 soal structure
+    const totalStructureSoal = await Soal.count({
+      where: {
+        kategori: 'structure',
+        paket_soal_id: paketSoalId,
+      }
+    });
+
+    if (totalStructureSoal >= 15) {
+      return res.status(400).json({ message: 'Jumlah soal structure sudah mencapai batas maksimal (15 soal).' });
+    }
+
+    const newSoal = await Soal.create({
+      soal,
+      pilihan_satu,
+      pilihan_dua,
+      pilihan_tiga,
+      pilihan_empat,
+      jawaban,
+      audio: '',
+      paket_soal_id: paketSoalId,
+      page,
+      q_reading: 0,
+      no_soal,
+      kategori: 'structure'
+    });
+
+    res.status(201).json({
+      message: 'Soal berhasil ditambahkan',
+      data: newSoal
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Gagal menambah soal.' });
+  }
+});
+
+router.get('/:paketSoalId/soal-structure', async (req, res) => {
+  try {
+    const { paketSoalId } = req.params;
+    const soalStructure = await Soal.findAll({
+      where: {
+        paket_soal_id: paketSoalId,
+        kategori: 'structure'
+      },
+      attributes: [
+        'id',
+        'soal',
+        'pilihan_satu',
+        'pilihan_dua',
+        'pilihan_tiga',
+        'pilihan_empat',
+        'jawaban',
+        'page',
+        'no_soal'
+      ],
+      order: [['no_soal', 'ASC']]
+    });
+    res.json({
+      message: 'Daftar soal structure berhasil diambil',
+      data: soalStructure
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Gagal mengambil soal structure.' });
+  }
+});
+
+router.put('/soal-structure/:soalId', async (req, res) => {
+  try {
+    const { soalId } = req.params;
+    const {
+      soal,
+      pilihan_satu,
+      pilihan_dua,
+      pilihan_tiga,
+      pilihan_empat,
+      jawaban,
+      no_soal,
+      page,
+    } = req.body;
+
+    // Validasi field
+    if (![soal, pilihan_satu, pilihan_dua, pilihan_tiga, pilihan_empat, jawaban, no_soal, page].every(Boolean)) {
+      return res.status(400).json({ message: 'Semua field wajib diisi, termasuk nomor soal dan halaman.' });
+    }
+
+    if (!['1', '2', '3', '4'].includes(jawaban)) {
+      return res.status(400).json({ message: 'Jawaban harus 1-4.' });
+    }
+
+    // Validasi maksimal page dan no_soal
+    if (Number(page) > 66 || Number(no_soal) > 15) {
+      return res.status(400).json({ message: 'Nomor soal max 15 dan halaman (page) untuk structure maksimal 66.' });
+    }
+
+    if (Number(page) < 52 ) {
+      return res.status(400).json({ message: 'Halaman (page) untuk structure minimal 52.' });
+    }
+
+    // Cek apakah soal dengan id tersebut ada dan kategorinya benar
+    const soalData = await Soal.findOne({ where: { id: soalId, kategori: 'structure' } });
+    if (!soalData) {
+      return res.status(404).json({ message: 'Soal tidak ditemukan.' });
+    }
+
+    // Update data
+    await Soal.update({
+      soal,
+      pilihan_satu,
+      pilihan_dua,
+      pilihan_tiga,
+      pilihan_empat,
+      jawaban,
+      no_soal,
+      page
+    }, {
+      where: { id: soalId }
+    });
+
+    // Ambil data soal yang sudah diupdate
+    const updatedSoal = await Soal.findByPk(soalId);
+
+    res.status(200).json({
+      message: 'Soal structure berhasil diupdate',
+      data: updatedSoal
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Gagal mengupdate soal.' });
+  }
+});
 
 
 module.exports = router;

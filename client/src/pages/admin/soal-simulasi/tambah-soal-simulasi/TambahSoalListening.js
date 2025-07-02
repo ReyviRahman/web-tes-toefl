@@ -23,7 +23,7 @@ const TambahSoalListening = () => {
     const fetchLastSoal = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_BASE_URL}/admin/paket-soal/${paketId}/soal-listening/last`,
+          `${process.env.REACT_APP_API_BASE_URL}/admin/paket-soal/${paketId}/listening/last`,
           { withCredentials: true }
         );
         setForm((prev) => ({

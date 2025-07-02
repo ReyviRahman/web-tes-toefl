@@ -24,7 +24,7 @@ const EditSoalListening = () => {
     const fetchSoal = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_BASE_URL}/admin/paket-soal/soal-listening/${soalId}`,
+          `${process.env.REACT_APP_API_BASE_URL}/admin/paket-soal/soal/${soalId}`,
           { withCredentials: true }
         );
         const data = res.data.data;
