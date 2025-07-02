@@ -26,7 +26,7 @@ Soal.init({
     allowNull: false,
   },
   no_soal: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: false
   },
   jawaban: {
@@ -56,6 +56,11 @@ Soal.init({
       key: 'id',
     },
     allowNull: false,  // Kolom ini tidak boleh null
+  },
+  kategori: {
+    type: DataTypes.STRING(32),
+    allowNull: false,
+    defaultValue: 'listening',
   }
 }, {
   sequelize,

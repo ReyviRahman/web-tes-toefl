@@ -26,6 +26,7 @@ router.get('/', verifyToken, async (req, res) => {
         as: 'readingQuestion',
         attributes: ['reading'],
       },
+      order: [['page', 'ASC']],
     });
 
     res.status(200).json({
@@ -320,9 +321,9 @@ router.put('/timers', async (req, res) => {
   const server_now = Date.now();
   const sessions = ['listening', 'written', 'reading'];
   const durationMap = {
-    listening: 5000,     // 1 jam
-    written:   5000,     // 30 menit
-    reading:   60000,     // 15 menit
+    listening: 5 * 60 * 1000,     // 1 jam
+    written:   5 * 60 * 1000,     // 30 menit
+    reading:   5 * 60 * 1000,     // 15 menit
   };
   // const durationMap = {
   //   listening: 40 * 60 * 1000,      30 menit

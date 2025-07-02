@@ -99,21 +99,22 @@ const SoalSimulasi = () => {
                   <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400">{paket.nama_paket}</td>
                   <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400">{paket.status}</td>
                   <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400 flex gap-2">
-                    {/* Tambah Soal */}
                     <button
-                      // onClick={() => navigate(`/admin/paket-soal/${paket.id}/tambah-soal`)}
+                      onClick={() =>
+                        navigate(`/admin/soal-simulasi/add-soal/${paket.id}`, {
+                          state: { nama_paket: paket.nama_paket }
+                        })
+                      }
                       className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs"
                     >
                       Tambah Soal
                     </button>
-                    {/* Edit Paket */}
                     <button
                       onClick={() => navigate(`/admin/soal-simulasi/edit/${paket.id}`)}
                       className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
                     >
                       Edit Paket
                     </button>
-                    {/* Hapus Paket */}
                     <button
                       onClick={() => handleDeletePaket(paket.id)}
                       className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs"
@@ -126,6 +127,7 @@ const SoalSimulasi = () => {
             </tbody>
         </table>
       </div>
+      
     </div>
   )
 }

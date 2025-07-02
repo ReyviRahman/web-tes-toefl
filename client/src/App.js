@@ -26,6 +26,10 @@ import PaketSaya from "./pages/user/PaketSaya";
 import SoalSimulasi from "./pages/admin/SoalSimulasi";
 import TambahPaketSoal from "./pages/admin/TambahPaketSoal";
 import EditPaketSoal from "./pages/admin/EditPaketSoal";
+import SesiSoal from "./pages/admin/SesiSoal";
+import TambahSoalListening from "./pages/admin/soal-simulasi/tambah-soal-simulasi/TambahSoalListening";
+import SoalListening from "./pages/admin/soal-simulasi/tambah-soal-simulasi/SoalListening";
+import EditSoalListening from "./pages/admin/soal-simulasi/tambah-soal-simulasi/EditSoalListening";
 
 function App() {
   return (
@@ -70,6 +74,11 @@ function App() {
               <Route path="soal-simulasi" element={<SoalSimulasi />} />
               <Route path="soal-simulasi/add" element={<TambahPaketSoal />} />
               <Route path="soal-simulasi/edit/:id" element={<EditPaketSoal />} />
+              <Route path="soal-simulasi/add-soal/:paketId" element={<SesiSoal />} />
+              
+              <Route path="soal-simulasi/soal-listening/:paketId" element={<SoalListening />} />
+              <Route path="soal-simulasi/add-soal-listening/:paketId" element={<TambahSoalListening />} />
+              <Route path="soal-simulasi/edit-soal-listening/:soalId" element={<EditSoalListening />} />
 
               {/* contoh jika nanti mau detail payment */}
               {/* <Route path="payments/:id" element={<PaymentDetail />} /> */}
