@@ -58,7 +58,9 @@ const SesiSoal = () => {
                 <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400">Written Expression</td>
                 <td className="border border-slate-300 dark:border-slate-700 px-4 py-4 text-slate-500 dark:text-slate-400 flex gap-2">
                   <button
-                    onClick={() => navigate(`/admin/soal-simulasi/add-soal/${paketId}`)}
+                    onClick={() => navigate(`/admin/soal-simulasi/soal-written/${paketId}`, {
+                      state: { nama_paket: namaPaket }
+                    })}
                     className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs"
                   >
                     Tambah Soal

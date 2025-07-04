@@ -33,6 +33,8 @@ import EditSoalListening from "./pages/admin/soal-simulasi/tambah-soal-simulasi/
 import SoalStructure from "./pages/admin/soal-simulasi/tambah-soal-simulasi/SoalStructure";
 import TambahSoalStructure from "./pages/admin/soal-simulasi/tambah-soal-simulasi/TambahSoalStructure";
 import EditSoalStructure from "./pages/admin/soal-simulasi/tambah-soal-simulasi/EditSoalStructure";
+import SoalWritten from "./pages/admin/soal-simulasi/tambah-soal-simulasi/SoalWritten";
+import TambahSoalWritten from "./pages/admin/soal-simulasi/tambah-soal-simulasi/TambahSoalWritten";
 
 function App() {
   return (
@@ -86,6 +88,9 @@ function App() {
               <Route path="soal-simulasi/soal-structure/:paketId" element={<SoalStructure />} />
               <Route path="soal-simulasi/add-soal-structure/:paketId" element={<TambahSoalStructure />} />
               <Route path="soal-simulasi/edit-soal-structure/:soalId" element={<EditSoalStructure />} />
+
+              <Route path="soal-simulasi/soal-written/:paketId" element={<SoalWritten />} />
+              <Route path="soal-simulasi/add-soal-written/:paketId" element={<TambahSoalWritten />} />
 
               {/* contoh jika nanti mau detail payment */}
               {/* <Route path="payments/:id" element={<PaymentDetail />} /> */}

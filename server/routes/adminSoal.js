@@ -504,5 +504,97 @@ router.put('/soal-structure/:soalId', async (req, res) => {
   }
 });
 
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<WRITTEN>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+router.post('/:paketSoalId/soal-written', async (req, res) => {
+  try {
+    const { paketSoalId } = req.params;
+    const {
+      soal,
+      jawaban,
+      no_soal,
+      page,
+    } = req.body;
+
+    // Validasi field
+    if (![soal, jawaban, no_soal, page].every(Boolean)) {
+      return res.status(400).json({ message: 'Semua field wajib diisi, termasuk nomor soal dan halaman.' });
+    }
+
+    if (!['1', '2', '3', '4'].includes(jawaban)) {
+      return res.status(400).json({ message: 'Jawaban harus 1-4.' });
+    }
+
+    // Validasi maksimal page dan no_soal
+    if (Number(page) > 92 || Number(no_soal) > 40) {
+      return res.status(400).json({ message: 'Nomor soal max 40 dan halaman (page) untuk written maksimal 92.' });
+    }
+
+    if (Number(page) < 68 ) {
+      return res.status(400).json({ message: 'Halaman (page) untuk written minimal 68.' });
+    }
+
+    // Periksa apakah sudah ada 25 soal written
+    const totalWrittenSoal = await Soal.count({
+      where: {
+        kategori: 'written',
+        paket_soal_id: paketSoalId,
+      }
+    });
+
+    if (totalWrittenSoal >= 25) {
+      return res.status(400).json({ message: 'Jumlah soal written sudah mencapai batas maksimal (25 soal).' });
+    }
+
+    const newSoal = await Soal.create({
+      soal,
+      pilihan_satu: '',
+      pilihan_dua: '',
+      pilihan_tiga: '',
+      pilihan_empat: '',
+      jawaban,
+      audio: '',
+      paket_soal_id: paketSoalId,
+      page,
+      q_reading: 0,
+      no_soal,
+      kategori: 'written'
+    });
+
+    res.status(201).json({
+      message: 'Soal berhasil ditambahkan',
+      data: newSoal
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Gagal menambah soal.' });
+  }
+});
+
+router.get('/:paketSoalId/soal-written', async (req, res) => {
+  try {
+    const { paketSoalId } = req.params;
+    const soalWritten = await Soal.findAll({
+      where: {
+        paket_soal_id: paketSoalId,
+        kategori: 'written'
+      },
+      attributes: [
+        'id',
+        'soal',
+        'jawaban',
+        'page',
+        'no_soal'
+      ],
+      order: [['no_soal', 'ASC']]
+    });
+    res.json({
+      message: 'Daftar soal written berhasil diambil',
+      data: soalWritten
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Gagal mengambil soal written.' });
+  }
+});
 
 module.exports = router;
