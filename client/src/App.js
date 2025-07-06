@@ -37,6 +37,7 @@ import SoalWritten from "./pages/admin/soal-simulasi/SoalWritten";
 import TambahSoalWritten from "./pages/admin/soal-simulasi/tambah-soal-simulasi/TambahSoalWritten";
 import SoalReading from "./pages/admin/soal-simulasi/SoalReading";
 import TambahSoalReading from "./pages/admin/soal-simulasi/tambah-soal-simulasi/TambahSoalReading";
+import EditSoalReading from "./pages/admin/soal-simulasi/edit-soal-simulasi/EditSoalReading";
 
 function App() {
   return (
@@ -96,6 +97,8 @@ function App() {
 
               <Route path="soal-simulasi/soal-reading/:paketId" element={<SoalReading />} />
               <Route path="soal-simulasi/add-soal-reading/:paketId" element={<TambahSoalReading />} />
+              <Route path="soal-simulasi/edit-soal-reading/:soalId" element={<EditSoalReading />} />
+
 
               {/* contoh jika nanti mau detail payment */}
               {/* <Route path="payments/:id" element={<PaymentDetail />} /> */}

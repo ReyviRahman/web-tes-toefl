@@ -241,8 +241,15 @@ router.get('/soal/:soalId', async (req, res) => {
     // Ambil data soal berdasarkan soalId
     const soal = await Soal.findOne({
       where: {
-        id: soalId, // Menggunakan hanya soalId
+        id: soalId,
       },
+      include: [
+        {
+          model: Question,
+          as: 'readingQuestion',
+          attributes: ['id', 'nama']
+        }
+      ]
     });
 
     if (!soal) {
@@ -717,6 +724,182 @@ router.delete('/soal-reading/:questionId', async (req, res) => {
     res.status(200).json({ message: 'question dan file berhasil dihapus.' });
   } catch (error) {
     res.status(500).json({ message: 'Gagal menghapus question.', error: error.message });
+  }
+});
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<READING>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+router.post('/:paketSoalId/soal-reading', async (req, res) => {
+  try {
+    const { paketSoalId } = req.params;
+    const {
+      soal,
+      pilihan_satu,
+      pilihan_dua,
+      pilihan_tiga,
+      pilihan_empat,
+      jawaban,
+      no_soal,
+      page,
+      q_reading,
+    } = req.body;
+
+    // Validasi field
+    if (![soal, pilihan_satu, pilihan_dua, pilihan_tiga, pilihan_empat, jawaban, no_soal, page, q_reading].every(Boolean)) {
+      return res.status(400).json({ message: 'Semua field wajib diisi, termasuk nomor soal dan halaman.' });
+    }
+
+    if (!['1', '2', '3', '4'].includes(jawaban)) {
+      return res.status(400).json({ message: 'Jawaban harus 1-4.' });
+    }
+
+    // Validasi maksimal page dan no_soal
+    if (Number(page) > 143 || Number(no_soal) > 50) {
+      return res.status(400).json({ message: 'Nomor soal max 50 dan halaman (page) untuk reading maksimal 143.' });
+    }
+
+    if (Number(page) < 94 ) {
+      return res.status(400).json({ message: 'Halaman (page) untuk reading minimal 94.' });
+    }
+
+    // Periksa apakah sudah ada 50 soal reading
+    const totalReadingSoal = await Soal.count({
+      where: {
+        kategori: 'reading',
+        paket_soal_id: paketSoalId,
+      }
+    });
+
+    if (totalReadingSoal >= 15) {
+      return res.status(400).json({ message: 'Jumlah soal reading sudah mencapai batas maksimal (50 soal).' });
+    }
+
+    const newSoal = await Soal.create({
+      soal,
+      pilihan_satu,
+      pilihan_dua,
+      pilihan_tiga,
+      pilihan_empat,
+      jawaban,
+      audio: '',
+      paket_soal_id: paketSoalId,
+      page,
+      q_reading,
+      no_soal,
+      kategori: 'reading'
+    });
+
+    res.status(201).json({
+      message: 'Soal berhasil ditambahkan',
+      data: newSoal
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Gagal menambah soal.' });
+  }
+});
+
+router.get('/:paketSoalId/soal-reading', async (req, res) => {
+  try {
+    const { paketSoalId } = req.params;
+    const soalReading = await Soal.findAll({
+      where: {
+        paket_soal_id: paketSoalId,
+        kategori: 'reading'
+      },
+      attributes: [
+        'id',
+        'soal',
+        'pilihan_satu',
+        'pilihan_dua',
+        'pilihan_tiga',
+        'pilihan_empat',
+        'jawaban',
+        'page',
+        'no_soal',
+      ],
+      include: [
+        {
+          model: Question,
+          as: 'readingQuestion',
+          attributes: ['reading'] // pilih kolom yang mau diambil dari Question
+        }
+      ],
+      order: [['no_soal', 'ASC']]
+    });
+    res.json({
+      message: 'Daftar soal reading berhasil diambil',
+      data: soalReading
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Gagal mengambil soal reading.' });
+  }
+});
+
+router.put('/soal-reading/:soalId', async (req, res) => {
+  try {
+    const { soalId } = req.params;
+    const {
+      soal,
+      pilihan_satu,
+      pilihan_dua,
+      pilihan_tiga,
+      pilihan_empat,
+      jawaban,
+      q_reading,
+      no_soal,
+      page,
+    } = req.body;
+
+    // Validasi field
+    if (![soal, pilihan_satu, pilihan_dua, pilihan_tiga, pilihan_empat, jawaban, no_soal, page, q_reading].every(Boolean)) {
+      return res.status(400).json({ message: 'Semua field wajib diisi, termasuk nomor soal dan halaman.' });
+    }
+
+    if (!['1', '2', '3', '4'].includes(jawaban)) {
+      return res.status(400).json({ message: 'Jawaban harus 1-4.' });
+    }
+
+    // Validasi maksimal page dan no_soal
+    if (Number(page) > 143 || Number(no_soal) > 50) {
+      return res.status(400).json({ message: 'Nomor soal max 50 dan halaman (page) untuk reading maksimal 143.' });
+    }
+
+    if (Number(page) < 94 ) {
+      return res.status(400).json({ message: 'Halaman (page) untuk reading minimal 94.' });
+    }
+
+    // Cek apakah soal dengan id tersebut ada dan kategorinya benar
+    const soalData = await Soal.findOne({ where: { id: soalId } });
+    if (!soalData) {
+      return res.status(404).json({ message: 'Soal tidak ditemukan.' });
+    }
+
+    // Update data
+    await Soal.update({
+      soal,
+      pilihan_satu,
+      pilihan_dua,
+      pilihan_tiga,
+      pilihan_empat,
+      jawaban,
+      q_reading,
+      no_soal,
+      page
+    }, {
+      where: { id: soalId }
+    });
+
+    // Ambil data soal yang sudah diupdate
+    const updatedSoal = await Soal.findByPk(soalId);
+
+    res.status(200).json({
+      message: 'Soal reading berhasil diupdate',
+      data: updatedSoal
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Gagal mengupdate soal.' });
   }
 });
 

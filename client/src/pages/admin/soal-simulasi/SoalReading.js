@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import 'react-medium-image-zoom/dist/styles.css'
+import ImageZoom from 'react-medium-image-zoom';
 
 const SoalReading = () => {
   const [soals, setSoals] = useState([]);
@@ -21,7 +23,7 @@ const SoalReading = () => {
 
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admin/paket-soal/${paketId}/soal-structure`,
+        `${process.env.REACT_APP_API_BASE_URL}/admin/paket-soal/${paketId}/soal-reading`,
         { withCredentials: true }
       );
       setSoals(res.data.data);
@@ -30,7 +32,7 @@ const SoalReading = () => {
       Swal.fire({
         icon: "error",
         title: "Gagal",
-        text: "Gagal mengambil data soal structure",
+        text: "Gagal mengambil data soal reading",
       });
     }
   };
@@ -95,6 +97,7 @@ const SoalReading = () => {
               <th className="border px-4 py-3">Pilihan 2</th>
               <th className="border px-4 py-3">Pilihan 3</th>
               <th className="border px-4 py-3">Pilihan 4</th>
+              <th className="border px-4 py-3">Question</th>
               <th className="border px-4 py-3">Jawaban</th>
               <th className="border px-4 py-3">Aksi</th>
             </tr>
@@ -102,7 +105,7 @@ const SoalReading = () => {
           <tbody>
             {soals.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-6 text-gray-400">Belum ada soal structure</td>
+                <td colSpan={8} className="text-center py-6 text-gray-400">Belum ada soal reading</td>
               </tr>
             ) : (
               soals.map((soal, idx) => (
@@ -116,11 +119,16 @@ const SoalReading = () => {
                   <td className="border px-4 py-2">{soal.pilihan_dua}</td>
                   <td className="border px-4 py-2">{soal.pilihan_tiga}</td>
                   <td className="border px-4 py-2">{soal.pilihan_empat}</td>
+                  <td className="border px-4 py-2">
+                    <ImageZoom>
+                      <img class="h-[70px] w-96 object-cover" src={`${process.env.REACT_APP_API_BASE_URL}${soal.readingQuestion.reading}`} />
+                    </ImageZoom>
+                  </td>
                   <td className="border px-4 py-2 font-bold">{soal.jawaban}</td>
                   <td className="border px-4 py-2 font-bold">
                     <div className='flex justify-center gap-2'>
                       <button
-                      onClick={() => navigate(`/admin/soal-simulasi/edit-soal-structure/${soal.id}`, {
+                      onClick={() => navigate(`/admin/soal-simulasi/edit-soal-reading/${soal.id}`, {
                         state: { paketId, nama_paket: namaPaket }
                       })}
                       className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"

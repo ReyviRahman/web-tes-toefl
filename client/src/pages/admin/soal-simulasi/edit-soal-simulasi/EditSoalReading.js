@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import 'react-medium-image-zoom/dist/styles.css'
 import ImageZoom from 'react-medium-image-zoom';
 
 const TambahSoalReading = () => {
-  const { paketId } = useParams();
+  const { soalId } = useParams();
+  const location = useLocation();
+  const paketId = location.state?.paketId;
+  const namaPaket = location.state?.nama_paket;
+
   const navigate = useNavigate();
   const [form, setForm] = useState({
     no_soal: '',
@@ -35,31 +39,34 @@ const TambahSoalReading = () => {
   const [editFile, setEditFile] = useState(null);
   const [editPreviewUrl, setEditPreviewUrl] = useState(null);
 
-  // Ambil soal terakhir
   useEffect(() => {
-    const fetchLastSoal = async () => {
+    const fetchSoal = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_BASE_URL}/admin/paket-soal/${paketId}/reading/last`,
+          `${process.env.REACT_APP_API_BASE_URL}/admin/paket-soal/soal/${soalId}`,
           { withCredentials: true }
         );
-        setForm((prev) => ({
-          ...prev,
-          no_soal: (res.data.last_no_soal ?? 0) + 1,
-          page: (res.data.last_page ?? 0) + 1,
-        }));
-      } catch (err) {
-        setForm((prev) => ({
-          ...prev,
-          no_soal: 1,
-          page: 1,
-        }));
+        const data = res.data.data;
+        setForm({
+          soal: data.soal,
+          pilihan_satu: data.pilihan_satu,
+          pilihan_dua: data.pilihan_dua,
+          pilihan_tiga: data.pilihan_tiga,
+          pilihan_empat: data.pilihan_empat,
+          jawaban: data.jawaban,
+          no_soal: data.no_soal,
+          page: data.page,
+        });
+        setQReading(data.readingQuestion.id)
+        setQReadingNama(data.readingQuestion.nama)
+      } catch (error) {
+        Swal.fire('Error', 'Gagal mengambil data soal.', 'error');
       }
     };
 
-    fetchLastSoal();
+    fetchSoal();
     fetchQuestions();
-  }, [paketId]);
+  }, [soalId]);
 
   const handleChange = (e) => {
     setForm({
@@ -120,8 +127,8 @@ const TambahSoalReading = () => {
     setLoading(true);
     try {
       // Kirim data sebagai JSON
-      await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/admin/paket-soal/${paketId}/soal-reading`,
+      await axios.put(
+        `${process.env.REACT_APP_API_BASE_URL}/admin/paket-soal/soal-reading/${soalId}`,
         data,  // Kirim data dalam format JSON
         {
           headers: { 'Content-Type': 'application/json' }, // Header untuk JSON
@@ -131,7 +138,7 @@ const TambahSoalReading = () => {
 
       Swal.fire({
         icon: 'success',
-        title: 'Soal berhasil ditambahkan!',
+        title: 'Soal berhasil diedit!',
       }).then(() => {
         navigate(-1);
       });
@@ -571,7 +578,7 @@ const TambahSoalReading = () => {
       )}
 
       <form onSubmit={handleSubmit} className="max-w-xl mx-auto space-y-4">
-        <h2 className="text-2xl font-bold my-6">Tambah Soal Reading</h2>
+        <h2 className="text-2xl font-bold my-6">Edit Soal Reading {namaPaket}</h2>
         <div>
           <label className="block mb-1">No. Soal</label>
           <input
@@ -605,6 +612,7 @@ const TambahSoalReading = () => {
             readOnly
           />
         </div>
+
         <div>
           <label className="block mb-1">Soal</label>
           <input
