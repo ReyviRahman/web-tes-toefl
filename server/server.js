@@ -3,10 +3,11 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const port = 3001;
 
-const sequelize = require('./db.config');
 require('./models/paket_soal'); 
 require('./models/payment');
+require('./models/question');
 
+// const sequelize = require('./db.config');
 // sequelize.sync({ alter: true })
 //   .then(() => {
 //     console.log('Database & tables created!');

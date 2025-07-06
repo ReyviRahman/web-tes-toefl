@@ -6,6 +6,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const Soal = require('../models/soal');
+const Question = require('../models/question');
 
 router.use(authAdmin);
 const uploadDir = path.join(__dirname, '..', 'uploads', 'audio');
@@ -19,6 +20,19 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage });
+
+// upload soal reading
+const uploadDirReading = path.join(__dirname, '..', 'uploads', 'soal-reading');
+if (!fs.existsSync(uploadDirReading)) fs.mkdirSync(uploadDirReading, { recursive: true });
+
+const storageReading = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDirReading),
+  filename: (req, file, cb) => {
+    const uniqueName = `${Date.now()}-${file.originalname.replace(/\s+/g, '-')}`;
+    cb(null, uniqueName);
+  }
+});
+const uploadReading = multer({ storage: storageReading });
 
 router.get('/:id', async (req, res) => {
   try {
@@ -594,6 +608,115 @@ router.get('/:paketSoalId/soal-written', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Gagal mengambil soal written.' });
+  }
+});
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<PHOTO READING>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+router.post('/:paketSoalId/question-reading', uploadReading.single('soal-reading'), async (req, res) => {
+  try {
+    const { paketSoalId } = req.params;
+    const {
+      nama
+    } = req.body;
+    const soalReadingFile = req.file;
+
+    // Validasi field
+    if (!nama || !soalReadingFile) {
+      return res.status(400).json({ message: 'Nama dan Gambar Soal wajib di input' });
+    }
+    // Path relatif untuk audio
+    const soalReadingPath = `/uploads/soal-reading/${soalReadingFile.filename}`;
+
+    const newReadingSoal = await Question.create({
+      nama,
+      reading: soalReadingPath,
+      paket_soal_id: paketSoalId,
+    });
+
+    res.status(201).json({
+      message: 'Soal Reading berhasil ditambahkan',
+      data: newReadingSoal
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Gagal menambah soal reading.' });
+  }
+});
+
+router.get('/question-reading/:paketSoalId', async (req, res) => {
+  try {
+    const { paketSoalId } = req.params;
+    const questions = await Question.findAll({
+      where: { paket_soal_id: paketSoalId }
+    });
+    res.json(questions);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching questions', error });
+  }
+});
+
+router.put('/question-reading/:id', uploadReading.single('soal-reading'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nama } = req.body;
+    const soalReadingFile = req.file;
+
+    const soal = await Question.findByPk(id);
+
+    if (!soal) {
+      return res.status(404).json({ message: 'Soal Reading tidak ditemukan.' });
+    }
+
+    // Update nama jika ada di body
+    if (nama) soal.nama = nama;
+
+    // Update file jika ada file baru
+    if (soalReadingFile) {
+      // Hapus file lama jika ada
+      if (soal.reading) {
+        const oldPath = path.join(__dirname, '..', soal.reading);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+      // Simpan path file baru
+      soal.reading = `/uploads/soal-reading/${soalReadingFile.filename}`;
+    }
+
+    await soal.save();
+
+    res.status(200).json({
+      message: 'Soal Reading berhasil diupdate',
+      data: soal
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Gagal mengupdate soal reading.' });
+  }
+});
+
+router.delete('/soal-reading/:questionId', async (req, res) => {
+  const { questionId } = req.params;
+  try {
+    const question = await Question.findByPk(questionId);
+    if (!question) {
+      return res.status(404).json({ message: 'question tidak ditemukan.' });
+    }
+
+    // Hapus file reading kalau ada
+    if (question.reading) {
+      const questionPath = path.join(__dirname, '..', question.reading); 
+      fs.unlink(questionPath, (err) => {
+        if (err) {
+          console.error('Gagal menghapus file reading:', err.message);
+        }
+      });
+    }
+
+    await question.destroy();
+    res.status(200).json({ message: 'question dan file berhasil dihapus.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Gagal menghapus question.', error: error.message });
   }
 });
 

@@ -28,13 +28,15 @@ import TambahPaketSoal from "./pages/admin/TambahPaketSoal";
 import EditPaketSoal from "./pages/admin/EditPaketSoal";
 import SesiSoal from "./pages/admin/SesiSoal";
 import TambahSoalListening from "./pages/admin/soal-simulasi/tambah-soal-simulasi/TambahSoalListening";
-import SoalListening from "./pages/admin/soal-simulasi/tambah-soal-simulasi/SoalListening";
-import EditSoalListening from "./pages/admin/soal-simulasi/tambah-soal-simulasi/EditSoalListening";
-import SoalStructure from "./pages/admin/soal-simulasi/tambah-soal-simulasi/SoalStructure";
+import SoalListening from "./pages/admin/soal-simulasi/SoalListening";
+import EditSoalListening from "./pages/admin/soal-simulasi/edit-soal-simulasi/EditSoalListening";
+import SoalStructure from "./pages/admin/soal-simulasi/SoalStructure";
 import TambahSoalStructure from "./pages/admin/soal-simulasi/tambah-soal-simulasi/TambahSoalStructure";
-import EditSoalStructure from "./pages/admin/soal-simulasi/tambah-soal-simulasi/EditSoalStructure";
-import SoalWritten from "./pages/admin/soal-simulasi/tambah-soal-simulasi/SoalWritten";
+import EditSoalStructure from "./pages/admin/soal-simulasi/edit-soal-simulasi/EditSoalStructure";
+import SoalWritten from "./pages/admin/soal-simulasi/SoalWritten";
 import TambahSoalWritten from "./pages/admin/soal-simulasi/tambah-soal-simulasi/TambahSoalWritten";
+import SoalReading from "./pages/admin/soal-simulasi/SoalReading";
+import TambahSoalReading from "./pages/admin/soal-simulasi/tambah-soal-simulasi/TambahSoalReading";
 
 function App() {
   return (
@@ -91,6 +93,9 @@ function App() {
 
               <Route path="soal-simulasi/soal-written/:paketId" element={<SoalWritten />} />
               <Route path="soal-simulasi/add-soal-written/:paketId" element={<TambahSoalWritten />} />
+
+              <Route path="soal-simulasi/soal-reading/:paketId" element={<SoalReading />} />
+              <Route path="soal-simulasi/add-soal-reading/:paketId" element={<TambahSoalReading />} />
 
               {/* contoh jika nanti mau detail payment */}
               {/* <Route path="payments/:id" element={<PaymentDetail />} /> */}
