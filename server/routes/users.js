@@ -4,13 +4,135 @@ const csrfProtection = csurf({ cookie: { httpOnly: true } })
 const router = express.Router()
 const UsersModel = require('../models/users')
 const ExamHistory = require('../models/exam_history')
-const upload = require('../middleware/upload')
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const Payment = require('../models/payment')
 const verifyToken = require('../middleware/verifyToken');
-const User = require('../models/users')
+const User = require('../models/users');
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const secretKey = process.env.JWT_SECRET;
+
+// Setup folder upload
+const folderPath = path.join(__dirname, '../uploads/profilepic');
+if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true });
+
+// Setup multer storage
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, folderPath);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const filename = `${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`;
+    cb(null, filename);
+  }
+});
+const upload = multer({ storage });
+
+// Endpoint update profil user
+router.put('/profile', verifyToken, upload.single('profilePic'), async (req, res) => {
+  try {
+    const { nohp, nama, newNohp } = req.body;
+    const profilePicPath = req.file ? `/uploads/profilepic/${req.file.filename}` : null;
+
+    // Cari user berdasarkan nohp lama
+    const user = await User.findOne({ where: { nohp } });
+    if (!user) return res.status(404).json({ message: 'User tidak ditemukan' });
+
+    // Cek nohp baru sudah dipakai atau belum
+    if (newNohp && newNohp !== nohp) {
+      const existing = await User.findOne({ where: { nohp: newNohp } });
+      if (existing) return res.status(409).json({ message: 'Nomor HP baru sudah terdaftar' });
+    }
+
+    // Hapus file foto lama jika user upload foto baru dan file lama bukan default
+    if (profilePicPath && user.profilePic && user.profilePic !== '/uploads/profilepic/default-profile.png') {
+      const oldPicPath = path.join(__dirname, '..', user.profilePic);
+      fs.access(oldPicPath, fs.constants.F_OK, (err) => {
+        if (!err) fs.unlink(oldPicPath, () => {});
+      });
+    }
+
+    // Siapkan data update
+    const updateData = {};
+    if (newNohp && newNohp !== nohp) updateData.nohp = newNohp;
+    if (nama) updateData.nama = nama;
+    if (profilePicPath) updateData.profilePic = profilePicPath;
+
+    // Lakukan update
+    await User.update(updateData, { where: { nohp } });
+
+    // Ambil data user baru
+    const updatedUser = await User.findOne({
+      where: { nohp: newNohp || nohp },
+      attributes: ['nohp', 'nama', 'profilePic', 'role']
+    });
+
+    // Generate JWT token baru (cookieToken)
+    const newToken = jwt.sign(
+      {
+        nohp: updatedUser.nohp,
+        nama: updatedUser.nama,
+        role: updatedUser.role,
+        profilePic: updatedUser.profilePic,
+      },
+      secretKey,
+      { expiresIn: '3h' }
+    );
+
+    // Set cookie baru
+    res.cookie('cookieToken', newToken, { httpOnly: true, maxAge: 3 * 60 * 60 * 1000 });
+
+    // Return data terbaru ke FE
+    res.json({
+      message: 'Profil berhasil diperbarui',
+      user: {
+        nohp: updatedUser.nohp,
+        nama: updatedUser.nama,
+        profilePic: updatedUser.profilePic
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Terjadi kesalahan saat memperbarui profil' });
+  }
+});
+
+// Route untuk mengubah password user
+router.put('/update-password', verifyToken, async (req, res) => {
+  const { nohp, oldPassword, newPassword } = req.body;
+
+  // Pastikan semua parameter yang diperlukan sudah ada
+  if (!nohp || !oldPassword || !newPassword) {
+    return res.status(400).json({ message: 'NoHP, password lama, dan password baru wajib diisi' });
+  }
+
+  try {
+    // Cari user berdasarkan nohp (primary key)
+    const user = await User.findOne({ where: { nohp } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User tidak ditemukan' });
+    }
+
+    // Cek apakah password lama sesuai dengan password yang ada di database
+    if (user.password !== oldPassword) {
+      return res.status(401).json({ message: 'Password lama tidak cocok' });
+    }
+
+    // Update password dengan password baru
+    await user.update({ password: newPassword });
+
+    return res.status(200).json({ message: 'Password berhasil diperbarui' });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Terjadi kesalahan saat memperbarui password' });
+  }
+});
 
 router.get('/riwayat-ujian', verifyToken, async (req, res) => {
   try {
@@ -140,29 +262,6 @@ router.post('/tryagain', async (req, res) => {
   }
 });
 
-
-// router.put('/', async (req, res) => {
-
-//   const { nohp, nama, password, passwordBaru } = req.body
-
-//   const userData = await UsersModel.findOne({ where: {nohp: nohp}})
-
-//   if (userData.password === password) {
-//     const users = await UsersModel.update({
-//       nama, password: passwordBaru
-//     }, {where: {nohp: nohp}})
-
-//     res.status(200).json({
-//       users,
-//       metadata: "user updated"
-//     })
-//   } else {
-//     res.status(400).json({
-//       error: "data invalid"
-//     })
-//   }
-// })
-
 router.post(
   '/login', 
   [
@@ -226,49 +325,59 @@ router.post(
   }
 });
 
-router.post('/register', (req, res) => {
-  upload(req, res, async (err) => {
-    if (err) {
-      return res.status(500).json({ message: err });
+router.post(
+  '/register',
+  [
+    body('nohp')
+      .trim()
+      .isMobilePhone('id-ID')
+      .withMessage('Nomor HP tidak valid')
+      .escape(),
+    body('nama')
+      .trim()
+      .notEmpty()
+      .withMessage('Nama wajib diisi')
+      .escape(),
+    body('password')
+      .isLength({ min: 6 })
+      .withMessage('Password minimal 6 karakter')
+      .escape()
+  ],
+  async (req, res) => {
+    // Validasi input
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    const { nohp, nama, ttl, jk, alamat, agama, statusPerkawinan, pekerjaan, email, password } = req.body;
+    const { nohp, nama, password } = req.body;
 
     try {
-      // Cek apakah user sudah ada
-      const userExist = await UsersModel.findOne({ where: { nohp }});
-      if (userExist) {
-        return res.status(400).json({ message: 'User Already Exist' });
+      // Cek user sudah ada
+      const existingUser = await User.findOne({ where: { nohp } });
+      if (existingUser) {
+        return res.status(409).json({ message: 'User dengan nohp ini sudah terdaftar' });
       }
 
-      // Buat user baru dengan path foto
-      const newUser = await UsersModel.create({
+      // Insert user baru (role default ke 'User')
+      const user = await User.create({
         nohp,
         nama,
-        ttl, 
-        jk, 
-        alamat, 
-        agama, 
-        statusPerkawinan, 
-        pekerjaan, 
-        profilePic: req.file ? req.file.path : null,
-        email,
         password,
-        role: "User"
+        role: 'User'
       });
 
-      res.status(201).json({
-        message: 'User Registered Successfully',
-        user: newUser
-      });
-    } catch (error) {
-      res.status(500).json({
-        message: 'Something went wrong',
-        error
-      });
+      // Jangan return password ke frontend
+      const userData = user.toJSON();
+      delete userData.password;
+
+      res.status(201).json({ message: 'User berhasil dibuat', user: userData });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Terjadi kesalahan server' });
     }
-  });
-});
+  }
+);
 
 router.get('/refreshtoken', async (req, res) => {
   const authHeader = req.headers.authorization; // Mengambil header Authorization

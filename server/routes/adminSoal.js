@@ -47,6 +47,16 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.get('/', async (req, res) => {
+  try {
+    const paketSoals = await PaketSoal.findAll();
+    res.status(200).json(paketSoals);
+  } catch (error) {
+    console.error('Error fetching paket soal:', error);
+    res.status(500).json({ message: 'Gagal mengambil data paket soal' });
+  }
+});
+
 router.get('/:paketSoalId/soal-listening', async (req, res) => {
   try {
     const { paketSoalId } = req.params;

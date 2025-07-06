@@ -139,16 +139,17 @@ export default function NavbarUser() {
             {/* Profile dropdown */}
             {auth?.nama ? (
                 <Dropdown nama={auth?.nama} 
-                profilePic={`${process.env.REACT_APP_API_BASE_URL}/${auth?.profilePic}`} role={auth?.role}/>
+                profilePic={`${process.env.REACT_APP_API_BASE_URL}${auth?.profilePic}`} role={auth?.role}/>
               ) : (
                 <div>
-                  <NavLink to='/login' className={({ isActive }) => `text-sm text-white me-2 rounded-md py-1 sm:px-5 px-2 cursor-pointer transition-all bg-[#6528F7]`}>
+                  <NavLink to='/login' className={({ isActive }) => `text-sm me-1 text-white  rounded-md py-1 sm:px-5 px-2 cursor-pointer transition-all bg-[#6528F7]`}>
                     Login
                   </NavLink>
 
-                  {/* <Link to='/register' className={({ isActive }) => `hidden rounded-md py-1 px-5 cursor-pointer font-semibold transition-all border-secondary border-2 ${ isActive ? 'bg-secondary text-white' : 'hover:bg-secondary'}`}>
-                    Register
-                  </Link> */}
+                  <NavLink to='/register' className={({ isActive }) => `text-sm text-white  rounded-md py-1 sm:px-5 px-2 cursor-pointer transition-all border border-[#6528F7] hover:bg-[#6528F7]`}>
+                    Daftar
+                  </NavLink>
+                  
                 </div>
             )}
             

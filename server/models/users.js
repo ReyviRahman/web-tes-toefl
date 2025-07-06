@@ -14,6 +14,7 @@ User.init({
   },
   profilePic: {
     type: DataTypes.STRING,
+    defaultValue: 'uploads/profilepic/default-profile.png',
     allowNull: true
   },
   password: {
@@ -32,6 +33,7 @@ User.init({
   },
   lastScore: {
     type: DataTypes.INTEGER,
+    defaultValue: -1,
     allowNull: true
   },
   listening: {
@@ -47,7 +49,8 @@ User.init({
     allowNull: true
   },
   sesi: {
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    allowNull: true
   },
   listening_correct: {
     type: DataTypes.INTEGER,

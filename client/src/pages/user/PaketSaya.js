@@ -3,6 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import NavbarUser from "../../components/NavbarUser";
 import Main from "../../components/Main";
+import FloatingWAButton from "../../components/FloatingWAButton";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -130,6 +131,7 @@ const PaketSaya = () => {
         </div>
 
       </Main>
+      <FloatingWAButton />
     </div>
     // <div>
     //   <h2>Daftar Paket Saya</h2>

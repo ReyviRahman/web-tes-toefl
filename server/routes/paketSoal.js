@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const PaketSoal = require('../models/paket_soal');
-const Soal = require('../models/soal'); // jika ingin include soal
 
 // GET /paket-soal - Ambil semua paket soal
 router.get('/', async (req, res) => {
   try {
-    const paketSoals = await PaketSoal.findAll();
+    const paketSoals = await PaketSoal.findAll({
+      where: {
+        status: 'siap'
+      }
+    });
     res.status(200).json(paketSoals);
   } catch (error) {
     console.error('Error fetching paket soal:', error);

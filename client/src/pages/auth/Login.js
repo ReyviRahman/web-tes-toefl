@@ -5,6 +5,7 @@ import useAuth from '../../hooks/useAuth';
 import { Link, useNavigate, useLocation} from 'react-router-dom'
 import NavbarUser from '../../components/NavbarUser';
 import Swal from 'sweetalert2';
+import FloatingWAButton from '../../components/FloatingWAButton';
 
 const Login = () => {
   const { setAuth } = useAuth()
@@ -124,6 +125,7 @@ const Login = () => {
 
         </div>
       </div>
+      <FloatingWAButton />
     </>
   )
 }

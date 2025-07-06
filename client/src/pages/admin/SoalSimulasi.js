@@ -19,7 +19,8 @@ const SoalSimulasi = () => {
 
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/paket-soal`,
+        `${process.env.REACT_APP_API_BASE_URL}/admin/paket-soal`,
+        { withCredentials: true }
       );
       setPakets(res.data);
       Swal.close();

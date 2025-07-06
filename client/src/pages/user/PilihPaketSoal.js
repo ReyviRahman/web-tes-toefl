@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import NavbarUser from '../../components/NavbarUser';
 import Main from '../../components/Main';
 import { useNavigate } from 'react-router-dom';
+import FloatingWAButton from '../../components/FloatingWAButton';
 
 const PilihPaketSoal = () => {
   const [score, setScore] = useState('0')
@@ -216,6 +217,7 @@ const PilihPaketSoal = () => {
           </div>
         </div> */}
       </Main>
+      <FloatingWAButton />
     </div>
     
   );

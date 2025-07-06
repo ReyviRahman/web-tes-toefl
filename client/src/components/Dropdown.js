@@ -51,6 +51,15 @@ const Dropdown = ({nama, profilePic, role}) => {
               </button>
             </MenuItem>
           )}
+          <MenuItem>
+            <button
+              type="button"
+              className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
+              onClick={() => navigate("/profile")}
+            >
+              Profile User
+            </button>
+          </MenuItem>
 
           <MenuItem>
             <button
@@ -61,6 +70,7 @@ const Dropdown = ({nama, profilePic, role}) => {
               Sign out
             </button>
           </MenuItem>
+          
         </div>
       </MenuItems>
     </Menu>
