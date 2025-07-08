@@ -13,6 +13,7 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const secretKey = process.env.JWT_SECRET;
+const { PDFDocument } = require('pdf-lib');
 
 // Setup folder upload
 const folderPath = path.join(__dirname, '../uploads/profilepic');
@@ -483,6 +484,75 @@ router.get('/cek-akses', verifyToken, async (req, res) => {
 
   } catch (error) {
     console.error('Gagal cek akses:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan di server' });
+  }
+});
+
+router.get('/certificate/:idSertif', verifyToken, async (req, res) => {
+  const user_nohp = req.user.nohp;
+  const { idSertif } = req.params;
+
+  // --- Fungsi format tanggal Inggris
+  function formatTanggalInggris(tanggal) {
+    if (!tanggal) return '-';
+    const bulanInggris = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const dateObj = new Date(tanggal);
+    const tanggalNum = dateObj.getDate();
+    const bulan = bulanInggris[dateObj.getMonth()];
+    const tahun = dateObj.getFullYear();
+    return `${bulan} ${tanggalNum}, ${tahun}`;
+  }
+
+  try {
+    const histori = await ExamHistory.findOne({
+      where: {
+        userNohp: user_nohp,
+        id: idSertif,
+      },
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['nama'],
+      }]
+    });
+
+    if (!histori) {
+      return res.status(404).json({ message: 'Data sertifikat tidak ditemukan' });
+    }
+
+    const nama = histori.user.nama;
+    const tanggalUjian = histori.endedAt ? formatTanggalInggris(histori.endedAt) : '-';
+    const listeningScore = histori.listeningScore;
+    const structureScore = histori.structureScore;
+    const readingScore = histori.readingScore;
+    const totalScore = histori.totalScore;
+
+    const pdfPath = path.join(__dirname, '../uploads/sertifikat.pdf');
+    const templateBytes = fs.readFileSync(pdfPath);
+
+    const pdfDoc = await PDFDocument.load(templateBytes);
+    const form = pdfDoc.getForm();
+
+    form.getTextField('name').setText(nama);
+    form.getTextField('listeningScore').setText(listeningScore.toString());
+    form.getTextField('structureScore').setText(structureScore.toString());
+    form.getTextField('readingScore').setText(readingScore.toString());
+    form.getTextField('Total Score').setText(totalScore.toString());
+    form.getTextField('date').setText(tanggalUjian);
+
+    form.flatten();
+
+    const pdfBytes = await pdfDoc.save();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=sertifikat-${nama}.pdf`);
+    res.end(Buffer.from(pdfBytes));
+
+  } catch (error) {
+    console.error('Gagal generate sertifikat:', error);
     res.status(500).json({ message: 'Terjadi kesalahan di server' });
   }
 });
