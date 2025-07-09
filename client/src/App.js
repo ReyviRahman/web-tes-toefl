@@ -51,7 +51,7 @@ function App() {
           <Route path='/profile' element={<Profile />} />
         </Route>
         
-          <Route path='/' element={<Home />} />
+        <Route path='/' element={<Home />} />
         <Route element={<RequireAuth allowedRoles={['Admin']} />}>
           <Route path="/admin" element={<AdminLayout />}>
             {/* kalau buka /admin → langsung redirect ke /admin/payments */}

@@ -175,6 +175,62 @@ router.get('/lastScore', verifyToken, async (req,res) => {
   })
 })
 
+router.get('/lastScore/sertif', verifyToken, async (req, res) => {
+  const nohp = req.user.nohp;
+
+  function formatTanggalInggris(tanggal) {
+    if (!tanggal) return '-';
+    const bulanInggris = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const dateObj = new Date(tanggal);
+    const tanggalNum = dateObj.getDate();
+    const bulan = bulanInggris[dateObj.getMonth()];
+    const tahun = dateObj.getFullYear();
+    return `${bulan} ${tanggalNum}, ${tahun}`;
+  }
+
+  try {
+    const user = await UsersModel.findByPk(nohp);
+    if (!user) {
+      return res.status(404).json({ message: 'User tidak ditemukan' });
+    }
+
+    const nama = user.nama;
+    const tanggalUjian = user.end_time ? formatTanggalInggris(user.end_time) : '-';
+    const listeningScore = user.listening;
+    const structureScore = user.written;
+    const readingScore = user.reading;
+    const totalScore = user.lastScore;
+
+    const pdfPath = path.join(__dirname, '../uploads/sertifikat.pdf');
+    const templateBytes = fs.readFileSync(pdfPath);
+
+    const pdfDoc = await PDFDocument.load(templateBytes);
+    const form = pdfDoc.getForm();
+
+    form.getTextField('name').setText(nama);
+    form.getTextField('listeningScore').setText(listeningScore.toString());
+    form.getTextField('structureScore').setText(structureScore.toString());
+    form.getTextField('readingScore').setText(readingScore.toString());
+    form.getTextField('totalScore').setText(totalScore.toString());
+    form.getTextField('date').setText(tanggalUjian);
+
+    form.flatten();
+
+    const pdfBytes = await pdfDoc.save();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=sertifikat-${nama}.pdf`);
+    res.end(Buffer.from(pdfBytes));
+
+  } catch (error) {
+    console.error('Gagal generate sertifikat:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan di server' });
+  }
+});
+
 router.get('/payment', verifyToken, async (req, res) => {
   const nohp = req.user.nohp;
   try {
@@ -492,7 +548,6 @@ router.get('/certificate/:idSertif', verifyToken, async (req, res) => {
   const user_nohp = req.user.nohp;
   const { idSertif } = req.params;
 
-  // --- Fungsi format tanggal Inggris
   function formatTanggalInggris(tanggal) {
     if (!tanggal) return '-';
     const bulanInggris = [
@@ -540,7 +595,7 @@ router.get('/certificate/:idSertif', verifyToken, async (req, res) => {
     form.getTextField('listeningScore').setText(listeningScore.toString());
     form.getTextField('structureScore').setText(structureScore.toString());
     form.getTextField('readingScore').setText(readingScore.toString());
-    form.getTextField('Total Score').setText(totalScore.toString());
+    form.getTextField('totalScore').setText(totalScore.toString());
     form.getTextField('date').setText(tanggalUjian);
 
     form.flatten();

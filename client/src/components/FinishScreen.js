@@ -1,6 +1,7 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import Swal from "sweetalert2";
+import DownloadSertifButton from './DownloadSertifButton';
 
 const FinishScreen = ({ answer, status, dispatch, nohp, role }) => {
   const [score, setScore] = useState('0')
@@ -115,6 +116,7 @@ const FinishScreen = ({ answer, status, dispatch, nohp, role }) => {
       <div className='mt-2 mb-4'>
           <div className='border py-2 px-3 text-center text-primary font-semibold'>Overall Score: {score}</div>
       </div>
+      <DownloadSertifButton />
 
       {role === 'Admin' && (
         <div className='flex'>
