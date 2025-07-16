@@ -27,11 +27,16 @@ const SoalListening = () => {
       setSoals(res.data.data);
       Swal.close();
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal",
-        text: "Gagal mengambil data soal listening",
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: "Gagal mengambil data soal listening",
+        });
+
+      }
     }
   };
 
@@ -59,18 +64,22 @@ const SoalListening = () => {
         });
         fetchSoalListening();
       } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "Gagal menghapus soal",
-          text: err.response?.data?.message || "Terjadi kesalahan",
-        });
+        if (err.response && err.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Gagal menghapus soal",
+            text: err.response?.data?.message || "Terjadi kesalahan",
+          });
+
+        }
       }
     }
   };
 
   useEffect(() => {
     fetchSoalListening();
-    // eslint-disable-next-line
   }, []);
 
   return (
@@ -89,13 +98,13 @@ const SoalListening = () => {
           <thead className="bg-slate-50">
             <tr>
               <th className="border px-4 py-3">No</th>
+              <th className="border px-4 py-3">Jawaban</th>
               <th className="border px-4 py-3">Soal Audio</th>
               <th className="border px-4 py-3">Page</th>
               <th className="border px-4 py-3">Pilihan 1</th>
               <th className="border px-4 py-3">Pilihan 2</th>
               <th className="border px-4 py-3">Pilihan 3</th>
               <th className="border px-4 py-3">Pilihan 4</th>
-              <th className="border px-4 py-3">Jawaban</th>
               <th className="border px-4 py-3">Aksi</th>
             </tr>
           </thead>
@@ -108,6 +117,7 @@ const SoalListening = () => {
               soals.map((soal, idx) => (
                 <tr key={soal.id}>
                   <td className="border px-4 py-2">{soal.no_soal}</td>
+                  <td className="border px-4 py-2 font-bold">{soal.jawaban}</td>
                   <td className="border px-4 py-2">
                     {soal.audio && (
                       <audio controls src={process.env.REACT_APP_API_BASE_URL + soal.audio} style={{ maxWidth: 160 }} />
@@ -118,7 +128,6 @@ const SoalListening = () => {
                   <td className="border px-4 py-2">{soal.pilihan_dua}</td>
                   <td className="border px-4 py-2">{soal.pilihan_tiga}</td>
                   <td className="border px-4 py-2">{soal.pilihan_empat}</td>
-                  <td className="border px-4 py-2 font-bold">{soal.jawaban}</td>
                   <td className="border px-4 py-2 font-bold">
                     <div className='flex justify-center gap-2'>
                       <button

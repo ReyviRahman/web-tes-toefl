@@ -37,7 +37,12 @@ const EditSoalStructure = () => {
           page: data.page,
         });
       } catch (error) {
-        Swal.fire('Error', 'Gagal mengambil data soal.', 'error');
+        if (error.response && error.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          Swal.fire('Error', 'Gagal mengambil data soal.', 'error');
+
+        }
       }
     };
     fetchSoal();
@@ -110,11 +115,16 @@ const EditSoalStructure = () => {
         navigate(-1);
       });
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal mengupdate soal.',
-        text: err.response?.data?.message || 'Terjadi kesalahan.',
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal mengupdate soal.',
+          text: err.response?.data?.message || 'Terjadi kesalahan.',
+        });
+
+      }
     } finally {
       setLoading(false);
     }
@@ -149,12 +159,13 @@ const EditSoalStructure = () => {
         </div>
         <div>
           <label className="block mb-1">Soal</label>
-          <input
+          <textarea
             type="text"
             name="soal"
             className="w-full border p-2 rounded"
             value={form.soal}
             onChange={handleChange}
+            rows={3}
           />
         </div>
         <div>

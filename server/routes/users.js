@@ -14,6 +14,8 @@ const fs = require('fs');
 const multer = require('multer');
 const secretKey = process.env.JWT_SECRET;
 const { PDFDocument } = require('pdf-lib');
+const { Op } = require("sequelize");
+
 
 // Setup folder upload
 const folderPath = path.join(__dirname, '../uploads/profilepic');
@@ -35,7 +37,7 @@ const upload = multer({ storage });
 // Endpoint update profil user
 router.put('/profile', verifyToken, upload.single('profilePic'), async (req, res) => {
   try {
-    const { nohp, nama, newNohp } = req.body;
+    const { nohp, nama, newNohp, email } = req.body;
     const profilePicPath = req.file ? `/uploads/profilepic/${req.file.filename}` : null;
 
     // Cari user berdasarkan nohp lama
@@ -60,6 +62,7 @@ router.put('/profile', verifyToken, upload.single('profilePic'), async (req, res
     const updateData = {};
     if (newNohp && newNohp !== nohp) updateData.nohp = newNohp;
     if (nama) updateData.nama = nama;
+    if (email) updateData.email = email;
     if (profilePicPath) updateData.profilePic = profilePicPath;
 
     // Lakukan update
@@ -398,6 +401,12 @@ router.post(
     body('password')
       .isLength({ min: 6 })
       .withMessage('Password minimal 6 karakter')
+      .escape(),
+    body('email')
+      .trim()
+      .isEmail()
+      .withMessage('Email tidak valid')
+      .normalizeEmail()
       .escape()
   ],
   async (req, res) => {
@@ -407,13 +416,20 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { nohp, nama, password } = req.body;
+    const { nohp, nama, password, email } = req.body;
 
     try {
-      // Cek user sudah ada
-      const existingUser = await User.findOne({ where: { nohp } });
+      // Cek user sudah ada (berdasarkan nohp atau email)
+      const existingUser = await User.findOne({
+        where: {
+          [Op.or]: [
+            { nohp },
+            { email }
+          ]
+        }
+      });
       if (existingUser) {
-        return res.status(409).json({ message: 'User dengan nohp ini sudah terdaftar' });
+        return res.status(409).json({ message: 'User dengan nomor HP atau email ini sudah terdaftar' });
       }
 
       // Insert user baru (role default ke 'User')
@@ -421,6 +437,7 @@ router.post(
         nohp,
         nama,
         password,
+        email,
         role: 'User'
       });
 
@@ -543,6 +560,30 @@ router.get('/cek-akses', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Terjadi kesalahan di server' });
   }
 });
+
+router.get('/detail-user', verifyToken, async (req, res) => {
+  const user_nohp = req.user.nohp;
+  try {
+    const user = await User.findOne({ where: { nohp: user_nohp } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User tidak ditemukan' });
+    }
+
+    const { nama, nohp, email, profilePic } = user;
+
+    res.json({
+      nama,
+      nohp,
+      email,
+      profilePic
+    });
+  } catch (error) {
+    console.error('Gagal cek akses:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan di server' });
+  }
+});
+
 
 router.get('/certificate/:idSertif', verifyToken, async (req, res) => {
   const user_nohp = req.user.nohp;

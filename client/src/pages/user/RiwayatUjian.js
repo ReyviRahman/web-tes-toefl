@@ -25,11 +25,16 @@ const RiwayatUjian = () => {
         setHistories(res.data);
         Swal.close();
       } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "Gagal",
-          text: "Gagal mengambil data exam histories",
-        });
+        Swal.close();
+        if (err.response && err.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Gagal",
+            text: "Gagal mengambil data exam histories",
+          });
+        }
       }
     };
     fetchHistories();
@@ -65,11 +70,16 @@ const RiwayatUjian = () => {
       window.URL.revokeObjectURL(url); // Bersihkan blob
 
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal",
-        text: "Gagal mengunduh sertifikat.",
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: "Gagal mengunduh sertifikat.",
+        });
+
+      }
     }
   };
 

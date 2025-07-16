@@ -10,6 +10,7 @@ import AudioItem from '../../components/AudioItem';
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css'
 import Swal from 'sweetalert2';
+import ReadingImage from '../../components/ReadingImage';
 
 const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining, sesi, nohp}) => {
   const baseUrl = process.env.REACT_APP_API_BASE_URL;
@@ -89,6 +90,39 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
     return () => clearInterval(intervalRef.current);
   }, [startTick]);
 
+  const nextSession = async () => {
+    clearInterval(intervalRef.current);
+
+    try {
+      const res = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/soal/timers/next`, { nohp: nohp });
+      if (res.data.sesi === "finished") {
+        dispatch({ type: "finish" });
+      } else {
+        const newSeconds = res.data.secondsRemaining;
+        dispatch({ type: "getSesi", payload: res.data.sesi });
+        dispatch({ type: "start", payload: newSeconds });
+        setCurrentSession(res.data.sesi)
+        const sesiToIndexMap = {
+          listening: 0,
+          written: 51,
+          reading: 93,
+        };
+
+        const sesi = res.data.sesi;
+        const targetIdx = sesiToIndexMap[sesi];
+
+        if (targetIdx !== undefined) {
+          dispatch({ type: 'moveToIdx', payload: targetIdx });
+        }
+
+        startTick(); // **kunci**: mulai interval ulang
+      }
+    } catch (err) {
+      console.error("Error refreshing timer:", err);
+      // dispatch({ type: "finish" });
+    }
+  };
+
   // Handle timeout & restart
   useEffect(() => {
     if (secondsRemaining > 0) return;
@@ -150,10 +184,85 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
     return arr;          // total elemen = 134
   }, []);
 
+    useEffect(() => {
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === "visible") {
+          (async () => {
+            try {
+              Swal.fire({
+                title: "Memperbarui timer...",
+                allowOutsideClick: false,
+                didOpen: () => {
+                  Swal.showLoading();
+                },
+              });
+
+              const res = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/soal/timers`, { nohp: nohp });
+
+              Swal.close();
+
+              if (res.data.sesi === "finished") {
+                dispatch({ type: "finish" });
+              } else {
+                const newSeconds = res.data.secondsRemaining;
+                dispatch({ type: "getSesi", payload: res.data.sesi });
+                dispatch({ type: "start", payload: newSeconds });
+                setCurrentSession(res.data.sesi);
+                const sesiToIndexMap = {
+                  listening: 0,
+                  written: 51,
+                  reading: 93,
+                };
+
+                const sesi = res.data.sesi;
+                const targetIdx = sesiToIndexMap[sesi];
+
+                if (targetIdx !== undefined) {
+                  dispatch({ type: 'moveToIdx', payload: targetIdx });
+                }
+              }
+            } catch (err) {
+              Swal.close();
+              console.error("Error refreshing timer:", err);
+            }
+          })();
+        }
+      };
+
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+
+      return () => {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      };
+    }, []);
+
+
   return (
     <div>
       <div className='flex sm:flex-row flex-col justify-between border border-b-0 py-2'>
         <div className='flex sm:ms-5 mx-2'>
+          {(sesi === "listening" || sesi === "written") && (
+            <button
+              type="button"
+              className="sm:w-fit w-full bg-green-600 px-3 py-1 rounded text-white"
+              onClick={() => {
+                Swal.fire({
+                  title: 'Lanjut ke sesi berikutnya?',
+                  text: 'Kamu yakin ingin lanjut ke sesi berikutnya? Sesi ini akan ditutup.',
+                  icon: 'question',
+                  showCancelButton: true,
+                  confirmButtonText: 'Ya, Lanjut',
+                  cancelButtonText: 'Batal'
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    nextSession();
+                  }
+                });
+              }}
+            >
+              Selesai
+            </button>
+          )}
           {sesi === "reading" && (
             <button
               type="button"
@@ -161,7 +270,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
               onClick={() => {
                 Swal.fire({
                   title: 'Yakin ingin menyelesaikan?',
-                  text: 'Setelah klik selesai, Ujian akan berakhir.',
+                  text: 'Setelah klik selesai, Simulasi akan berakhir.',
                   icon: 'warning',
                   showCancelButton: true,
                   confirmButtonText: 'Ya, Selesai',
@@ -222,18 +331,16 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                 {/* <div dangerouslySetInnerHTML={{ __html: sanitizedHTMLReading }} /> */}
                 
                 {question.readingQuestion?.reading !== "" && question.type !== "group" && (
-  <div className="">
-    <Zoom>
-      <img
-        alt="Soal Reading"
-        src={`${baseUrl}${question.readingQuestion?.reading}`}
-        className="w-full mx-auto"
-      />
-    </Zoom>
-  </div>
-)}
+                  <div className="">
+                    <Zoom>
+                      <ReadingImage
+                        src={`${baseUrl}${question.readingQuestion?.reading}`}
+                        alt="Soal Reading"
+                      />
+                    </Zoom>
+                  </div>
+                )}
 
-                
                 <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
 
                 {question?.type === 'group' ? (

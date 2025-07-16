@@ -24,8 +24,13 @@ const PaymentList = () => {
       Swal.close()
       setPayments(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
-      Swal.close()
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        setError(err.response?.data?.message || err.message);
+        Swal.close()
+
+      }
     }
   };
 
@@ -107,11 +112,16 @@ const PaymentList = () => {
         "_blank"
       );
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal",
-        text: error.response?.data?.message || "Terjadi kesalahan",
-      });
+      if (error.response && error.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: error.response?.data?.message || "Terjadi kesalahan",
+        });
+
+      }
     }
   };
 

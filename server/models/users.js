@@ -14,7 +14,7 @@ User.init({
   },
   profilePic: {
     type: DataTypes.STRING,
-    defaultValue: 'uploads/profilepic/default-profile.png',
+    defaultValue: '/uploads/profilepic/default-profile.png',
     allowNull: true
   },
   password: {
@@ -74,6 +74,11 @@ User.init({
   },
   paket_terakhir: {
     type: DataTypes.STRING
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: ''
   },
 }, {
   sequelize,

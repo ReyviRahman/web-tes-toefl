@@ -25,11 +25,16 @@ const EditPaketSoal = () => {
         setStatus(res.data.data.status);
         Swal.close();
       } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "Gagal mengambil data paket soal",
-          text: err.response?.data?.message || "Terjadi kesalahan",
-        });
+        if (err.response && err.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Gagal mengambil data paket soal",
+            text: err.response?.data?.message || "Terjadi kesalahan",
+          });
+
+        }
       }
     };
     fetchPaket();
@@ -54,11 +59,16 @@ const EditPaketSoal = () => {
       );
       navigate("/admin/soal-simulasi");
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal mengupdate paket soal",
-        text: err.response?.data?.message || "Terjadi kesalahan",
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal mengupdate paket soal",
+          text: err.response?.data?.message || "Terjadi kesalahan",
+        });
+
+      }
     }
   };
 

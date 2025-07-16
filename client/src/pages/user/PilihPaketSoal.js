@@ -20,69 +20,27 @@ const PilihPaketSoal = () => {
   const navigate = useNavigate();
   const [paketList, setPaketList] = useState([]);
 
-  const fetchPaketSoal = async () => {
-    Swal.fire({
-      title: 'Memuat...',
-      text: 'Mengambil paket soal',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/paket-soal`);
-      setPaketList(response.data);
-      Swal.close();
-    } catch (error) {
-      console.error('Gagal mengambil paket soal:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal',
-        text: 'Tidak bisa mengambil data paket soal.'
-      });
-    }
-  };
-  const cekAkses = async () => {
-    // 1. Tampilkan Swal loading
-    Swal.fire({
-      title: 'Memeriksa akses ujian…',
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading(),
-    });
-
-    try {
-      // 2. Panggil API dengan cookie
-      const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/cek-akses`, { withCredentials: true });
-
-      // 3. Tutup loading
-      Swal.close();
-
-      if (data.bolehAkses) {
-        // langsung ke simulasi
-        navigate(`/simulasi-toefl/${data.paketId}`);
-      } 
-    } catch (err) {
-      // tutup loading, lalu tampilkan error
-      Swal.close();
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal Memeriksa Akses',
-        text: err.response?.data?.message || err.message,
-      });
-    }
-  };
-  const getScore = async () => {
+  const fetchHalamanPaketSoal = async () => {
     try {
       Swal.fire({
         title: "Loading...",
-        text: "Checking your answers",
+        text: "Mohon Tunggu",
         allowOutsideClick: false,
         showConfirmButton: false,
         willOpen: () => {
           Swal.showLoading();
         },
       });
+
+      // Cek Akses
+      const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/cek-akses`, { withCredentials: true });
+
+      if (data.bolehAkses) {
+        // langsung ke simulasi
+        navigate(`/simulasi-toefl/${data.paketId}`);
+      }
+
+      // Get Score
       const responseGetLastScore = await axios.get(
         `${process.env.REACT_APP_API_BASE_URL}/users/lastScore`,
         { withCredentials: true }
@@ -97,23 +55,30 @@ const PilihPaketSoal = () => {
         setCorrectReading(responseGetLastScore.data.readingCorrect)
         setLastPaket(responseGetLastScore.data.lastPaket)
         setIsLastScore(true)
-        Swal.close()
-      }  
+      }
+
+      // Fetch Paket Soal
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/paket-soal`);
+      setPaketList(response.data);
+      
       Swal.close()
     } catch (error) {
-      console.error("Error fetching score:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch score. Please try again later.",
-      });
+      if (error.response && error.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        console.error("Error fetching score:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch score. Please try again later.",
+        });
+
+      }
     }
   }
 
   useEffect(() => {
-    getScore();
-    cekAkses();
-    fetchPaketSoal();
+    fetchHalamanPaketSoal()
   }, [navigate]);
 
   const handlePilih = async (paketId) => {
@@ -147,9 +112,14 @@ const PilihPaketSoal = () => {
         navigate(`/bayar/${paketId}`);
       }
     } catch (error) {
-      console.error('Gagal cek akses:', error);
-      Swal.close(); // Tutup loading kalau error juga
-      Swal.fire('Error', 'Terjadi kesalahan saat menghubungi server', 'error');
+      if (error.response && error.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        console.error('Gagal cek akses:', error);
+        Swal.close(); // Tutup loading kalau error juga
+        Swal.fire('Error', 'Terjadi kesalahan saat menghubungi server', 'error');
+
+      }
     }
   };
 

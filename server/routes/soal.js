@@ -39,7 +39,7 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
-router.post('/jawaban', verifyToken, async (req, res) => {
+router.post('/jawaban', async (req, res) => {
   const listeningMap = {
     0: 24,
     1: 25,
@@ -208,6 +208,7 @@ router.post('/jawaban', verifyToken, async (req, res) => {
     const allSoal = await SoalModel.findAll({
       where: { paket_soal_id: user.paket_soal_id_aktif },
       attributes: ['page', 'jawaban'],
+      order: [['page', 'ASC']],
     });
 
     let totalPoints = 0;
@@ -290,29 +291,6 @@ router.post('/jawaban', verifyToken, async (req, res) => {
   }
 });
 
-// router.put('/timers', async (req, res) => {
-//   const { nohp } = req.body;
-//   const user = await UserModel.findByPk(nohp);
-
-//   // selalu pakai waktu server
-//   const server_now = Date.now();
-
-//   let { start_time, end_time } = user;
-
-//   if (user.end_time === null) {
-//     start_time = server_now;
-//     // end_time   = start_time + 115 * 60 * 1000; 
-//     end_time = start_time + 60 * 60 * 1000;
-//     await user.update({ start_time, end_time });
-//   }
-
-//   res.status(200).json({
-//     end_time,
-//     server_now,
-//     secondsRemaining: Math.floor((end_time - server_now) / 1000)
-//   });
-// });
-
 router.put('/timers', async (req, res) => {
   const { nohp } = req.body;
   const user = await UserModel.findByPk(nohp);
@@ -321,12 +299,12 @@ router.put('/timers', async (req, res) => {
   const server_now = Date.now();
   const sessions = ['listening', 'written', 'reading'];
   const durationMap = {
-    listening: 5 * 60 * 1000,     // 1 jam
-    written:   5 * 60 * 1000,     // 30 menit
-    reading:   5 * 60 * 1000,     // 15 menit
+    listening: 30 * 60 * 1000,     
+    written:   25 * 60 * 1000,   
+    reading:   55 * 60 * 1000,     
   };
   // const durationMap = {
-  //   listening: 40 * 60 * 1000,      30 menit
+  //   listening: 30 * 60 * 1000,      30 menit
   //   written:   25 * 60 * 1000,      25 menit
   //   reading:   55 * 60 * 1000,      55 menit
   // };
@@ -376,5 +354,48 @@ router.put('/timers', async (req, res) => {
     secondsRemaining,
   });
 });
+
+router.put('/timers/next', async (req, res) => {
+  const { nohp } = req.body;
+  const user = await UserModel.findByPk(nohp);
+  if (!user) return res.status(404).json({ message: 'User not found' });
+
+  const server_now = Date.now();
+  const sessions = ['listening', 'written', 'reading'];
+  const durationMap = {
+    listening: 30 * 60 * 1000,
+    written:   25 * 60 * 1000,
+    reading:   55 * 60 * 1000,
+  };
+
+  let { sesi } = user;
+  const currentIdx = sessions.indexOf(sesi);
+  const nextIdx = currentIdx + 1;
+
+  if (nextIdx < sessions.length) {
+    // Pindah ke sesi berikutnya
+    sesi = sessions[nextIdx];
+    const start_time = server_now;
+    const end_time = server_now + durationMap[sesi];
+    await user.update({ sesi, start_time, end_time });
+
+    const secondsRemaining = Math.floor((end_time - server_now) / 1000);
+    return res.status(200).json({
+      sesi,
+      end_time,
+      server_now,
+      secondsRemaining,
+    });
+  } else {
+    // Sudah di sesi terakhir/semua sesi selesai
+    return res.status(200).json({
+      message: 'All sessions completed',
+      server_now,
+      secondsRemaining: 0,
+      sesi: 'finished'
+    });
+  }
+});
+
 
 module.exports = router

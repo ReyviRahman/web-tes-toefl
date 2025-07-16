@@ -28,11 +28,16 @@ const SoalWritten = () => {
       setSoals(res.data.data);
       Swal.close();
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal",
-        text: "Gagal mengambil data soal written",
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: "Gagal mengambil data soal written",
+        });
+
+      }
     }
   };
 
@@ -60,11 +65,16 @@ const SoalWritten = () => {
         });
         fetchSoalWritten();
       } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "Gagal menghapus soal",
-          text: err.response?.data?.message || "Terjadi kesalahan",
-        });
+        if (err.response && err.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Gagal menghapus soal",
+            text: err.response?.data?.message || "Terjadi kesalahan",
+          });
+
+        }
       }
     }
   };
@@ -89,26 +99,26 @@ const SoalWritten = () => {
           <thead className="bg-slate-50">
             <tr>
               <th className="border px-4 py-3">No</th>
+              <th className="border px-4 py-3">Jawaban</th>
               <th className="border px-4 py-3">Soal</th>
               <th className="border px-4 py-3">Page</th>
-              <th className="border px-4 py-3">Jawaban</th>
               <th className="border px-4 py-3">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {soals.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-6 text-gray-400">Belum ada soal structure</td>
+                <td colSpan={8} className="text-center py-6 text-gray-400">Belum ada soal written</td>
               </tr>
             ) : (
               soals.map((soal, idx) => (
                 <tr key={soal.id}>
                   <td className="border px-4 py-2">{soal.no_soal}</td>
+                  <td className="border px-4 py-2 font-bold">{soal.jawaban}</td>
                   <td className="border px-4 py-2">
                     <div dangerouslySetInnerHTML={{ __html: soal.soal }} />
                   </td>
                   <td className="border px-4 py-2">{soal.page}</td>
-                  <td className="border px-4 py-2 font-bold">{soal.jawaban}</td>
                   <td className="border px-4 py-2 font-bold ">
                     <div className='flex justify-center'>
                       <button

@@ -12,6 +12,7 @@ const Profile = () => {
     nama: auth?.nama || '',
     nohp: auth?.nohp || '',
     profilePic: auth?.profilePic || '',
+    email: ''
   });
   const [newNohp, setNewNohp] = useState(auth?.nohp || '');
   const [previewPic, setPreviewPic] = useState('');
@@ -29,7 +30,38 @@ const Profile = () => {
 
   const fileInputRef = useRef(null);
 
+  const fetchUserDetail = async () => {
+    Swal.fire({
+      title: "Memuat data...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/detail-user`, { withCredentials: true });
+      setUser(prev => ({
+        ...prev,
+        email: res.data.email
+      }));
+
+      Swal.close();
+    } catch (err) {
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: "Tidak dapat mengambil data user",
+        });
+      }
+    }
+  };
+
   useEffect(() => {
+    fetchUserDetail()
     setNewNohp(user.nohp);
   }, [user.nohp]);
 
@@ -66,6 +98,7 @@ const Profile = () => {
     formData.append('nohp', user.nohp); // nohp lama
     formData.append('nama', user.nama);
     formData.append('newNohp', newNohp);
+    formData.append('email', user.email);
 
     if (profilePicFile) {
       formData.append('profilePic', profilePicFile);
@@ -108,12 +141,18 @@ const Profile = () => {
       setProfilePicFile(null);
 
     } catch (err) {
-      Swal.fire({
-        title: 'Error!',
-        text: err?.response?.data?.message || "Terjadi kesalahan saat menyimpan perubahan.",
-        icon: 'error',
-        confirmButtonText: 'OK',
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          title: 'Error!',
+          text: err?.response?.data?.message || "Terjadi kesalahan saat menyimpan perubahan.",
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+
+      }
+
     }
   };
 
@@ -165,11 +204,16 @@ const Profile = () => {
       setPasswordForm({ old: '', new: '' });
 
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal!',
-        text: err.response?.data?.message || 'Terjadi kesalahan saat memperbarui password.',
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal!',
+          text: err.response?.data?.message || 'Terjadi kesalahan saat memperbarui password.',
+        });
+
+      }
     }
   };
 
@@ -219,6 +263,19 @@ const Profile = () => {
                 id="nama"
                 name="nama"
                 value={user.nama}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg text-gray-800 focus:outline-none focus:ring focus:border-blue-400"
+              />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={user.email}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border rounded-lg text-gray-800 focus:outline-none focus:ring focus:border-blue-400"
               />

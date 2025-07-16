@@ -28,11 +28,16 @@ const DataUser = () => {
         setUsers(res.data);
         Swal.close();
       } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "Gagal",
-          text: "Gagal mengambil data exam users",
-        });
+        if (err.response && err.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Gagal",
+            text: "Gagal mengambil data exam users",
+          });
+
+        }
       }
     };
     fetchDataUser();

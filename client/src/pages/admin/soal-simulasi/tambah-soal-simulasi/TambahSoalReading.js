@@ -49,11 +49,16 @@ const TambahSoalReading = () => {
           page: (res.data.last_page ?? 0) + 1,
         }));
       } catch (err) {
-        setForm((prev) => ({
-          ...prev,
-          no_soal: 1,
-          page: 1,
-        }));
+        if (err.response && err.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          setForm((prev) => ({
+            ...prev,
+            no_soal: 1,
+            page: 1,
+          }));
+
+        }
       }
     };
 
@@ -136,11 +141,16 @@ const TambahSoalReading = () => {
         navigate(-1);
       });
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal menambah soal.',
-        text: err.response?.data?.message || 'Terjadi kesalahan.',
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal menambah soal.',
+          text: err.response?.data?.message || 'Terjadi kesalahan.',
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -163,7 +173,10 @@ const TambahSoalReading = () => {
     try {
       const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/paket-soal/question-reading/${paketId}`, {withCredentials: true});
       setQuestions(res.data);
-    } catch {
+    } catch (err) {
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      }
       setQuestions([]);
     }
     setLoading(false);
@@ -219,14 +232,19 @@ const TambahSoalReading = () => {
       setPreviewUrl(null);
       fetchQuestions();
     } catch (err) {
-      Swal.close();
-      Swal.fire({
-        icon: "error",
-        title: "Gagal",
-        text:
-          err.response?.data?.message ||
-          "Gagal menambah soal reading.",
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.close();
+        Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text:
+            err.response?.data?.message ||
+            "Gagal menambah soal reading.",
+        });
+
+      }
     }
   };
 
@@ -270,16 +288,21 @@ const TambahSoalReading = () => {
       setEditPreviewUrl(null);
       fetchQuestions(); 
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title:
-          (err.response && err.response.data && err.response.data.message)
-            ? err.response.data.message
-            : 'Terjadi kesalahan saat mengupdate soal.',
-        timer: 2500,
-        showConfirmButton: false,
-      });
-      console.error(err);
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title:
+            (err.response && err.response.data && err.response.data.message)
+              ? err.response.data.message
+              : 'Terjadi kesalahan saat mengupdate soal.',
+          timer: 2500,
+          showConfirmButton: false,
+        });
+        console.error(err);
+
+      }
     }
   };
 
@@ -307,11 +330,16 @@ const TambahSoalReading = () => {
         });
         fetchQuestions();
       } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "Gagal menghapus soal",
-          text: err.response?.data?.message || "Terjadi kesalahan",
-        });
+        if (err.response && err.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Gagal menghapus soal",
+            text: err.response?.data?.message || "Terjadi kesalahan",
+          });
+
+        }
       }
     }
   };

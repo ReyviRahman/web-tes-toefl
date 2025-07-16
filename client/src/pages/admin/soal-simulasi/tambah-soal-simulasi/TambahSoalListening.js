@@ -32,11 +32,16 @@ const TambahSoalListening = () => {
           page: (res.data.last_page ?? 0) + 1,
         }));
       } catch (err) {
-        setForm((prev) => ({
-          ...prev,
-          no_soal: 1,
-          page: 1,
-        }));
+        if (err.response && err.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          setForm((prev) => ({
+            ...prev,
+            no_soal: 1,
+            page: 1,
+          }));
+
+        }
       }
     };
 
@@ -102,18 +107,18 @@ const TambahSoalListening = () => {
           withCredentials: true
         }
       );
-      Swal.fire({
-        icon: 'success',
-        title: 'Soal berhasil ditambahkan!',
-      }).then(() => {
-        navigate(-1);
-      });
+      navigate(-1);
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal menambah soal.',
-        text: err.response?.data?.message || 'Terjadi kesalahan.',
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal menambah soal.',
+          text: err.response?.data?.message || 'Terjadi kesalahan.',
+        });
+
+      }
     } finally {
       setLoading(false);
     }

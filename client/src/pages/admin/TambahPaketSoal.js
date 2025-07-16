@@ -29,11 +29,16 @@ const TambahPaketSoal = () => {
       );
       navigate("/admin/soal-simulasi");
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal menambah paket soal",
-        text: err.response?.data?.message || "Terjadi kesalahan",
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal menambah paket soal",
+          text: err.response?.data?.message || "Terjadi kesalahan",
+        });
+
+      }
     }
   };
 

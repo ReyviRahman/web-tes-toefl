@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const Soal = require('../models/soal');
 const Question = require('../models/question');
+const fsProm = require('fs').promises;
 
 router.use(authAdmin);
 const uploadDir = path.join(__dirname, '..', 'uploads', 'audio');
@@ -99,8 +100,14 @@ router.get('/:paketId/:kategori/last', async (req, res) => {
       attributes: ['no_soal', 'page'],
     });
 
-    if (!lastSoal) {
+    if (!lastSoal && kategori == "listening") {
       return res.json({ last_no_soal: 0, last_page: 0 });
+    } else if (!lastSoal && kategori == "structure") {
+      return res.json({ last_no_soal: 0, last_page: 51 });
+    } if (!lastSoal && kategori == "written") {
+      return res.json({ last_no_soal: 15, last_page: 67 });
+    } if (!lastSoal && kategori == "reading") {
+      return res.json({ last_no_soal: 0, last_page: 93 });
     }
 
     res.json({
@@ -178,29 +185,43 @@ router.delete('/:id', async (req, res) => {
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<LISTENING>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 router.post('/:paketSoalId/soal-listening', upload.single('audio'), async (req, res) => {
+  const { paketSoalId } = req.params;
+  const {
+    pilihan_satu,
+    pilihan_dua,
+    pilihan_tiga,
+    pilihan_empat,
+    jawaban,
+    no_soal,
+    page,
+  } = req.body;
+  const audioFile = req.file;
+
+  const deleteAudioIfExist = async () => {
+    if (audioFile && audioFile.path) {
+      try {
+        await fsProm.unlink(audioFile.path);
+      } catch (e) {
+        // File might have been deleted, ignore error
+      }
+    }
+  };
+
   try {
-    const { paketSoalId } = req.params;
-    const {
-      pilihan_satu,
-      pilihan_dua,
-      pilihan_tiga,
-      pilihan_empat,
-      jawaban,
-      no_soal,
-      page,
-    } = req.body;
-    const audioFile = req.file;
 
     // Validasi field
     if (![pilihan_satu, pilihan_dua, pilihan_tiga, pilihan_empat, jawaban, no_soal, page].every(Boolean) || !audioFile) {
+      await deleteAudioIfExist();
       return res.status(400).json({ message: 'Semua field wajib diisi, termasuk nomor soal, halaman, dan file audio.' });
     }
     if (!['1', '2', '3', '4'].includes(jawaban)) {
+      await deleteAudioIfExist();
       return res.status(400).json({ message: 'Jawaban harus 1-4.' });
     }
 
     // Validasi maksimal page dan no_soal
     if (Number(page) > 50 || Number(no_soal) > 50) {
+      await deleteAudioIfExist();
       return res.status(400).json({ message: 'Nomor soal dan halaman (page) untuk listening maksimal 50.' });
     }
 
@@ -213,6 +234,7 @@ router.post('/:paketSoalId/soal-listening', upload.single('audio'), async (req, 
     });
 
     if (totalListeningSoal >= 50) {
+      await deleteAudioIfExist();
       return res.status(400).json({ message: 'Jumlah soal listening sudah mencapai batas maksimal (50 soal).' });
     }
 
@@ -239,6 +261,7 @@ router.post('/:paketSoalId/soal-listening', upload.single('audio'), async (req, 
       data: newSoal
     });
   } catch (err) {
+    await deleteAudioIfExist();
     console.error(err);
     res.status(500).json({ message: 'Gagal menambah soal.' });
   }
@@ -278,35 +301,50 @@ router.get('/soal/:soalId', async (req, res) => {
 });
 
 router.put('/:soalId/soal-listening', upload.single('audio'), async (req, res) => {
+  const { soalId } = req.params;
+  const {
+    pilihan_satu,
+    pilihan_dua,
+    pilihan_tiga,
+    pilihan_empat,
+    jawaban,
+    no_soal,
+    page,
+  } = req.body;
+  const audioFile = req.file;
+
+  const deleteUploadedAudioIfExist = async () => {
+    if (audioFile && audioFile.path) {
+      try {
+        await fsProm.unlink(audioFile.path);
+      } catch (e) {
+        // file mungkin sudah dihapus, abaikan
+      }
+    }
+  };
+
   try {
-    const { soalId } = req.params;
-    const {
-      pilihan_satu,
-      pilihan_dua,
-      pilihan_tiga,
-      pilihan_empat,
-      jawaban,
-      no_soal,
-      page,
-    } = req.body;
-    const audioFile = req.file;
 
     // Validasi field
     if (![pilihan_satu, pilihan_dua, pilihan_tiga, pilihan_empat, jawaban, no_soal, page].every(Boolean)) {
+      await deleteUploadedAudioIfExist();
       return res.status(400).json({ message: 'Semua field wajib diisi, termasuk nomor soal dan halaman.' });
     }
     if (!['1', '2', '3', '4'].includes(jawaban)) {
+      await deleteUploadedAudioIfExist();
       return res.status(400).json({ message: 'Jawaban harus 1-4.' });
     }
 
     // Validasi maksimal page dan no_soal
     if (Number(page) > 50 || Number(no_soal) > 50) {
+      await deleteUploadedAudioIfExist();
       return res.status(400).json({ message: 'Nomor soal dan halaman (page) untuk listening maksimal 50.' });
     }
 
     // Cari soal yang akan diedit
     const soal = await Soal.findOne({ where: { id: soalId } });
     if (!soal) {
+      await deleteUploadedAudioIfExist();
       return res.status(404).json({ message: 'Soal tidak ditemukan.' });
     }
 
@@ -630,18 +668,29 @@ router.get('/:paketSoalId/soal-written', async (req, res) => {
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<PHOTO READING>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 router.post('/:paketSoalId/question-reading', uploadReading.single('soal-reading'), async (req, res) => {
-  try {
-    const { paketSoalId } = req.params;
-    const {
-      nama
-    } = req.body;
-    const soalReadingFile = req.file;
+  const { paketSoalId } = req.params;
+  const { nama } = req.body;
+  const soalReadingFile = req.file;
 
+  // Helper untuk hapus file kalau error
+  const deleteReadingIfExist = async () => {
+    if (soalReadingFile && soalReadingFile.path) {
+      try {
+        await fsProm.unlink(soalReadingFile.path);
+      } catch (e) {
+        // File mungkin sudah terhapus, abaikan error
+      }
+    }
+  };
+
+  try {
     // Validasi field
     if (!nama || !soalReadingFile) {
+      await deleteReadingIfExist();
       return res.status(400).json({ message: 'Nama dan Gambar Soal wajib di input' });
     }
-    // Path relatif untuk audio
+
+    // Path relatif untuk gambar soal
     const soalReadingPath = `/uploads/soal-reading/${soalReadingFile.filename}`;
 
     const newReadingSoal = await Question.create({
@@ -655,6 +704,7 @@ router.post('/:paketSoalId/question-reading', uploadReading.single('soal-reading
       data: newReadingSoal
     });
   } catch (err) {
+    await deleteReadingIfExist();
     console.error(err);
     res.status(500).json({ message: 'Gagal menambah soal reading.' });
   }
@@ -673,14 +723,27 @@ router.get('/question-reading/:paketSoalId', async (req, res) => {
 });
 
 router.put('/question-reading/:id', uploadReading.single('soal-reading'), async (req, res) => {
+  const { id } = req.params;
+  const { nama } = req.body;
+  const soalReadingFile = req.file;
+
+  // Helper hapus file baru kalau update gagal
+  const deleteUploadedFileIfExist = async () => {
+    if (soalReadingFile && soalReadingFile.path) {
+      try {
+        await fsProm.unlink(soalReadingFile.path);
+      } catch (e) {
+        // file mungkin sudah dihapus, abaikan
+      }
+    }
+  };
+
   try {
-    const { id } = req.params;
-    const { nama } = req.body;
-    const soalReadingFile = req.file;
 
     const soal = await Question.findByPk(id);
 
     if (!soal) {
+      await deleteUploadedFileIfExist();
       return res.status(404).json({ message: 'Soal Reading tidak ditemukan.' });
     }
 
@@ -779,7 +842,7 @@ router.post('/:paketSoalId/soal-reading', async (req, res) => {
       }
     });
 
-    if (totalReadingSoal >= 15) {
+    if (totalReadingSoal >= 50) {
       return res.status(400).json({ message: 'Jumlah soal reading sudah mencapai batas maksimal (50 soal).' });
     }
 

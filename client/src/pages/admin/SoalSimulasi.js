@@ -25,11 +25,16 @@ const SoalSimulasi = () => {
       setPakets(res.data);
       Swal.close();
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal",
-        text: "Gagal mengambil data exam pakets",
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: "Gagal mengambil data exam pakets",
+        });
+
+      }
     }
   };
 
@@ -58,11 +63,16 @@ const SoalSimulasi = () => {
         // Refresh data di sini, misal: fetchPaketSoal();
         fetchHistories();
       } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "Gagal menghapus paket soal",
-          text: err.response?.data?.message || "Terjadi kesalahan",
-        });
+        if (err.response && err.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Gagal menghapus paket soal",
+            text: err.response?.data?.message || "Terjadi kesalahan",
+          });
+
+        }
       }
     }
   };

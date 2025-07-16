@@ -41,12 +41,6 @@ const StartScreen = ({dispatch, nohp}) => {
         return;
       }
 
-      const { end_time, server_now } = resTimer.data;
-
-      // ► selisih antara jam klien & jam server (ms)
-      const skew = Date.now() - server_now;
-      console.log('ini remaining', resTimer.data.secondsRemaining);
-
       // ► sisa detik
       const secondsRemaining = resTimer.data.secondsRemaining;
 
@@ -75,11 +69,26 @@ const StartScreen = ({dispatch, nohp}) => {
 
       <h1 className='mt-10'>SECTION 3 READING COMPREHENSION</h1>
       <h1 className='font-bold'>Question 1-50</h1>
+      <button
+        type="button"
+        className="mt-10 w-full bg-primary text-white font-bold p-2 hover:bg-blue-600 rounded-b-md"
+        onClick={async () => {
+          const result = await Swal.fire({
+            title: 'Mulai Simulasi TOEFL?',
+            text: 'Setelah kamu klik mulai, simulasi TOEFL dan timer akan berjalan. Pastikan kamu sudah siap.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Mulai',
+            cancelButtonText: 'Batal'
+          });
 
-      <button type="button" className="mt-10 w-full bg-primary text-white font-bold p-2 hover:bg-blue-600 rounded-b-md" onClick={() => {
-        getTimers()
-      }
-      }>Mulai Ujian</button>
+          if (result.isConfirmed) {
+            getTimers();
+          }
+        }}
+      >
+        Mulai Simulasi TOEFL
+      </button>
     </div>
   )
 }

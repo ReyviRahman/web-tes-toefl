@@ -39,7 +39,12 @@ const EditSoalListening = () => {
         });
         setAudioPreview(`${process.env.REACT_APP_API_BASE_URL}${data.audio}`);
       } catch (error) {
-        Swal.fire('Error', 'Gagal mengambil data soal.', 'error');
+        if (error.response && error.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          Swal.fire('Error', 'Gagal mengambil data soal.', 'error');
+
+        }
       }
     };
     fetchSoal();
@@ -109,11 +114,16 @@ const EditSoalListening = () => {
         navigate(-1);
       });
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal update soal.',
-        text: err.response?.data?.message || 'Terjadi kesalahan.',
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal update soal.',
+          text: err.response?.data?.message || 'Terjadi kesalahan.',
+        });
+
+      }
     } finally {
       setLoading(false);
     }

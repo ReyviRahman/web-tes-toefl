@@ -8,12 +8,13 @@ const TambahSoalWritten = () => {
   const { paketId } = useParams();
   const labels = ['A', 'B', 'C', 'D'];
 
-  const [jumlahKolom, setJumlahKolom] = useState(0);
+  const [jumlahKolom, setJumlahKolom] = useState(9);
   const [inputValues, setInputValues] = useState([]);
   const [words, setWords] = useState([]);
   const [selectedWords, setSelectedWords] = useState({});
   const [noSoal, setNoSoal] = useState('');
   const [page, setPage] = useState('');
+  const [jawaban, setJawaban] = useState('');
   const navigate = useNavigate()
 
   const handleJumlahKolomChange = (e) => {
@@ -50,7 +51,7 @@ const TambahSoalWritten = () => {
       {words.map((word, index) => (
         <p
           key={index}
-          className={`leading-4 text-center cursor-pointer hover:text-red-500 ${
+          className={`leading-4 text-center cursor-pointer  ${
             selectedWords[index] ? 'text-black' : ''
           }`}
         >
@@ -71,16 +72,6 @@ const TambahSoalWritten = () => {
   const handleSave = async () => {
     const soalHTML = ReactDOMServer.renderToString(<RenderedContent />);
 
-    const labelToNumber = {
-      A: '1',
-      B: '2',
-      C: '3',
-      D: '4',
-    };
-
-    const jawabanLabel = selectedWords[Object.keys(selectedWords)[0]];
-    const jawaban = labelToNumber[jawabanLabel];
-
     if (!jawaban || !noSoal || !page) {
       Swal.fire('Gagal', 'Lengkapi jawaban, nomor soal, dan halaman!', 'error');
       return;
@@ -96,8 +87,13 @@ const TambahSoalWritten = () => {
 
       navigate(-1)            
     } catch (error) {
-      console.error(error);
-      Swal.fire('Error', error.response?.data?.message || 'Gagal menyimpan soal', 'error');
+      if (error.response && error.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        console.error(error);
+        Swal.fire('Error', error.response?.data?.message || 'Gagal menyimpan soal', 'error');
+
+      }
     }
   };
 
@@ -111,12 +107,21 @@ const TambahSoalWritten = () => {
         setNoSoal((res.data.last_no_soal ?? 0) + 1)
         setPage((res.data.last_page ?? 0) + 1)
       } catch (err) {
-        setNoSoal(1)
-        setPage(1)
+        if (err.response && err.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+
+          setNoSoal(1)
+          setPage(1)
+        }
       }
     };
 
     fetchLastSoal();
+    const count = jumlahKolom;
+    setInputValues(Array(count).fill(''));
+    setWords([]);
+    setSelectedWords({});
   }, [paketId]);
 
   return (
@@ -140,6 +145,22 @@ const TambahSoalWritten = () => {
           value={page}
           onChange={(e) => setPage(e.target.value)}
         />
+        <div>
+          <label className="block mb-1 font-bold">Jawaban (1-4)</label>
+          <select
+            name="jawaban"
+            className="w-full border p-2 rounded"
+            value={jawaban}
+            onChange={e => setJawaban(e.target.value)}
+            required
+          >
+            <option value="">Pilih Jawaban</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
       </div>
 
       {/* Input jumlah kolom */}
@@ -181,7 +202,7 @@ const TambahSoalWritten = () => {
           {words.map((word, index) => (
             <p
               key={index}
-              className={`leading-4 text-center cursor-pointer hover:text-red-500 ${
+              className={`leading-4 text-center cursor-pointer  ${
                 selectedWords[index] ? 'text-black' : ''
               }`}
               onClick={() => handleClick2(index)}

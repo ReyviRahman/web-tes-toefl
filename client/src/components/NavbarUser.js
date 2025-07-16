@@ -85,10 +85,10 @@ export default function NavbarUser() {
                 <img
                   alt="Your Company"
                   src="/logoYTEAnav.jpg"
-                  className="h-14 w-auto rounded-full"
+                  className="sm:h-14 h-10 w-auto rounded-full"
                 />
               </a>
-              <a href='/' className='md:text-xl ms-2 text-xl text-white font-semibold sm:block' style={{lineHeight: 1}}>Yanto Tanjung <br /> English Academy</a>
+              <a href='/' className='md:text-xl ms-2 text-base text-white font-semibold sm:block' style={{lineHeight: 1}}>Yanto Tanjung <br /> English Academy</a>
             </div>
             <div className="hidden sm:ml-6 sm:flex items-center">
               <nav className="flex space-x-4">

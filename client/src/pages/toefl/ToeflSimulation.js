@@ -203,7 +203,11 @@ const ToeflSimulation = () => {
         // Step 3: Dispatch ke reducer
         dispatch({ type: 'dataReceived', payload: soalToefl });
       } catch (error) {
-        dispatch({ type: 'dataFailed' });
+        if (error.response && error.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          dispatch({ type: 'dataFailed' });
+        }
       }
     };
 

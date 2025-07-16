@@ -63,9 +63,12 @@ const Bayar = () => {
       });
 
   } catch (err) {
-    console.error('Gagal mengunggah bukti', err);
-    Swal.close();
-    Swal.fire('Error', 'Gagal mengunggah bukti pembayaran', 'error');
+    if (err.response && err.response.status === 401) {
+      window.location.href = "/login";
+    } else {
+      Swal.close();
+      Swal.fire('Error', 'Gagal mengunggah bukti pembayaran', 'error');
+    }
   }
 };
   return (

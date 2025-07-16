@@ -50,36 +50,21 @@ const FinishScreen = ({ answer, status, dispatch, nohp, role }) => {
             Swal.showLoading();
           },
         });
-        // const responseGetLastScore = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/lastScore?nohp=${nohp}`)
-        // if (responseGetLastScore.data.lastScore !== -1) {
-        //   setScore(responseGetLastScore.data.lastScore)
-        //   setScoreListening(responseGetLastScore.data.scoreListening)
-        //   setScoreWritten(responseGetLastScore.data.scoreWritten)
-        //   setScoreReading(responseGetLastScore.data.scoreReading)
-        //   setCorrectListening(responseGetLastScore.data.listeningCorrect)
-        //   setCorrectWritten(responseGetLastScore.data.writtenCorrect)
-        //   setCorrectReading(responseGetLastScore.data.readingCorrect)
-        //   Swal.close()
-        // } else {
-          const response = await axios.post(
-            `${process.env.REACT_APP_API_BASE_URL}/soal/jawaban`,
-            {
-              nohp: nohp,
-              answers: answer
-            },
-            {
-              withCredentials: true
-            }
-          );
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/soal/jawaban`,
+          {
+            nohp: nohp,
+            answers: answer
+          }
+        );
 
-          setScore(response.data.toeflScore)
-          setScoreListening(response.data.scoreListening)
-          setScoreWritten(response.data.scoreWritten)
-          setScoreReading(response.data.scoreReading)
-          setCorrectListening(response.data.listeningCorrect)
-          setCorrectWritten(response.data.writtenCorrect)
-          setCorrectReading(response.data.readingCorrect)
-        // }
+        setScore(response.data.toeflScore)
+        setScoreListening(response.data.scoreListening)
+        setScoreWritten(response.data.scoreWritten)
+        setScoreReading(response.data.scoreReading)
+        setCorrectListening(response.data.listeningCorrect)
+        setCorrectWritten(response.data.writtenCorrect)
+        setCorrectReading(response.data.readingCorrect)
         localStorage.removeItem('toeflState');
         localStorage.removeItem(`audio-played-${nohp}`);
         Swal.close()

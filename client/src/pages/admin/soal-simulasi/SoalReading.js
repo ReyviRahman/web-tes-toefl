@@ -29,11 +29,16 @@ const SoalReading = () => {
       setSoals(res.data.data);
       Swal.close();
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal",
-        text: "Gagal mengambil data soal reading",
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: "Gagal mengambil data soal reading",
+        });
+
+      }
     }
   };
 
@@ -61,11 +66,16 @@ const SoalReading = () => {
         });
         fetchSoalReading();
       } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "Gagal menghapus soal",
-          text: err.response?.data?.message || "Terjadi kesalahan",
-        });
+        if (err.response && err.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Gagal menghapus soal",
+            text: err.response?.data?.message || "Terjadi kesalahan",
+          });
+
+        }
       }
     }
   };
@@ -91,6 +101,7 @@ const SoalReading = () => {
           <thead className="bg-slate-50">
             <tr>
               <th className="border px-4 py-3">No</th>
+              <th className="border px-4 py-3">Jawaban</th>
               <th className="border px-4 py-3">Soal</th>
               <th className="border px-4 py-3">Page</th>
               <th className="border px-4 py-3">Pilihan 1</th>
@@ -98,7 +109,6 @@ const SoalReading = () => {
               <th className="border px-4 py-3">Pilihan 3</th>
               <th className="border px-4 py-3">Pilihan 4</th>
               <th className="border px-4 py-3">Question</th>
-              <th className="border px-4 py-3">Jawaban</th>
               <th className="border px-4 py-3">Aksi</th>
             </tr>
           </thead>
@@ -111,6 +121,7 @@ const SoalReading = () => {
               soals.map((soal, idx) => (
                 <tr key={soal.id}>
                   <td className="border px-4 py-2">{soal.no_soal}</td>
+                  <td className="border px-4 py-2 font-bold">{soal.jawaban}</td>
                   <td className="border px-4 py-2">
                     {soal.soal}
                   </td>
@@ -124,7 +135,6 @@ const SoalReading = () => {
                       <img class="h-[70px] w-96 object-cover" src={`${process.env.REACT_APP_API_BASE_URL}${soal.readingQuestion.reading}`} />
                     </ImageZoom>
                   </td>
-                  <td className="border px-4 py-2 font-bold">{soal.jawaban}</td>
                   <td className="border px-4 py-2 font-bold">
                     <div className='flex justify-center gap-2'>
                       <button

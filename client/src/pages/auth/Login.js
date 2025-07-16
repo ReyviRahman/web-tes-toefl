@@ -121,6 +121,15 @@ const Login = () => {
             <button type="submit" className="mt-4 w-full bg-primary text-white font-bold p-2 rounded-md hover:bg-blue-600">
               Login
             </button>
+            <div className="mt-4 text-center text-sm">
+              Belum punya akun?
+              <a
+                href="/register"
+                className="ml-1 text-primary font-semibold hover:underline"
+              >
+                Daftar di sini
+              </a>
+            </div>
           </form>
 
         </div>

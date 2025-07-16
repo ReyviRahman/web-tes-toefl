@@ -32,11 +32,16 @@ const TambahSoalStructure = () => {
           page: (res.data.last_page ?? 0) + 1,
         }));
       } catch (err) {
-        setForm((prev) => ({
-          ...prev,
-          no_soal: 1,
-          page: 1,
-        }));
+        if (err.response && err.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          setForm((prev) => ({
+            ...prev,
+            no_soal: 1,
+            page: 1,
+          }));
+
+        }
       }
     };
 
@@ -110,11 +115,16 @@ const TambahSoalStructure = () => {
         navigate(-1);
       });
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal menambah soal.',
-        text: err.response?.data?.message || 'Terjadi kesalahan.',
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal menambah soal.',
+          text: err.response?.data?.message || 'Terjadi kesalahan.',
+        });
+
+      }
     } finally {
       setLoading(false);
     }
@@ -148,12 +158,13 @@ const TambahSoalStructure = () => {
         </div>
         <div>
           <label className="block mb-1">Soal</label>
-          <input
+          <textarea
             type="text"
             name="soal"
             className="w-full border p-2 rounded"
             value={form.soal}
             onChange={handleChange}
+            rows={3}
           />
         </div>
         <div>

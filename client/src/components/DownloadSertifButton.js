@@ -52,12 +52,17 @@ const DownloadSertifButton = () => {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       // Menutup Swal loading dan menampilkan error
-      Swal.close();
-      Swal.fire({
-        icon: 'error',
-        title: 'Terjadi Kesalahan',
-        text: err.message || 'Gagal mengunduh sertifikat',
-      });
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.close();
+        Swal.fire({
+          icon: 'error',
+          title: 'Terjadi Kesalahan',
+          text: err.message || 'Gagal mengunduh sertifikat',
+        });
+
+      }
     }
   };
 

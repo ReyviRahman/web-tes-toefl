@@ -30,14 +30,19 @@ const PaketSaya = () => {
 
       Swal.close(); // Tutup swal loading
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal memuat data",
-        text:
-          error.response?.data?.message ||
-          error.message ||
-          "Terjadi kesalahan saat mengambil data pembayaran.",
-      });
+      if (error.response && error.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal memuat data",
+          text:
+            error.response?.data?.message ||
+            error.message ||
+            "Terjadi kesalahan saat mengambil data pembayaran.",
+        });
+        
+      }
     }
   };
 
