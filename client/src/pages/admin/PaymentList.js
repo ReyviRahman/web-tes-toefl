@@ -38,7 +38,7 @@ const PaymentList = () => {
     fetchPayments();
   }, []);
 
-  const updateStatus = async (id, status, userNohp, userNama) => {
+  const updateStatus = async (id, status, userNohp, userNama, namaPaket) => {
     let alasanPenolakan = "";
 
     // Kalau status rejected, minta input alasan via Swal
@@ -93,24 +93,31 @@ const PaymentList = () => {
       // Siapkan pesan WhatsApp
       let pesan = "";
       if (status === "confirmed") {
-        pesan = `Halo ${userNama}, pembayaran Anda telah dikonfirmasi. Silakan mulai kerjakan simulasi TOEFL.`;
+        pesan = `Halo ${userNama}, pembayaran Anda untuk paket simulasi TOEFL ${namaPaket} telah berhasil dikonfirmasi. Silakan mulai mengerjakan simulasi kapan pun Anda siap.
+
+      Ini adalah simulasi TOEFL, jadi Anda bebas beristirahat setiap kali selesai satu sesi, sebelum lanjut ke sesi berikutnya. Ambil waktu sebentar kalau perlu!
+
+      Terima kasih telah menggunakan platform simulasi TOEFL dari YantoTanjung. Semoga sukses dan tetap semangat!`;
       } else if (status === "rejected") {
         pesan = `Halo ${userNama}, mohon maaf pembayaran Anda ditolak.\nAlasan: ${alasanPenolakan}`;
       } else {
         pesan = `Halo ${userNama}, status pembayaran Anda: ${status}.`;
       }
 
-      // Format nomor: hapus 0 di depan, ganti jadi 62 jika perlu
-      let waNohp = userNohp;
+      // Format nomor HP ke +62 (tanpa 0 di depan)
+      let waNohp = userNohp.trim();
       if (waNohp.startsWith("0")) {
         waNohp = "62" + waNohp.slice(1);
+      } else if (waNohp.startsWith("+62")) {
+        waNohp = waNohp.slice(1); // Buang tanda '+'
       }
 
+      // Encode pesan untuk URL
+      const encodedMessage = encodeURIComponent(pesan);
+
       // Buka WhatsApp Web
-      window.open(
-        `https://wa.me/${waNohp}?text=${encodeURIComponent(pesan)}`,
-        "_blank"
-      );
+      window.open(`https://wa.me/${waNohp}?text=${encodedMessage}`, "_blank");
+
     } catch (error) {
       if (error.response && error.response.status === 401) {
         window.location.href = "/login";
@@ -177,13 +184,13 @@ const PaymentList = () => {
                             {p.status === 'pending' && (
                               <>
                                 <button 
-                                  onClick={() => updateStatus(p.id, 'confirmed', p.userNohp, p.User.nama)}
+                                  onClick={() => updateStatus(p.id, 'confirmed', p.userNohp, p.User.nama, p.nama_paket)}
                                   className="px-3 py-1 bg-green-500 text-white rounded me-2"
                                 >
                                   Konfirmasi
                                 </button>
                                 <button 
-                                  onClick={() => updateStatus(p.id, 'rejected', p.userNohp, p.User.nama)}
+                                  onClick={() => updateStatus(p.id, 'rejected', p.userNohp, p.User.nama, p.nama_paket)}
                                   className="px-3 py-1 bg-red-500 text-white rounded"
                                 >
                                   Tolak

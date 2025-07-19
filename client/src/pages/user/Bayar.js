@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import NavbarUser from '../../components/NavbarUser';
@@ -11,6 +11,8 @@ const Bayar = () => {
   const [bukti, setBukti] = useState(null);
   const [preview, setPreview] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation()
+  const hargaPaket = location.state?.hargaPaket || ''
 
   useEffect(() => {
     const fetchPaket = async () => {
@@ -27,50 +29,52 @@ const Bayar = () => {
   }, [paketId]);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!bukti) {
-    return Swal.fire('Peringatan', 'Mohon unggah bukti pembayaran terlebih dahulu', 'warning');
-  }
+    if (!bukti) {
+      return Swal.fire('Peringatan', 'Mohon unggah bukti pembayaran terlebih dahulu', 'warning');
+    }
 
-  const formData = new FormData();
-  formData.append('paket_soal_id', paketId);
-  formData.append('bukti', bukti);
+    const formData = new FormData();
+    formData.append('paket_soal_id', paketId);
+    formData.append('bukti', bukti);
+    formData.append('namaPaket', paket.nama_paket);
 
-  try {
-    // Tampilkan loading Swal
-    Swal.fire({
-      title: 'Mengunggah Bukti...',
-      text: 'Mohon tunggu sebentar',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-
-    await axios.post(`${process.env.REACT_APP_API_BASE_URL}/payment/upload`, formData, {
-      withCredentials: true,
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-
-    Swal.close(); // Tutup loading sebelum tampil Swal berikutnya
-
-    Swal.fire('Berhasil', 'Bukti pembayaran berhasil dikirim. Silakan tunggu konfirmasi admin.', 'success')
-      .then(() => {
-        navigate('/paketsoal');
+    try {
+      // Tampilkan loading Swal
+      Swal.fire({
+        title: 'Mengunggah Bukti...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
       });
 
-  } catch (err) {
-    if (err.response && err.response.status === 401) {
-      window.location.href = "/login";
-    } else {
-      Swal.close();
-      Swal.fire('Error', 'Gagal mengunggah bukti pembayaran', 'error');
+      await axios.post(`${process.env.REACT_APP_API_BASE_URL}/payment/upload`, formData, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      Swal.close(); // Tutup loading sebelum tampil Swal berikutnya
+
+      Swal.fire('Berhasil', 'Bukti pembayaran berhasil dikirim. Silakan tunggu konfirmasi admin.', 'success')
+        .then(() => {
+          navigate('/paketsoal');
+        });
+
+    } catch (err) {
+      if (err.response && err.response.status === 401) {
+        window.location.href = "/login";
+      } else {
+        Swal.close();
+        Swal.fire('Error', 'Gagal mengunggah bukti pembayaran', 'error');
+      }
     }
-  }
-};
+  };
+  
   return (
     <div>
       <NavbarUser />
@@ -93,7 +97,7 @@ const Bayar = () => {
               className="w-60 mx-auto rounded shadow"
             />
             <p className="mt-3 text-lg font-semibold text-primary">
-              Total Pembayaran: <span className="text-red-600">Rp 20.000</span>
+              Total Pembayaran: <span className="text-red-600">{hargaPaket}</span>
             </p>
           </div>
 

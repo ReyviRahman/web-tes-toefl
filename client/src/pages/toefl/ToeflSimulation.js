@@ -37,9 +37,9 @@ const reducer = (state, action) => {
     case 'dataReceived':
       return {
         ...state,
-        questions: action.payload,
-        status: 'ready'
-      }
+        questions: action.payload.questions,
+        status: action.payload.status
+      };
     case 'dataFailed':
       return {
         ...state,
@@ -135,31 +135,6 @@ const ToeflSimulation = () => {
     localStorage.setItem('toeflState', JSON.stringify(stateToSave));
   }, [index, answer])
 
-  // useEffect(() => {
-  //   const fetchDataSoal = async () => {
-  //     try {
-        
-  //       const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/soal`);
-  //       console.log('ini data soal', response.data);
-
-  //       const newObject = {petunjuk: "petunjuk"};
-
-  //       let soalToefl = response.data.soal
-
-  //       soalToefl.splice(0, 0, newObject);
-  //       soalToefl.splice(51, 0, newObject);
-  //       soalToefl.splice(67, 0, newObject);
-  //       soalToefl.splice(93, 0, newObject);
-
-  //       dispatch({type: 'dataReceived', payload: response.data.soal})
-  //     } catch (error) {
-  //       dispatch({type: 'dataFailed'})
-  //     }
-  //   }
-
-  //   fetchDataSoal()
-  // }, [])
-
   useEffect(() => {
     const fetchDataSoal = async () => {
       try {
@@ -200,8 +175,37 @@ const ToeflSimulation = () => {
 
         console.log('ini soal toefl', soalToefl)
 
-        // Step 3: Dispatch ke reducer
-        dispatch({ type: 'dataReceived', payload: soalToefl });
+        const responseCekEndtime = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/soal/cek-endtime`, {
+          params: { nohp: auth.nohp },
+        });
+
+        if (responseCekEndtime.data.hasEndTime) {
+          const resTimer = await axios.put(
+            `${process.env.REACT_APP_API_BASE_URL}/soal/timers`,
+            { nohp: auth.nohp }
+          );
+
+          console.log("timer payload =", resTimer.data);
+
+          if (resTimer.data.sesi === "finished") {
+            dispatch({ type: "finish" });
+            return;
+          }
+
+          const secondsRemaining = resTimer.data.secondsRemaining;
+
+          dispatch({ type: "start", payload: secondsRemaining });
+          dispatch({ type: "getSesi", payload: resTimer.data.sesi });
+          dispatch({ 
+            type: 'dataReceived', 
+            payload: { questions: soalToefl, status: 'active' } 
+          });
+        } else {
+          dispatch({ 
+            type: 'dataReceived', 
+            payload: { questions: soalToefl, status: 'ready' } 
+          });
+        }
       } catch (error) {
         if (error.response && error.response.status === 401) {
           window.location.href = "/login";

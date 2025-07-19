@@ -291,47 +291,151 @@ router.post('/jawaban', async (req, res) => {
   }
 });
 
+router.get('/cek-endtime', async (req, res) => {
+  try {
+    const { nohp } = req.query;
+
+    if (!nohp) {
+      return res.status(400).json({ message: 'nohp is required' });
+    }
+
+    const user = await UserModel.findByPk(nohp);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const hasEndTime = user.end_time !== null;
+
+    return res.json({
+      hasEndTime,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+});
+
 router.put('/timers', async (req, res) => {
   const { nohp } = req.body;
-  const user = await UserModel.findByPk(nohp);
-  if (!user) return res.status(404).json({ message: 'User not found' });
+  try {
+    const user = await UserModel.findByPk(nohp);
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-  const server_now = Date.now();
-  const sessions = ['listening', 'written', 'reading'];
-  const durationMap = {
-    listening: 30 * 60 * 1000,     
-    written:   25 * 60 * 1000,   
-    reading:   55 * 60 * 1000,     
-  };
-  // const durationMap = {
-  //   listening: 30 * 60 * 1000,      30 menit
-  //   written:   25 * 60 * 1000,      25 menit
-  //   reading:   55 * 60 * 1000,      55 menit
-  // };
+    const server_now = Date.now();
+    const sessions = ['listening', 'written', 'reading'];
+    
+    // const durationMap = {
+    //   listening: 30 * 60 * 1000,      30 menit
+    //   written:   25 * 60 * 1000,      25 menit
+    //   reading:   55 * 60 * 1000,      55 menit
+    // };
 
-  let { sesi, start_time, end_time } = user;
+    let { sesi, start_time, end_time } = user;
 
-  // 1) Jika belum pernah memulai sesi apapun, inisialisasi sesi pertama
-  if (end_time === null) {
-    sesi = sessions[0];
-    start_time = server_now;
-    end_time = server_now + durationMap[sesi];
-    await user.update({ sesi, start_time, end_time });
+    // 1) Jika belum pernah memulai sesi apapun, inisialisasi sesi pertama
+    if (end_time === null) {
+      sesi = sessions[0];
+      start_time = server_now;
+      end_time = server_now + 30 * 60 * 1000;
+      await user.update({ sesi, start_time, end_time });
+    }
+    // 2) Jika waktu sekarang sudah melewati end_time, pindah ke sesi berikutnya
+    else if (server_now >= end_time) {
+      const currentIdx = sessions.indexOf(sesi);
+      const nextIdx = currentIdx + 1;
+
+      if (nextIdx >= sessions.length) {
+        return res.status(200).json({
+          message: 'All sessions completed',
+          server_now,
+          secondsRemaining: 0,
+          sesi: 'finished'
+        });
+      } 
+    }
+    // 3) Hitung sisa detik
+    const secondsRemaining = Math.max(
+      0,
+      Math.floor((end_time - server_now) / 1000)
+    );
+
+    return res.status(200).json({
+      sesi,
+      end_time,
+      server_now,
+      secondsRemaining,
+    });
+    
+  } catch (error) {
+    console.error('Error in /timers:', error);
+    return res.status(500).json({
+      message: 'Internal server error',
+      error: error.message,
+    });
   }
-  // 2) Jika waktu sekarang sudah melewati end_time, pindah ke sesi berikutnya
-  else if (server_now >= end_time) {
+});
+
+router.put('/timers-to-zero', async (req, res) => {
+  try {
+    const { nohp } = req.body;
+
+    if (!nohp) {
+      return res.status(400).json({ message: 'No HP is required' });
+    }
+
+    const user = await UserModel.findByPk(nohp);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    await user.update({ end_time: 0 });
+
+    return res.status(200).json({
+      message: 'Timer successfully set to zero',
+      secondsRemaining: 0,
+    });
+
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+});
+
+
+router.put('/timers/next', async (req, res) => {
+  const { nohp } = req.body;
+  try {
+    const user = await UserModel.findByPk(nohp);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const server_now = Date.now();
+    const sessions = ['listening', 'written', 'reading'];
+    const durationMap = {
+      listening: 30 * 60 * 1000,
+      written:   25 * 60 * 1000,
+      reading:   55 * 60 * 1000,
+    };
+
+    let { sesi } = user;
     const currentIdx = sessions.indexOf(sesi);
     const nextIdx = currentIdx + 1;
 
     if (nextIdx < sessions.length) {
-      // masih ada sesi selanjutnya
+      // Pindah ke sesi berikutnya
       sesi = sessions[nextIdx];
-      start_time = server_now;
-      end_time = server_now + durationMap[sesi];
+      const start_time = server_now;
+      const end_time = server_now + durationMap[sesi];
       await user.update({ sesi, start_time, end_time });
+
+      const secondsRemaining = Math.floor((end_time - server_now) / 1000);
+      return res.status(200).json({
+        sesi,
+        end_time,
+        server_now,
+        secondsRemaining,
+      });
     } else {
-      // semua sesi sudah selesai
-      // kamu bisa handle finished di sini, misal:
+      // Sudah di sesi terakhir/semua sesi selesai
       return res.status(200).json({
         message: 'All sessions completed',
         server_now,
@@ -339,62 +443,11 @@ router.put('/timers', async (req, res) => {
         sesi: 'finished'
       });
     }
+    
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
-
-  // 3) Hitung sisa detik
-  const secondsRemaining = Math.max(
-    0,
-    Math.floor((end_time - server_now) / 1000)
-  );
-
-  return res.status(200).json({
-    sesi,
-    end_time,
-    server_now,
-    secondsRemaining,
-  });
-});
-
-router.put('/timers/next', async (req, res) => {
-  const { nohp } = req.body;
-  const user = await UserModel.findByPk(nohp);
-  if (!user) return res.status(404).json({ message: 'User not found' });
-
-  const server_now = Date.now();
-  const sessions = ['listening', 'written', 'reading'];
-  const durationMap = {
-    listening: 30 * 60 * 1000,
-    written:   25 * 60 * 1000,
-    reading:   55 * 60 * 1000,
-  };
-
-  let { sesi } = user;
-  const currentIdx = sessions.indexOf(sesi);
-  const nextIdx = currentIdx + 1;
-
-  if (nextIdx < sessions.length) {
-    // Pindah ke sesi berikutnya
-    sesi = sessions[nextIdx];
-    const start_time = server_now;
-    const end_time = server_now + durationMap[sesi];
-    await user.update({ sesi, start_time, end_time });
-
-    const secondsRemaining = Math.floor((end_time - server_now) / 1000);
-    return res.status(200).json({
-      sesi,
-      end_time,
-      server_now,
-      secondsRemaining,
-    });
-  } else {
-    // Sudah di sesi terakhir/semua sesi selesai
-    return res.status(200).json({
-      message: 'All sessions completed',
-      server_now,
-      secondsRemaining: 0,
-      sesi: 'finished'
-    });
-  }
+  
 });
 
 

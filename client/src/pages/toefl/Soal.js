@@ -128,39 +128,9 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
     if (secondsRemaining > 0) return;
 
     clearInterval(intervalRef.current);
-
-    const refreshTimer = async () => {
-      try {
-        const res = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/soal/timers`, { nohp: nohp });
-        if (res.data.sesi === "finished") {
-          dispatch({ type: "finish" });
-        } else {
-          const newSeconds = res.data.secondsRemaining;
-          dispatch({ type: "getSesi", payload: res.data.sesi });
-          dispatch({ type: "start", payload: newSeconds });
-          setCurrentSession(res.data.sesi)
-          const sesiToIndexMap = {
-            listening: 0,
-            written: 51,
-            reading: 93,
-          };
-
-          const sesi = res.data.sesi;
-          const targetIdx = sesiToIndexMap[sesi];
-
-          if (targetIdx !== undefined) {
-            dispatch({ type: 'moveToIdx', payload: targetIdx });
-          }
-
-          startTick(); // **kunci**: mulai interval ulang
-        }
-      } catch (err) {
-        console.error("Error refreshing timer:", err);
-        // dispatch({ type: "finish" });
-      }
-    };
-
-    refreshTimer();
+    if (sesi === 'reading') {
+      dispatch({ type: "finish" });
+    }
   }, [secondsRemaining, dispatch, startTick]);
 
   const displayLabels = React.useMemo(() => {
@@ -184,78 +154,78 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
     return arr;          // total elemen = 134
   }, []);
 
-    useEffect(() => {
-      const handleVisibilityChange = () => {
-        if (document.visibilityState === "visible") {
-          (async () => {
-            try {
-              Swal.fire({
-                title: "Memperbarui timer...",
-                allowOutsideClick: false,
-                didOpen: () => {
-                  Swal.showLoading();
-                },
-              });
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        (async () => {
+          try {
+            Swal.fire({
+              title: "Memperbarui timer...",
+              allowOutsideClick: false,
+              didOpen: () => {
+                Swal.showLoading();
+              },
+            });
 
-              const res = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/soal/timers`, { nohp: nohp });
+            const res = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/soal/timers`, { nohp: nohp });
 
-              Swal.close();
-
-              if (res.data.sesi === "finished") {
-                dispatch({ type: "finish" });
-              } else {
-                const newSeconds = res.data.secondsRemaining;
-                dispatch({ type: "getSesi", payload: res.data.sesi });
-                dispatch({ type: "start", payload: newSeconds });
-                setCurrentSession(res.data.sesi);
-                const sesiToIndexMap = {
-                  listening: 0,
-                  written: 51,
-                  reading: 93,
-                };
-
-                const sesi = res.data.sesi;
-                const targetIdx = sesiToIndexMap[sesi];
-
-                if (targetIdx !== undefined) {
-                  dispatch({ type: 'moveToIdx', payload: targetIdx });
-                }
-              }
-            } catch (err) {
-              Swal.close();
-              console.error("Error refreshing timer:", err);
+            Swal.close();
+            if (res.data.sesi === "finished") {
+              dispatch({ type: "finish" });
+            } else {
+              const newSeconds = res.data.secondsRemaining;
+              dispatch({ type: "start", payload: newSeconds });
             }
-          })();
-        }
-      };
+          } catch (err) {
+            Swal.close();
+            console.error("Error refreshing timer:", err);
+          }
+        })();
+      }
+    };
 
-      document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
-      return () => {
-        document.removeEventListener("visibilitychange", handleVisibilityChange);
-      };
-    }, []);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  const resetTimerToZero = async (nohp) => {
+    try {
+      const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/soal/timers-to-zero`, {
+        nohp,
+      });
+
+      const newSeconds = response.data.secondsRemaining;
+      dispatch({ type: "start", payload: newSeconds });
+
+    } catch (error) {
+      console.error('Failed to reset timer:', error.response?.data || error.message);
+      throw error;
+    }
+  };
 
 
   return (
     <div>
       <div className='flex sm:flex-row flex-col justify-between border border-b-0 py-2'>
         <div className='flex sm:ms-5 mx-2'>
-          {(sesi === "listening" || sesi === "written") && (
+          {(sesi === "listening" || sesi === "written") && (secondsRemaining > 0) && (
             <button
               type="button"
               className="sm:w-fit w-full bg-green-600 px-3 py-1 rounded text-white"
               onClick={() => {
                 Swal.fire({
-                  title: 'Lanjut ke sesi berikutnya?',
-                  text: 'Kamu yakin ingin lanjut ke sesi berikutnya? Sesi ini akan ditutup.',
+                  title: 'Selesaikan Sesi Ini?',
+                  text: 'Karena ini adalah simulasi TOEFL, Anda boleh beristirahat sebelum melanjutkan ke sesi berikutnya. Pastikan Anda kembali menggunakan laptop atau HP yang sama saat memulai simulasi di awal tadi.',
                   icon: 'question',
                   showCancelButton: true,
-                  confirmButtonText: 'Ya, Lanjut',
+                  confirmButtonText: 'Ya, Selesaikan',
                   cancelButtonText: 'Batal'
                 }).then((result) => {
                   if (result.isConfirmed) {
-                    nextSession();
+                    resetTimerToZero(nohp);
                   }
                 });
               }}
@@ -300,13 +270,43 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
           <h1 className='text-center'>Sekarang <span className='text-primary'>SESI: {sesiLabels[sesi] ?? sesi}.</span> <br/> Mohon kerjakan <span className='text-primary'>SESI: {sesiLabels[sesi] ?? sesi}</span> terlebih dahulu</h1>
         </div> */}
 
-        {!isIndexInCurrentSession() ? (
+        {secondsRemaining <= 0 ? (
           // ❌ Index tidak sesuai sesi → tampilkan peringatan
-          <div className='basis-full items-center'>
-            <h1 className='text-center'>
-              Sekarang <span className='text-primary'>SESI: {sesiLabels[sesi] ?? sesi}</span>.<br />
-              Mohon kerjakan <span className='text-primary'>SESI: {sesiLabels[sesi] ?? sesi}</span> terlebih dahulu
-            </h1>
+          <div className="basis-full flex flex-col items-center justify-center text-center bg-yellow-50 border border-yellow-200 p-6 rounded-xl shadow-md">
+            <h2 className="text-xl font-semibold text-yellow-700 mb-2">
+              Sesi {sesiLabels[sesi]} Telah Berakhir
+            </h2>
+            {sesi !== "reading" && (
+              <div className="text-center">
+                <p className="text-gray-800 mb-2">
+                  Karena ini adalah <strong>simulasi TOEFL</strong>, Anda boleh beristirahat sebelum melanjutkan ke sesi berikutnya. Pastikan Anda kembali menggunakan laptop atau HP yang sama saat memulai simulasi di awal tadi.
+                </p>
+                <p className="text-gray-700 mb-4 text-sm italic">
+                  Dalam TOEFL resmi, tidak ada jeda antara setiap sesi.
+                </p>
+                <button
+                  onClick={() => {
+                    Swal.fire({
+                      title: 'Yakin ingin lanjut?',
+                      text: 'Pastikan kamu sudah siap untuk memulai sesi berikutnya.',
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonColor: '#3085d6',
+                      cancelButtonColor: '#d33',
+                      confirmButtonText: 'Ya, lanjut!',
+                      cancelButtonText: 'Batal'
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        nextSession();
+                      }
+                    });
+                  }}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-5 rounded-lg transition duration-200"
+                >
+                  Lanjut ke Sesi Berikutnya
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           // ✅ Index sesuai → tampilkan soal
@@ -531,39 +531,40 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
           </div>
         )}
 
-        <div className='basis-1/3 border-l sm:border-t-0 border-t-1'>
-          <div className='p-4'>
-            <div className="grid grid-cols-5 gap-4">
-            
-            {displayLabels.map((label, idx) => {
-              // Abaikan indeks di luar rentang
-              if (idx < start || idx > end) return null;
+        {secondsRemaining > 0 && (
+          <div className="basis-1/3 border-l sm:border-t-0 border-t-1">
+            <div className="p-4">
+              <div className="grid grid-cols-5 gap-4">
+                {displayLabels.map((label, idx) => {
+                  if (idx < start || idx > end) return null;
 
-              const disabledIndices = [32, 33, 34, 36, 37, 38, 40, 41, 42, 44, 45, 46, 48, 49, 50];
-              const isDisabled = disabledIndices.includes(idx);
+                  const disabledIndices = [32, 33, 34, 36, 37, 38, 40, 41, 42, 44, 45, 46, 48, 49, 50];
+                  const isDisabled = disabledIndices.includes(idx);
 
-              return (
-                <div
-                  key={idx}
-                  className={`
-                    ${index === idx ? 'bg-primary text-white'
-                      : answerIds.includes(idx) ? 'bg-secondary border-primary'
-                      : ''}
-                    ${['I1','I2','I3','I4'].includes(label) ? 'border-secondary' : ''}
-                    ${isDisabled ? '' : 'cursor-pointer'}
-                    border py-1 text-center rounded
-                  `}
-                  onClick={isDisabled ? undefined : () => dispatch({ type: 'moveToIdx', payload: idx })}
-                >
-                  {label}
-                </div>
-              );
-            })}
+                  const isSelected = index === idx;
+                  const isAnswered = answerIds.includes(idx);
+                  const isInstruction = ['I1', 'I2', 'I3', 'I4'].includes(label);
+
+                  const baseClasses = "border py-1 text-center rounded";
+                  const selectedClass = isSelected ? "bg-primary text-white" : "";
+                  const answeredClass = isAnswered ? "bg-secondary border-primary" : "";
+                  const instructionClass = isInstruction ? "border-secondary" : "";
+                  const cursorClass = isDisabled ? "" : "cursor-pointer";
+
+                  return (
+                    <div
+                      key={idx}
+                      className={`${baseClasses} ${selectedClass} ${answeredClass} ${instructionClass} ${cursorClass}`}
+                      onClick={isDisabled ? undefined : () => dispatch({ type: 'moveToIdx', payload: idx })}
+                    >
+                      {label}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
-
-        
+        )}
       </div>
     </div>
   )

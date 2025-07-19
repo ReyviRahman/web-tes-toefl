@@ -26,19 +26,13 @@ const upload = multer({ storage });
 // Upload bukti pembayaran
 router.post('/upload', verifyToken, upload.single('bukti'), async (req, res) => {
   const userNohp = req.user.nohp;
-  const { paket_soal_id } = req.body;
+  const { paket_soal_id, namaPaket } = req.body;
 
   try {
     await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       chat_id: TELEGRAM_CHAT_ID,
-      text: `Notifikasi Pembayaran Masuk!\n\nUser: ${userNohp}\nPaket ID: ${paket_soal_id}\nStatus: pending\n${process.env.CLIENT_ORIGIN}/admin/payments`,
+      text: `Notifikasi Pembayaran Masuk!\n\nUser: ${userNohp}\nPaket: ${namaPaket}\nStatus: pending\n${process.env.CLIENT_ORIGIN}/admin/payments`,
     });
-
-    const paket = await PaketSoal.findByPk(paket_soal_id);
-    if (!paket) {
-      return res.status(404).json({ message: 'Paket soal tidak ditemukan' });
-    }
-    const namaPaket = paket.nama_paket;
 
     const payment = await Payment.create({
       userNohp,
