@@ -1,0 +1,42 @@
+[
+  {
+    "type": "structure",
+    "question": "In the early 1900s, Eastman _____ in inexpensive Brownie box cameras.",
+    "options": ["it developed", "it was developed", "developed", "developing"]
+  },
+  {
+    "type": "structure",
+    "question": "_____ the discovery of the fossilized remnants of tides in one-billion-year-old rocks.",
+    "options": ["Geological reports", "Geologists report", "The reports of geologists", "Geologists' reports"]
+  },
+  {
+    "type": "structure",
+    "question": "The Brooklyn Bridge _____ took thirteen years to complete.",
+    "options": ["in New York", "is in New York", "it is in New York", "which New York"]
+  },
+  {
+    "type": "structure",
+    "question": "Genes control all of the physical _____ we inherit.",
+    "options": ["that traits", "that are traits", "traits that", "traits are that"]
+  },
+  {
+    "type": "structure",
+    "question": "Indigo can be extracted from a plant, and then _____ to dye cloth blue.",
+    "options": ["it", "using", "using it", "it can be used"]
+  },
+  { "type": "written", 
+    "question": "<div class='flex flex-wrap gap-1'><p class='leading-4 text-center'>In 1732, coach</p><p class='leading-4 text-center text-black'><u>travelers</u><br/>A</p><p class='leading-4 text-center'>could</p><p class='leading-4 text-center text-black'><u>got</u><br/>B</p><p class='leading-4 text-center'>from New York</p><p class='leading-4 text-center text-black'><u>to</u><br/>C</p><p class='leading-4 text-center'>Philadelphia in about two</p><p class='leading-4 text-center text-black'><u>days.</u><br/>D</p></div>" 
+  },
+  { "type": "written", 
+    "question": "<div class='flex flex-wrap gap-1'><p class='leading-4 text-center'>Some</p><p class='leading-4 text-center text-black'><u>of the</u><br/>A</p><p class='leading-4 text-center'>District of Columbia</p><p class='leading-4 text-center text-black'><u>are</u><br/>B</p><p class='leading-4 text-center text-black'><u>own</u><br/>C</p><p class='leading-4 text-center'>low-lying,</p><p class='leading-4 text-center text-black'><u>marshy</u><br/>D</p><p class='leading-4 text-center'>ground.</p></div>" 
+  },
+  { "type": "written", 
+    "question": "<div class='flex flex-wrap gap-1'><p class='leading-4 text-center text-black'><u>Georgia's</u><br/>A</p><p class='leading-4 text-center'>economy is</p><p class='leading-4 text-center text-black'><u>based</u><br/>B</p><p class='leading-4 text-center text-black'><u>main</u><br/>C</p><p class='leading-4 text-center'>on</p><p class='leading-4 text-center text-black'><u>agriculture.</u><br/>D</p></div>" 
+  },
+  { "type": "written", 
+    "question": "<div class='flex flex-wrap gap-1'><p class='leading-4 text-center'>The Paul Revere House was</p><p class='leading-4 text-center text-black'><u>built</u><br/>A</p><p class='leading-4 text-center'>in 1676, and today</p><p class='leading-4 text-center text-black'><u>its</u><br/>B</p><p class='leading-4 text-center'>the</p><p class='leading-4 text-center text-black'><u>oldest</u><br/>C</p><p class='leading-4 text-center text-black'><u>wooden</u><br/>D</p><p class='leading-4 text-center'>building in Boston.</p></div>" 
+  },
+  { "type": "written", 
+    "question": "<div class='flex flex-wrap gap-1'><p class='leading-4 text-center'>Conifers</p><p class='leading-4 text-center text-black'><u>such as</u><br/>A</p><p class='leading-4 text-center'>cedars, firs, and pines</p><p class='leading-4 text-center text-black'><u>bear</u><br/>B</p><p class='leading-4 text-center text-black'><u>its</u><br/>C</p><p class='leading-4 text-center'>seeds in</p><p class='leading-4 text-center text-black'><u>cones</u><br/>D</p></div>" 
+  }
+]

@@ -31,6 +31,11 @@ import TambahSoalReading from "./pages/admin/soal-simulasi/tambah-soal-simulasi/
 import EditSoalReading from "./pages/admin/soal-simulasi/edit-soal-simulasi/EditSoalReading";
 import DataUser from "./pages/admin/DataUser";
 import Profile from "./pages/user/Profile";
+import StartScreen from "./pages/mini-test-toefl/StartScreen";
+import Listening from "./pages/mini-test-toefl/Listening";
+import Structure from "./pages/mini-test-toefl/Structure";
+import Reading from "./pages/mini-test-toefl/Reading";
+import Finish from "./pages/mini-test-toefl/Finish";
 
 function App() {
   return (
@@ -49,6 +54,12 @@ function App() {
           <Route path='/paket-saya' element={<PaketSaya />} />
           <Route path='/bayar/:paketId' element={<Bayar />} />
           <Route path='/profile' element={<Profile />} />
+
+          <Route path='/mini-test' element={<StartScreen />} />
+          <Route path='/listening' element={<Listening />} />
+          <Route path='/structure' element={<Structure />} />
+          <Route path='/reading' element={<Reading />} />
+          <Route path='/finish' element={<Finish />} />
         </Route>
         
         <Route path='/' element={<Home />} />

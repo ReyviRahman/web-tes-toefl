@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import AudioPlayer from 'react-h5-audio-player';
 import DOMPurify from 'dompurify';
 import InstructionListening from '../../components/InstructionListening';
 import InstructionStructure from '../../components/InstructionStructure';

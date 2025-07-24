@@ -1,0 +1,27 @@
+[
+  {
+    "image": "/images/questions-1-5.png",
+    "question": "What is the best title for this passage?",
+    "options": ["Diamond Cutting", "The World's Biggest Diamond, Uncut and cut", "Measuring Diamonds in Carats", "The British Crown Jewels"]
+  },
+  {
+    "image": "/images/questions-1-5.png",
+    "question": "The word \"uncut\" in line 2 is closest in meaning to which of the following?",
+    "options": ["Finished", "Unnatural", "Pear", "Whole"]
+  },
+  {
+    "image": "/images/questions-1-5.png",
+    "question": "The word \"discovered\" in line 2 is closest in meaning to",
+    "options": ["created", "found", "buried", "weighed"]
+  },
+  {
+    "image": "/images/questions-1-5.png",
+    "question": "It can be inferred from the passage that the Cullinan Diamond was cut into how many total stones?",
+    "options": ["9", "96", "105", "3,106"]
+  },
+  {
+    "image": "/images/questions-1-5.png",
+    "question": "The word \"major\" in line 3 could best be replaced by",
+    "options": ["well-known", "military", "natural", "big"]
+  }
+]

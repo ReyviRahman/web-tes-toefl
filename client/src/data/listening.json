@@ -1,0 +1,47 @@
+[
+  {
+    "audio": "/audio/number-1.mp3",
+    "options": [
+      "Her concerns were expressed.", 
+      "She wonders if the concert was good.", 
+      "The music was fantastic.", 
+      "She wandered about during the night."
+    ]
+  },
+  {
+    "audio": "/audio/number-2.mp3",
+    "options": [
+      "In a bus station.", 
+      "In a post office.", 
+      "In an airport.", 
+      "In a travel agency."
+    ]
+  },
+  {
+    "audio": "/audio/number-3.mp3",
+    "options": [
+      "He spends half his time with his daughter", 
+      "His daughter's under a year old.", 
+      "His daughter will start school in a year and a half.", 
+      "His daughter's eighteen months old."
+    ]
+  },
+  {
+    "audio": "/audio/number-4.mp3",
+    "options": [
+      "He's on the basketball team", 
+      "He doesn't even like to play basketball.", 
+      "He's too short to make the team.", 
+      "He thinks he's tall enough."
+    ]
+  },
+  {
+    "audio": "/audio/number-5.mp3",
+    "options": [
+      "She's thinking about her grade in the seminar", 
+      "The seminar is quite realistic.", 
+      "The seminar will take a great deal of time.", 
+      "She agrees with the man about the seminar."
+    ]
+  }
+]

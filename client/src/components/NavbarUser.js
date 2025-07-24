@@ -123,6 +123,17 @@ export default function NavbarUser() {
                 >
                   Riwayat Simulasi
                 </NavLink>
+                <NavLink
+                  to="/mini-test"
+                  className={({ isActive }) =>
+                    `px-3 py-2 rounded-lg transition text-sm
+                    ${isActive
+                      ? "bg-[#4300FF] text-white"
+                      : "text-gray-300 hover:bg-[#6528F7] hover:text-white"}`
+                  }
+                >
+                  Mini Test
+                </NavLink>
               </nav>
             </div>
           </div>
@@ -190,6 +201,17 @@ export default function NavbarUser() {
               }
             >
               Riwayat Simulasi
+            </NavLink>
+            <NavLink
+              to="/mini-test"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-lg transition text-sm
+                ${isActive
+                  ? "bg-[#4300FF] text-white"
+                  : "text-gray-300 hover:bg-[#6528F7] hover:text-white"}`
+              }
+            >
+              Mini Test
             </NavLink>
           </nav>
         </div>
