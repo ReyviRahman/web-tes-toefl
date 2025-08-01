@@ -8,7 +8,7 @@ import FloatingWAButton from "../../components/FloatingWAButton";
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const PaketSaya = () => {
-  
+
   const [paketList, setPaketList] = useState([]);
 
   const fetchData = async () => {
@@ -29,7 +29,7 @@ const PaketSaya = () => {
       );
       setPaketList(response.data);
 
-      Swal.close(); // Tutup swal loading
+      Swal.close(); 
     } catch (error) {
       if (error.response && error.response.status === 401) {
         window.location.href = "/login";
