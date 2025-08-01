@@ -4,8 +4,9 @@ const InstructionListening = ({index, dispatch, numQuestions}) => {
   return (
     <div className='p-10 flex flex-col gap-3'>
       <h1 className='text-center text-xl leading-5 font-medium'>SECTION 1 <br/> LISTENING COMPREHENSION </h1>
-      <p className='text-justify'>In this section of the test, you will have an opportunity to demonstrate your ability to understand
-      conversations and talks in English. There are three parts to this section, with special directions for each part. Answer all the questions on the basis of what is <b>stated</b> or <b>implied</b> by the speakers you hear. Do <b>not</b> take notes or write in your test book at any time. Do <b>not</b> turn the pages until you are told to do so.</p>
+      <p className='text-justify'>
+  In this section of the test, you will have the opportunity to demonstrate your ability to understand conversations and talks in English. Answer all questions based on what is <b>stated</b> or <b>implied</b> by the speakers you hear. 
+</p>
       <hr className='mt-5' />
       <div className='flex justify-between'>
         <div>

@@ -43,7 +43,7 @@ const RiwayatUjian = () => {
 
   return (
     <div>
-      <h2 className="text-2xl mb-4">Riwayat Ujian</h2>
+      <h2 className="text-2xl mb-4">Riwayat Simulasi</h2>
       <div className="relative overflow-auto">
         <table className="border-collapse min-w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm shadow-sm">
             <thead className="bg-slate-50 dark:bg-slate-700">

@@ -103,7 +103,7 @@ const FinishScreen = ({ answer, status, dispatch, nohp, role }) => {
       </div>
       <DownloadSertifButton />
 
-      {role === 'Admin' && (
+      {/* {role === 'Admin' && (
         <div className='flex'>
           <button
             type='button'
@@ -116,7 +116,7 @@ const FinishScreen = ({ answer, status, dispatch, nohp, role }) => {
             Tes Ulang
           </button>
         </div>
-      )}
+      )} */}
 
     </div>
   )

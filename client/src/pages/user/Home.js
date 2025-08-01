@@ -118,25 +118,26 @@ const Home = () => {
           <h1 className='text-[#002147] font-bold sm:text-5xl text-3xl sm:mb-10 mb-5'>Fasilitas yang Disediakan</h1>
 
           <div className="grid sm:grid-cols-4 gap-4">
-
-            {/* <div className='bg-[#F0F4F9] rounded-md text-center px-4 py-10'>
+            <div className='bg-[#4300FF] rounded-md text-center px-4 py-10 '>
               <div className='flex justify-center'>
                 <div className="relative bg-[#FFD700] flex items-center 
                 justify-center rounded-md shadow-md px-4 py-1">
+                  {/* Gambar di tengah */}
                   <img
-                    src="/assets/img/home/icon-camera.png" // Ganti dengan path gambarmu
+                    src="/assets/img/home/icon-toefl.png"
                     alt="Icon"
                     className="w-[80px] h-[90px] object-contain"
                   />
 
+                  {/* Angka di sudut kanan atas */}
                   <div className="absolute -top-3 p-4 text-lg -right-2 bg-[#002147] text-white w-6 h-6 flex items-center justify-center rounded-full font-semibold">
                     1
                   </div>
                 </div>
               </div>
-              <h1 className='font-bold text-xl text-[#002147] mt-5'>20 Kali Pertemuan / 90 Menit</h1>
-              <h1 className='text-md text-[#565872] mt-2'>Ipsum yorem dolor amet sit elit. Duis at est id leosco for it</h1>
-            </div> */}
+              <h1 className='font-bold text-xl text-[#002147] mt-5'>Gratis 1x Simulasi Tes TOEFL Online</h1>
+              <h1 className='text-md text-[#FFFFFF] mt-2'>Dapatkan kesempatan mencoba 1x simulasi tes TOEFL online secara gratis untuk mengukur kemampuan awal dan mengenal format TOEFL yang sebenarnya.</h1>
+            </div>
 
             <div className='bg-[#4300FF] rounded-md text-center px-4 py-10 '>
               <div className='flex justify-center'>
@@ -151,7 +152,7 @@ const Home = () => {
 
                   {/* Angka di sudut kanan atas */}
                   <div className="absolute -top-3 p-4 text-lg -right-2 bg-[#002147] text-white w-6 h-6 flex items-center justify-center rounded-full font-semibold">
-                    1
+                    2
                   </div>
                 </div>
               </div>
@@ -172,7 +173,7 @@ const Home = () => {
 
                   {/* Angka di sudut kanan atas */}
                   <div className="absolute -top-3 p-4 text-lg -right-2 bg-[#002147] text-white w-6 h-6 flex items-center justify-center rounded-full font-semibold">
-                    2
+                    3
                   </div>
                 </div>
               </div>
@@ -203,78 +204,70 @@ const Home = () => {
 
                   {/* Angka di sudut kanan atas */}
                   <div className="absolute -top-3 p-4 text-lg -right-2 bg-[#002147] text-white w-6 h-6 flex items-center justify-center rounded-full font-semibold">
-                    3
+                    4
                   </div>
                 </div>
               </div>
               <h1 className='font-bold text-xl text-[#002147] mt-5'>Rekaman Zoom 20 Kali Pertemuan</h1>
               <h1 className='text-md text-[#FFFFFF] mt-2'>Tidak sempat ikut kelas? Tenang! Seluruh sesi Zoom direkam dan bisa kamu akses kapan saja untuk review ulang materi.</h1>
             </div>
-
-            <div className='bg-[#4300FF] rounded-md text-center px-4 py-10'>
+          </div>
+          {/* bagian bawah */}
+          <div className="flex sm:flex-row flex-col justify-center gap-4 mt-4">
+            <div className='bg-[#4300FF] rounded-md text-center px-4 py-10 sm:w-[285px] w-full'>
               <div className='flex justify-center'>
                 <div className="relative bg-[#FFD700] flex items-center 
                 justify-center rounded-md shadow-md px-4 py-1">
-                  {/* Gambar di tengah */}
                   <img
                     src="/assets/img/home/icon-qa.png" // Ganti dengan path gambarmu
                     alt="Icon"
                     className="w-[80px] h-[90px] object-contain"
                   />
-
-                  {/* Angka di sudut kanan atas */}
                   <div className="absolute -top-3 p-4 text-lg -right-2 bg-[#002147] text-white w-6 h-6 flex items-center justify-center rounded-full font-semibold">
-                    4
+                    5
                   </div>
                 </div>
               </div>
               <h1 className='font-bold text-xl text-[#002147] mt-5'>Sesi Tanya Jawab Gratis via WhatsApp</h1>
               <h1 className='text-md text-[#FFFFFF] mt-2'>Konsultasi seputar TOEFL, IELTS, TOEIC, dan berbagai tes Bahasa Inggris lainnya secara fleksibel lewat WhatsApp—langsung bersama Pak Yanto Tanjung.</h1>
             </div>
-
-            <div className='bg-[#4300FF] rounded-md text-center px-4 py-10 sm:col-start-2'>
+            <div className='bg-[#4300FF] rounded-md text-center px-4 py-10 sm:w-[285px] w-full'>
               <div className='flex justify-center'>
                 <div className="relative bg-[#FFD700] flex items-center 
                 justify-center rounded-md shadow-md px-4 py-1">
-                  {/* Gambar di tengah */}
                   <img
                     src="/assets/img/home/icon-consult.png" // Ganti dengan path gambarmu
                     alt="Icon"
                     className="w-[80px] h-[90px] object-contain"
                   />
-
-                  {/* Angka di sudut kanan atas */}
                   <div className="absolute -top-3 p-4 text-lg -right-2 bg-[#002147] text-white w-6 h-6 flex items-center justify-center rounded-full font-semibold">
-                    5
+                    6
                   </div>
                 </div>
               </div>
               <h1 className='font-bold text-xl text-[#002147] mt-5'>Konsultasi Beasiswa Luar Negeri</h1>
               <h1 className='text-md text-[#FFFFFF] mt-2'>Dapatkan bimbingan gratis untuk mencari dan mendaftar beasiswa luar negeri: mulai dari strategi pendaftaran, persiapan dokumen, hingga tips interview.</h1>
             </div>
-
-            <div className='bg-[#4300FF] rounded-md text-center px-4 py-10 '>
+            <div className='bg-[#4300FF] rounded-md text-center px-4 py-10 sm:w-[285px] w-full'>
               <div className='flex justify-center'>
                 <div className="relative bg-[#FFD700] flex items-center 
                 justify-center rounded-md shadow-md px-4 py-1">
-                  {/* Gambar di tengah */}
                   <img
                     src="/assets/img/home/icon-tanya-jawab.png" // Ganti dengan path gambarmu
                     alt="Icon"
                     className="w-[80px] h-[90px] object-contain"
                   />
-
-                  {/* Angka di sudut kanan atas */}
                   <div className="absolute -top-3 p-4 text-lg -right-2 bg-[#002147] text-white w-6 h-6 flex items-center justify-center rounded-full font-semibold">
-                    6
+                    7
                   </div>
                 </div>
               </div>
               <h1 className='font-bold text-xl text-[#002147] mt-5'>Konsultasi Kesulitan Bahasa Inggris</h1>
               <h1 className='text-md text-[#FFFFFF] mt-2'>Kesulitan memahami grammar, vocab, atau strategi soal? Kamu bisa konsultasi langsung di luar kelas tanpa biaya tambahan.</h1>
             </div>
+            
+        </div>
 
-          </div>
         </div>
         </section>
 

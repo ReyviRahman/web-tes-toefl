@@ -4,7 +4,7 @@ import { Link } from 'react-scroll';
 import useAuth from '../hooks/useAuth';
 import { NavLink } from 'react-router-dom';
 import Dropdown from './Dropdown';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
@@ -58,6 +58,32 @@ export default function Navbar() {
       fetchUserData();
     }
   }, [auth, setAuth]);
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const items = [
+    { label: 'Soal Paket A Prediction Level', to: '/paketsoal' },
+    { label: 'Soal Paket B Prediction Level', to: '/paketsoal' },
+    { label: 'Soal Paket C Prediction Level', to: '/paketsoal' },
+    { label: 'Soal Paket A ITP Level', to: '/paketsoal' },
+    { label: 'Soal Paket B ITP Level', to: '/paketsoal' },
+    { label: 'Soal Paket C ITP Level', to: '/paketsoal' },
+    { label: 'Soal Paket D ITP Level', to: '/paketsoal' },
+    { label: 'Soal Paket E ITP Level', to: '/paketsoal' },
+    { label: 'Soal Paket F ITP Level', to: '/paketsoal' },
+    { label: 'Soal Paket G ITP Level', to: '/paketsoal' },
+  ];
 
   return (
     <Disclosure as="nav" className="sticky top-0 z-10 bg-primary shadow-xl ">
@@ -102,16 +128,55 @@ export default function Navbar() {
                     {item.name}
                   </Link>
                 ))}
-                  <NavLink
-                    to='/paketsoal'
-                    activeClass="bg-[#4300FF] text-white"
-                    className={classNames(
-                      'border text-[#FFD700] hover:bg-white',
-                      'rounded-md px-3 py-2 text-sm font-bold cursor-pointer'
-                    )}
-                  >
-                    Simulasi TOEFL
-                  </NavLink>
+                    <div
+                      ref={dropdownRef}
+                      className="relative inline-block text-left"
+                      onMouseEnter={() => setIsOpen(true)}
+                    >
+                      {/* Trigger Button */}
+                      <div
+                        className={classNames(
+                          'border text-[#FFD700] hover:bg-white',
+                          'rounded-md px-3 py-2 text-sm font-bold cursor-pointer',
+                          'flex items-center gap-1'
+                        )}
+                      >
+                        Simulasi TOEFL
+                        <svg
+                          className="w-4 h-4 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+
+                      {/* Dropdown Content */}
+                      {isOpen && (
+                        <div className="absolute z-50 mt-[2px] w-64 max-h-60 overflow-y-auto rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                          <div className="py-1 divide-y divide-gray-200">
+                            {items.map((item) => (
+                              <NavLink
+                                key={item.to}
+                                to={item.to}
+                                onClick={() => setIsOpen(false)}
+                                className={({ isActive }) =>
+                                  classNames(
+                                    'block px-4 py-2 text-sm font-medium hover:bg-[#4300FF] hover:text-white',
+                                    isActive ? 'bg-[#4300FF] text-white' : 'text-[#002147]'
+                                  )
+                                }
+                              >
+                                {item.label}
+                              </NavLink>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
               </div>
             </div>
           </div>
@@ -169,16 +234,41 @@ export default function Navbar() {
               {item.name}
             </DisclosureButton>
           ))}
-          <NavLink
-            to='/paketsoal'
-            activeClass="bg-[#4300FF] text-white"
-            className={classNames(
-              'border text-[#FFD700] hover:bg-white',
-              'rounded-md px-3 py-2 text-sm font-bold cursor-pointer block text-center'
+          <div className="md:hidden" ref={dropdownRef}>
+            {/* Tombol Trigger */}
+            <div
+              onClick={() => setIsOpen(!isOpen)}
+              className={classNames(
+                'border text-[#FFD700] hover:bg-white',
+                'rounded-md px-3 py-2 text-sm font-bold cursor-pointer block text-center'
+              )}
+            >
+              Simulasi TOEFL
+            </div>
+
+            {/* Dropdown Item */}
+            {isOpen && (
+              <div className="mt-2 w-full bg-white border rounded-md shadow-md max-h-60 overflow-y-auto z-40">
+                <div className="divide-y divide-gray-200">
+                  {items.map((item) => (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setIsOpen(false)}
+                      className={({ isActive }) =>
+                        classNames(
+                          'block px-4 py-2 text-sm font-medium hover:bg-[#4300FF] hover:text-white',
+                          isActive ? 'bg-[#4300FF] text-white' : 'text-[#002147]'
+                        )
+                      }
+                    >
+                      {item.label}
+                    </NavLink>
+                  ))}
+                </div>
+              </div>
             )}
-          >
-            Simulasi TOEFL
-          </NavLink>
+          </div>
         </div>
       </DisclosurePanel>
     </Disclosure>

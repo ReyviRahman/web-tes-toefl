@@ -113,7 +113,7 @@ const AdminLayout = () => {
                 onClick={() => setSidebarOpenMobile(false)}
               >
                 <PiExam size={22} />
-                {!sidebarCollapsed && <span className="ml-3">Riwayat Ujian</span>}
+                {!sidebarCollapsed && <span className="ml-3">Riwayat Simulasi</span>}
               </NavLink>
             </li>
             <li className={`w-full ${sidebarCollapsed ? 'flex justify-center' : ''}`}>

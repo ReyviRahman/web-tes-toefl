@@ -101,7 +101,7 @@ const Register = () => {
               id="email"
               type="email"
               name="email"
-              placeholder="Masukkan NO HP"
+              placeholder="Masukkan email"
               value={email}
               onChange={e => setEmail(e.target.value)}
             />

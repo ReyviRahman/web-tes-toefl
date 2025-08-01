@@ -16,13 +16,6 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
   const localStorageKey = `audio-played-${nohp}`;
   const [hasPlayed, setHasPlayed] = useState(false);
 
-  useEffect(() => {
-    const playedRaw = localStorage.getItem(localStorageKey);
-    const playedList = playedRaw ? JSON.parse(playedRaw) : [];
-
-    setHasPlayed(playedList.includes(index));
-  }, [index]);
-
   const handlePlay = (e) => {
     if (hasPlayed) {
       e.preventDefault();
@@ -75,6 +68,21 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
   const answerIds = answer.map(item => item.id);
 
   const intervalRef = useRef(null);
+
+  useEffect(() => {
+    const [start, end] = sessionRanges[sesi] || [0, 0];
+
+    if (index < start || index > end) {
+      dispatch({ type: 'moveToIdx', payload: start });
+      return;
+    }
+
+    const playedRaw = localStorage.getItem(localStorageKey);
+    const playedList = playedRaw ? JSON.parse(playedRaw) : [];
+
+    setHasPlayed(playedList.includes(index));
+  }, [index]);
+
 
   const startTick = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
