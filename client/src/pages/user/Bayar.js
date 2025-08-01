@@ -39,6 +39,7 @@ const Bayar = () => {
     formData.append('paket_soal_id', paketId);
     formData.append('bukti', bukti);
     formData.append('namaPaket', paket.nama_paket);
+    
 
     try {
       // Tampilkan loading Swal
