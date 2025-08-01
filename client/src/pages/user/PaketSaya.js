@@ -8,6 +8,7 @@ import FloatingWAButton from "../../components/FloatingWAButton";
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const PaketSaya = () => {
+  
   const [paketList, setPaketList] = useState([]);
 
   const fetchData = async () => {
