@@ -1,6 +1,6 @@
 {
   "short_name": "Yanto Tanjung",
-  "name": "Yanto Tanjung English Academy - Kursus TOEFL Online",
+  "name": "Simulasi TOEFL Yanto Tanjung English Academy",
   "icons": [
     {
       "src": "logolagi.png",
@@ -22,5 +22,5 @@
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#ffffff",
-  "description": "Akses kursus TOEFL online, simulasi tes, dan membership eksklusif YouTube bersama Yanto Tanjung."
+  "description": "Akses simulasi TOEFL online, simulasi tes TOEFL, dan membership eksklusif YouTube bersama Yanto Tanjung."
 }

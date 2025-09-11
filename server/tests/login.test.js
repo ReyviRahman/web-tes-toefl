@@ -2,7 +2,7 @@ const request = require('supertest');
 const app = require('../app'); 
 
 describe('POST /users/login', () => {
-  it('❌ Gagal login jika nomor HP tidak valid', async () => {
+  it('Gagal login jika nomor HP tidak valid', async () => {
     const res = await request(app).post('/users/login').send({
       nohp: '123', 
       password: 'password123',
@@ -13,7 +13,7 @@ describe('POST /users/login', () => {
   });
   
 
-  it('❌ Gagal login jika password terlalu pendek', async () => {
+  it('Gagal login jika password terlalu pendek', async () => {
     const res = await request(app).post('/users/login').send({
       nohp: '081999000123',
       password: '123',
@@ -23,9 +23,9 @@ describe('POST /users/login', () => {
     expect(res.body.error).toBe('Password minimal 6 karakter');
   });
 
-  it('❌ Gagal login jika password salah', async () => {
+  it('Gagal login jika password salah', async () => {
     const res = await request(app).post('/users/login').send({
-      nohp: '081999000123',
+      nohp: '081372157714',
       password: 'salah123',
     });
 
@@ -33,10 +33,10 @@ describe('POST /users/login', () => {
     expect(res.body.error).toBe('Invalid password');
   });
 
-  it('✅ Berhasil login jika data benar', async () => {
+  it('Berhasil login jika data benar', async () => {
     const res = await request(app).post('/users/login').send({
-      nohp: '081999000123',
-      password: 'password123',
+      nohp: '081372157714',
+      password: 'reyvisacd123',
     });
 
     expect(res.statusCode).toBe(200);

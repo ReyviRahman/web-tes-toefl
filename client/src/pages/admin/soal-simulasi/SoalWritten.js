@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import ReactDOMServer from 'react-dom/server';
+import { IoArrowBackCircle } from "react-icons/io5";
 
 const SoalWritten = () => {
   const [soals, setSoals] = useState([]);
@@ -86,7 +86,12 @@ const SoalWritten = () => {
   return (
     <div>
       <div className='flex items-center justify-between mb-4'>
-        <h2 className="text-2xl">Soal Written {namaPaket}</h2>
+        <div className='flex gap-2'>
+          <div className='cursor-pointer' onClick={() => {navigate(-1)}}>
+            <IoArrowBackCircle size={30} />
+          </div>
+          <h2 className="text-2xl">Soal Written {namaPaket}</h2>
+        </div>
         <button
           onClick={() => navigate(`/admin/soal-simulasi/add-soal-written/${paketId}`, { state: { nama_paket: namaPaket } })}
           className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm"
@@ -94,15 +99,20 @@ const SoalWritten = () => {
           Tambah Soal
         </button>
       </div>
-      <div className="relative overflow-auto">
+      <div className="relative overflow-auto sm:max-w-[1050px]">
         <table className="border-collapse min-w-full border border-slate-300 bg-white text-sm shadow-sm">
           <thead className="bg-slate-50">
             <tr>
-              <th className="border px-4 py-3">No</th>
-              <th className="border px-4 py-3">Jawaban</th>
-              <th className="border px-4 py-3">Soal</th>
-              <th className="border px-4 py-3">Page</th>
-              <th className="border px-4 py-3">Aksi</th>
+              <th className="border px-4 py-3" rowSpan={2}>No</th>
+              <th className="border px-4 py-3" rowSpan={2}>Jawaban</th>
+              <th className="border px-4 py-3" rowSpan={2}>Soal</th>
+              <th className="border px-4 py-3" rowSpan={2}>Page</th>
+              <th className="border px-4 py-3" rowSpan={2}>Aksi</th>
+              <th className="border px-4 py-3 text-center" colSpan={2}>Jawaban Peserta</th>
+            </tr>
+            <tr>
+              <th className="border px-4 py-3">Benar</th>
+              <th className="border px-4 py-3">Salah</th>
             </tr>
           </thead>
           <tbody>
@@ -129,6 +139,8 @@ const SoalWritten = () => {
                       </button>
                     </div>
                   </td>
+                  <td className="border px-4 py-2">{soal.benar}</td>
+                  <td className="border px-4 py-2">{soal.salah}</td>
                 </tr>
               ))
             )}

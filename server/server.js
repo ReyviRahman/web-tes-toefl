@@ -2,53 +2,56 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const port = 3001;
-
-require('./models/paket_soal'); 
+// const sequelize = require('./db.config');
+require('./models/paket_soal');
 require('./models/payment');
 require('./models/question');
-
-// const sequelize = require('./db.config');
 // sequelize.sync({ alter: true })
 //   .then(() => {
-//     console.log('Database & tables created!');
+//     console.log("✅ Database berhasil di-sync (alter)");
 //   })
-//   .catch((error) => {
-//     console.error('Error creating database & tables:', error);
+//   .catch((err) => {
+//     console.error("❌ Gagal sync database:", err);
 //   });
-
-// Inisialisasi aplikasi express
 const app = express();
 
-// Middleware
+// Whitelist domain yang diizinkan
 const allowedOrigins = [
+  'https://simulasitoefl.yantotanjung.com',
+  'https://www.simulasitoefl.yantotanjung.com',
   'https://yantotanjung.com',
   'https://www.yantotanjung.com',
   'http://localhost:3000'
 ];
 
-app.use(
-  cors({
-    credentials: true,
-    origin: (origin, cb) => {
-      // request dari Postman / curl kadang tanpa origin → langsung lolos
-      if (!origin) return cb(null, true);
+// Konfigurasi CORS
+const corsOptions = {
+  credentials: true, // penting untuk cookies / token
+  origin: (origin, cb) => {
+    // Request dari Postman atau curl (tanpa origin) → langsung lolos
+    if (!origin) return cb(null, true);
 
-      // cek apakah origin ada di whitelist (string) atau cocok regex
-      const ok = allowedOrigins.includes(origin);
-      return ok ? cb(null, true) : cb(new Error('Origin not allowed by CORS'));
-    },
-  }),
-);
+    // Cek apakah origin masuk whitelist
+    const ok = allowedOrigins.includes(origin);
+    return ok ? cb(null, true) : cb(new Error('Origin not allowed by CORS'));
+  }
+};
+
+// Middleware CORS
+app.use(cors(corsOptions));
+
+// Handle preflight request (OPTIONS)
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());
 
-// Routing
+// Routing utama
 app.get('/', (req, res) => {
   res.send('Server is running!');
 });
 
-// Mengimpor endpoint
+// Import endpoint
 const userEndpoint = require('./routes/users');
 const soalEndpoint = require('./routes/soal');
 const paketSoalEndpoint = require('./routes/paketSoal');
@@ -57,6 +60,7 @@ const adminPayments = require('./routes/adminPayments');
 const riwayatUjian = require('./routes/riwayatUjian');
 const paketSoal = require('./routes/adminSoal');
 const adminUser = require('./routes/adminUser');
+const adminDashboard = require('./routes/adminDashboard');
 
 app.use('/users', userEndpoint);
 app.use('/soal', soalEndpoint);
@@ -67,6 +71,7 @@ app.use('/admin/payments', adminPayments);
 app.use('/admin/riwayat-ujian', riwayatUjian);
 app.use('/admin/paket-soal', paketSoal);
 app.use('/admin/user', adminUser);
+app.use('/admin/dashboard', adminDashboard);
 
 // Jalankan server
 app.listen(port, () => console.log(`Running server on port ${port}`));

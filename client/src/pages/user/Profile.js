@@ -172,6 +172,15 @@ const Profile = () => {
       });
       return;
     }
+    
+    if (newPass.length < 8) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Password Terlalu Pendek',
+        text: 'Password baru minimal 8 karakter.',
+      });
+      return;
+    }
 
     try {
       Swal.fire({

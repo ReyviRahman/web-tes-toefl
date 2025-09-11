@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import ReactDOMServer from 'react-dom/server';
+import { IoArrowBackCircle } from "react-icons/io5";
 
 const TambahSoalWritten = () => {
   const { paketId } = useParams();
@@ -126,7 +127,12 @@ const TambahSoalWritten = () => {
 
   return (
     <div className="max-w-xl mx-auto py-8">
-      <h2 className="text-2xl font-bold mb-6">Tambah Soal Written</h2>
+      <div className='flex gap-2'>
+        <div className='cursor-pointer' onClick={() => {navigate(-1)}}>
+          <IoArrowBackCircle size={30} />
+        </div>
+        <h2 className="text-2xl font-bold mb-6">Tambah Soal Written</h2>
+      </div>
 
       <div className="mb-2 space-y-2">
         <label className="block font-semibold">No Soal</label>

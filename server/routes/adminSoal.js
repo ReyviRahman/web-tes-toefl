@@ -75,7 +75,9 @@ router.get('/:paketSoalId/soal-listening', async (req, res) => {
         'jawaban',
         'page',
         'audio',
-        'no_soal'
+        'no_soal',
+        'benar',
+        'salah'
       ],
       order: [['no_soal', 'ASC']]
     });
@@ -494,7 +496,9 @@ router.get('/:paketSoalId/soal-structure', async (req, res) => {
         'pilihan_empat',
         'jawaban',
         'page',
-        'no_soal'
+        'no_soal',
+        'benar',
+        'salah'
       ],
       order: [['no_soal', 'ASC']]
     });
@@ -652,7 +656,9 @@ router.get('/:paketSoalId/soal-written', async (req, res) => {
         'soal',
         'jawaban',
         'page',
-        'no_soal'
+        'no_soal',
+        'benar',
+        'salah'
       ],
       order: [['no_soal', 'ASC']]
     });
@@ -889,6 +895,8 @@ router.get('/:paketSoalId/soal-reading', async (req, res) => {
         'jawaban',
         'page',
         'no_soal',
+        'benar',
+        'salah'
       ],
       include: [
         {

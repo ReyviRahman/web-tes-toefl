@@ -61,7 +61,17 @@ Soal.init({
     type: DataTypes.STRING(32),
     allowNull: false,
     defaultValue: 'listening',
-  }
+  },
+  benar: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
+  },
+  salah: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
+  },
 }, {
   sequelize,
   modelName: 'Soal',

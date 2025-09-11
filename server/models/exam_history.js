@@ -53,6 +53,10 @@ ExamHistory.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
+  jawaban: {
+    type: DataTypes.JSON,
+    allowNull: true
+  }
 }, {
   sequelize,
   modelName: 'ExamHistory',

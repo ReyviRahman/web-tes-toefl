@@ -1,21 +1,16 @@
-// tests/riwayatUjian.test.js
 const request = require('supertest');
 const { Model } = require('sequelize');
 
-// Mock User model
 class MockUser extends Model {}
 jest.mock('../models/users', () => MockUser);
 
-// Mock ExamHistory model
 class MockExamHistory extends Model {}
 MockExamHistory.findAll = jest.fn();
 jest.mock('../models/exam_history', () => MockExamHistory);
 
-// Mock middleware
 jest.mock('../middleware/authAdmin', () => (req, res, next) => next());
-jest.mock('../models/payment', () => ({})); // jaga-jaga
+jest.mock('../models/payment', () => ({})); 
 
-// Setelah semua mock, baru import app
 const app = require('../app');
 
 describe('GET /admin/riwayat-ujian', () => {

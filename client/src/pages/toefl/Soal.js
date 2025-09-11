@@ -81,6 +81,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
     const playedList = playedRaw ? JSON.parse(playedRaw) : [];
 
     setHasPlayed(playedList.includes(index));
+    console.log('ini index', index)
   }, [index]);
 
 
@@ -173,6 +174,21 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                 Swal.showLoading();
               },
             });
+            const responseAmbilJawaban = await axios.get(
+              `${process.env.REACT_APP_API_BASE_URL}/soal/ambil-jawaban`,
+              { withCredentials: true }
+            );
+            if (responseAmbilJawaban.data.data) {
+              const index = responseAmbilJawaban.data.data.index;
+              const answer = responseAmbilJawaban.data.data.answer;
+              if (responseAmbilJawaban.data.sesi === 'listening') {
+                dispatch({ type: "loadJawabandiListening", payload: { answerdiListening: answer} });
+              } else {
+                dispatch({ type: "loadJawaban", payload: {index: index, answer: answer} });
+              }
+            } else {
+              dispatch({ type: "loadJawabandiListening", payload: { answerdiListening: []} });
+            }
 
             const res = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/soal/timers`, { nohp: nohp });
 
@@ -181,9 +197,18 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
               dispatch({ type: "finish" });
             } else {
               const newSeconds = res.data.secondsRemaining;
+              const [start, end] = sessionRanges[res.data.sesi] || [0, 0];
+              if (index < start || index > end) {
+                window.location.reload();
+                dispatch({ type: 'moveToIdx', payload: start });
+              }
               dispatch({ type: "start", payload: newSeconds });
             }
+            
           } catch (err) {
+            if (err.response && err.response.status === 401) {
+              window.location.href = "/login";
+            }
             Swal.close();
             console.error("Error refreshing timer:", err);
           }
@@ -199,20 +224,126 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
   }, []);
 
   const resetTimerToZero = async (nohp) => {
-    try {
-      const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/soal/timers-to-zero`, {
-        nohp,
-      });
+    const savedStateString = localStorage.getItem('toeflState');
+    if (savedStateString) {
+      const savedStateObject = JSON.parse(savedStateString);
+      if (savedStateObject && savedStateObject.answer) {
+        const answer = savedStateObject.answer;
+        if (sesi === "listening") {
+          const totalSoal = 50;
+          const answeredIds = new Set(answer.map(item => item.id));
+          const missingIds = [];
+          for (let i = 1; i <= totalSoal; i++) {
+            if (!answeredIds.has(i)) {
+              missingIds.push(i);
+            }
+          }
+          if (missingIds.length > 0) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Jawaban Belum Lengkap!',
+              text: `Mohon lengkapi jawaban terlebih dahulu.`
+            });
+          } else {
+            try {
+              const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/soal/timers-to-zero`, {
+                nohp,
+              });
+              const newSeconds = response.data.secondsRemaining;
+              dispatch({ type: "start", payload: newSeconds });
+            } catch (error) {
+              console.error('Failed to reset timer:', error.response?.data || error.message);
+              throw error;
+            }
+          }
+        } else if (sesi === "written") {
+          const requiredWrittenIds = [
+            52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66,
+            68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82,
+            83, 84, 85, 86, 87, 88, 89, 90, 91, 92
+          ];
 
-      const newSeconds = response.data.secondsRemaining;
-      dispatch({ type: "start", payload: newSeconds });
+          const answeredIds = new Set(answer.map(item => item.id));
 
-    } catch (error) {
-      console.error('Failed to reset timer:', error.response?.data || error.message);
-      throw error;
+          const missingIds = [];
+          requiredWrittenIds.forEach(requiredId => {
+            if (!answeredIds.has(requiredId)) {
+              missingIds.push(requiredId);
+            }
+          });
+          if (missingIds.length > 0) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Jawaban Belum Lengkap!',
+              text: `Mohon lengkapi jawaban terlebih dahulu.`
+            });
+          } else {
+            try {
+              const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/soal/timers-to-zero`, {
+                nohp,
+              });
+              const newSeconds = response.data.secondsRemaining;
+              dispatch({ type: "start", payload: newSeconds });
+            } catch (error) {
+              console.error('Failed to reset timer:', error.response?.data || error.message);
+              throw error;
+            }
+          }
+        } 
+      }
     }
   };
 
+  const finishSimulasi = async() => {
+    if (sesi === "reading") {
+      const requiredReadingIds = [
+        94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105,
+        106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117,
+        118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129,
+        130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141,
+        142, 143
+      ];
+      const answeredIds = new Set(answer.map(item => item.id));
+      const missingIds = [];
+      requiredReadingIds.forEach(requiredId => {
+        if (!answeredIds.has(requiredId)) {
+          missingIds.push(requiredId);
+        }
+      });
+      if (missingIds.length > 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Jawaban Belum Lengkap!',
+          text: `Mohon lengkapi jawaban terlebih dahulu.`
+        });
+      } else {
+        dispatch({ type: "finish" });
+      }
+    }
+  }
+
+  const simpanJawaban = async (index, answer) => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/soal/simpan-jawaban`, 
+        {
+          index: index,          
+          answer: answer         
+        },
+        {
+          withCredentials: true,
+        }
+      );
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        window.location.href = "/login";
+      } else if (error.response) {
+        console.error("Error:", error.response.data);
+      } else {
+        console.error("Error:", error.message);
+      }
+    }
+  };
 
   return (
     <div>
@@ -225,7 +356,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
               onClick={() => {
                 Swal.fire({
                   title: 'Selesaikan Sesi Ini?',
-                  text: 'Karena ini adalah simulasi TOEFL, Anda boleh beristirahat sebelum melanjutkan ke sesi berikutnya. Pastikan Anda kembali menggunakan laptop atau HP yang sama saat memulai simulasi di awal tadi.',
+                  text: 'Karena ini adalah simulasi TOEFL, Anda boleh beristirahat sebelum melanjutkan ke sesi berikutnya.',
                   icon: 'question',
                   showCancelButton: true,
                   confirmButtonText: 'Ya, Selesaikan',
@@ -254,7 +385,8 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                   cancelButtonText: 'Batal'
                 }).then((result) => {
                   if (result.isConfirmed) {
-                    dispatch({ type: "finish" });
+                    finishSimulasi()
+                    
                   }
                 });
               }}
@@ -286,7 +418,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
             {sesi !== "reading" && (
               <div className="text-center">
                 <p className="text-gray-800 mb-2">
-                  Karena ini adalah <strong>simulasi TOEFL</strong>, Anda boleh beristirahat sebelum melanjutkan ke sesi berikutnya. Pastikan Anda kembali menggunakan laptop atau HP yang sama saat memulai simulasi di awal tadi.
+                  Karena ini adalah <strong>simulasi TOEFL</strong>, Anda boleh beristirahat sebelum melanjutkan ke sesi berikutnya.
                 </p>
                 <p className="text-gray-700 mb-4 text-sm italic">
                   Dalam TOEFL resmi, tidak ada jeda antara setiap sesi.
@@ -376,12 +508,22 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                                   name={`answer-${item.page}`}          
                                   value={num.toString()}
                                   checked={userAnswerItem === num.toString()}  
-                                  className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
-                                  onChange={(e) =>
-                                    dispatch({
-                                      type: "newAnswer",
-                                      payload: { page: item.page, answer: e.target.value },
-                                    })
+                                  className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 "
+                                  onChange={(e) => {
+                                      dispatch({
+                                        type: "newAnswer",
+                                        payload: { page: item.page, answer: e.target.value },
+                                      })
+                                      const userAnswer = e.target.value;
+                                      const alreadyAnswered = answer.some(itemAlready => itemAlready.id === item.page);
+                                      const updatedAnswers = alreadyAnswered
+                                        ? answer.map(itemAnswer =>
+                                            itemAnswer.id === item.page ? { ...itemAnswer, answer: userAnswer } : itemAnswer
+                                          )
+                                        : [...answer, { id: item.page, answer: userAnswer }];
+
+                                      simpanJawaban(index, updatedAnswers)
+                                    }
                                   }
                                 />
                                 <label
@@ -415,7 +557,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                           name="answer" 
                           value="1"
                           checked={userAnswer === "1"} 
-                          className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" 
+                          className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 " 
                           onChange={(e) => {
                             dispatch({
                               type: 'newAnswer',
@@ -424,6 +566,15 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                                 answer: e.target.value
                               }
                             });
+                            const userAnswer = e.target.value;
+                            const alreadyAnswered = answer.some(itemAlready => itemAlready.id === question.page);
+                            const updatedAnswers = alreadyAnswered
+                              ? answer.map(itemAnswer =>
+                                  itemAnswer.id === question.page ? { ...itemAnswer, answer: userAnswer } : itemAnswer
+                                )
+                              : [...answer, { id: question.page, answer: userAnswer }];
+
+                            simpanJawaban(index, updatedAnswers)
                           }}
                         />
                         <label htmlFor="option-1" className="cursor-pointer ml-2 break-words">(A) {question.pilihan_satu}</label>
@@ -435,7 +586,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                           name="answer" 
                           value="2"
                           checked={userAnswer === "2"}
-                          className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                          className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 "
                           onChange={(e) => {
                             dispatch({
                               type: 'newAnswer',
@@ -444,6 +595,15 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                                 answer: e.target.value
                               }
                             });
+                            const userAnswer = e.target.value;
+                            const alreadyAnswered = answer.some(itemAlready => itemAlready.id === question.page);
+                            const updatedAnswers = alreadyAnswered
+                              ? answer.map(itemAnswer =>
+                                  itemAnswer.id === question.page ? { ...itemAnswer, answer: userAnswer } : itemAnswer
+                                )
+                              : [...answer, { id: question.page, answer: userAnswer }];
+
+                            simpanJawaban(index, updatedAnswers)
                           }}
                         />
                         <label htmlFor="option-2" className="cursor-pointer ml-2">(B) {question.pilihan_dua}</label>
@@ -455,7 +615,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                           name="answer" 
                           value="3" 
                           checked={userAnswer === "3"}
-                          className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                          className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 "
                           onChange={(e) => {
                             dispatch({
                               type: 'newAnswer',
@@ -464,6 +624,15 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                                 answer: e.target.value
                               }
                             });
+                            const userAnswer = e.target.value;
+                            const alreadyAnswered = answer.some(itemAlready => itemAlready.id === question.page);
+                            const updatedAnswers = alreadyAnswered
+                              ? answer.map(itemAnswer =>
+                                  itemAnswer.id === question.page ? { ...itemAnswer, answer: userAnswer } : itemAnswer
+                                )
+                              : [...answer, { id: question.page, answer: userAnswer }];
+
+                            simpanJawaban(index, updatedAnswers)
                           }}
                         />
                         <label htmlFor="option-3" className="cursor-pointer ml-2">(C) {question.pilihan_tiga}</label>
@@ -475,7 +644,7 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                           name="answer" 
                           value="4" 
                           checked={userAnswer === "4"}
-                          className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                          className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 "
                           onChange={(e) => {
                             dispatch({
                               type: 'newAnswer',
@@ -484,6 +653,15 @@ const Soal = ({question, numQuestions, index, answer, dispatch, secondsRemaining
                                 answer: e.target.value
                               }
                             });
+                            const userAnswer = e.target.value;
+                            const alreadyAnswered = answer.some(itemAlready => itemAlready.id === question.page);
+                            const updatedAnswers = alreadyAnswered
+                              ? answer.map(itemAnswer =>
+                                  itemAnswer.id === question.page ? { ...itemAnswer, answer: userAnswer } : itemAnswer
+                                )
+                              : [...answer, { id: question.page, answer: userAnswer }];
+
+                            simpanJawaban(index, updatedAnswers)
                           }}
                         />
                         <label htmlFor="option-4" className="cursor-pointer ml-2">(D) {question.pilihan_empat}</label>

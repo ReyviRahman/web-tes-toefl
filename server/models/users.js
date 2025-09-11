@@ -80,6 +80,14 @@ User.init({
     allowNull: false,
     defaultValue: ''
   },
+  jawaban: {
+    type: DataTypes.JSON,
+    allowNull: true
+  },
+  audio: {
+    type: DataTypes.JSON,
+    allowNull: true
+  }
 }, {
   sequelize,
   modelName: 'Users',

@@ -36,6 +36,7 @@ import Listening from "./pages/mini-test-toefl/Listening";
 import Structure from "./pages/mini-test-toefl/Structure";
 import Reading from "./pages/mini-test-toefl/Reading";
 import Finish from "./pages/mini-test-toefl/Finish";
+import DashboardAdmin from "./pages/admin/DashboardAdmin";
 
 function App() {
   return (
@@ -71,12 +72,12 @@ function App() {
               element={<Navigate to="payments" replace />}
             />
 
-              {/* /admin/payments */}
+              <Route path="dashboard" element={<DashboardAdmin />} />
               <Route path="payments" element={<PaymentList />} />
-
-              {/* /admin/dashboard jika butuh */}
               <Route path="riwayat-ujian" element={<RiwayatUjian />} />
               <Route path="soal-simulasi" element={<SoalSimulasi />} />
+              <Route path="data-user" element={<DataUser />} />
+
               <Route path="soal-simulasi/add" element={<TambahPaketSoal />} />
               <Route path="soal-simulasi/edit/:id" element={<EditPaketSoal />} />
               <Route path="soal-simulasi/add-soal/:paketId" element={<SesiSoal />} />
@@ -96,7 +97,6 @@ function App() {
               <Route path="soal-simulasi/add-soal-reading/:paketId" element={<TambahSoalReading />} />
               <Route path="soal-simulasi/edit-soal-reading/:soalId" element={<EditSoalReading />} />
 
-              <Route path="data-user" element={<DataUser />} />
 
               {/* catch-all di bawah jika perlu */}
               {/* <Route path="*" element={<Navigate to="payments" replace />} /> */}

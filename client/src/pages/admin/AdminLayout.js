@@ -6,6 +6,7 @@ import { FiMenu, FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaRegUser } from "react-icons/fa";
 import { RiQuestionAnswerLine, RiMoneyDollarCircleLine, RiLogoutBoxLine } from "react-icons/ri";
 import { PiExam } from "react-icons/pi";
+import { MdDashboard } from "react-icons/md";
 
 const AdminLayout = () => {
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
@@ -88,6 +89,20 @@ const AdminLayout = () => {
         {/* Menu */}
         <nav className="flex-1 px-2 py-6">
           <ul className={`space-y-2 flex flex-col ${sidebarCollapsed ? 'items-center' : 'items-stretch'}`}>
+            <li className={`w-full ${sidebarCollapsed ? 'flex justify-center' : ''}`}>
+              <NavLink
+                to="/admin/dashboard"
+                className={({ isActive }) =>
+                  `flex items-center px-2 py-2 rounded-lg transition font-medium ${
+                    isActive ? 'bg-blue-100 text-blue-700' : 'hover:bg-blue-50 text-gray-700'
+                  } ${sidebarCollapsed ? 'justify-center' : ''}`
+                }
+                onClick={() => setSidebarOpenMobile(false)}
+              >
+                <MdDashboard size={22} />
+                {!sidebarCollapsed && <span className="ml-3">Dashboard</span>}
+              </NavLink>
+            </li>
             <li className={`w-full ${sidebarCollapsed ? 'flex justify-center' : ''}`}>
               <NavLink
                 to="/admin/payments"

@@ -53,8 +53,10 @@ const FinishScreen = ({ answer, status, dispatch, nohp, role }) => {
         const response = await axios.post(
           `${process.env.REACT_APP_API_BASE_URL}/soal/jawaban`,
           {
-            nohp: nohp,
             answers: answer
+          },
+          {
+            withCredentials: true,
           }
         );
 
@@ -69,12 +71,16 @@ const FinishScreen = ({ answer, status, dispatch, nohp, role }) => {
         localStorage.removeItem(`audio-played-${nohp}`);
         Swal.close()
       } catch (error) {
-        console.error("Error fetching score:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Failed to fetch score. Please try again later.",
-        });
+        if (error.response && error.response.status === 401) {
+          window.location.href = "/login";
+        } else {
+          console.error("Error fetching score:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to fetch score. Please try again later.",
+          });
+        }
       }
     }
     getScore()

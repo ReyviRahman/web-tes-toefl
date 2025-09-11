@@ -1,15 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
-import useAuth from '../../hooks/useAuth'
 import Navbar from '../../components/Navbar'
 import Main from '../../components/Main'
 import { MdCheckCircle, MdWhatsapp, MdOutlineScore } from 'react-icons/md'
 import { FaFileAlt, FaClock } from "react-icons/fa";
 import { FiGlobe } from "react-icons/fi";
+import { NavLink } from 'react-router-dom'
 
 const Home = () => {
-  const { auth } = useAuth()
-  console.log('ini auth di home', auth.nama)
-
   const scrollRef = useRef(null);
   const scrollRefUp = useRef(null);
   const containerRef = useRef(null);
@@ -91,12 +88,12 @@ const Home = () => {
                 >
                   Daftar Kursus
                 </a>
-                <a
-                  href="/paketsoal"
+                <NavLink
+                  to="/paketsoal"
                   className="sm:text-[18px] text-sm sm:mt-4 w-full bg-white text-[#5B6D84] text-center font-bold p-2 py-3 rounded-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.20)] transition duration-300"
                 >
                   Mulai Simulasi TOEFL
-                </a>
+                </NavLink>
 
               </div>
             </div>
@@ -118,7 +115,7 @@ const Home = () => {
           <h1 className='text-[#002147] font-bold sm:text-5xl text-3xl sm:mb-10 mb-5'>Fasilitas yang Disediakan</h1>
 
           <div className="grid sm:grid-cols-4 gap-4">
-            <div className='bg-[#4300FF] rounded-md text-center px-4 py-10 '>
+            <div className='bg-[#002147] rounded-md text-center px-4 py-10 '>
               <div className='flex justify-center'>
                 <div className="relative bg-[#FFD700] flex items-center 
                 justify-center rounded-md shadow-md px-4 py-1">
@@ -135,11 +132,11 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-              <h1 className='font-bold text-xl text-[#002147] mt-5'>Gratis 1x Simulasi Tes TOEFL Online</h1>
+              <h1 className='font-bold text-xl text-[#FFD700] mt-5'>Gratis 1x Simulasi Tes TOEFL Online</h1>
               <h1 className='text-md text-[#FFFFFF] mt-2'>Dapatkan kesempatan mencoba 1x simulasi tes TOEFL online secara gratis untuk mengukur kemampuan awal dan mengenal format TOEFL yang sebenarnya.</h1>
             </div>
 
-            <div className='bg-[#4300FF] rounded-md text-center px-4 py-10 '>
+            <div className='bg-[#002147] rounded-md text-center px-4 py-10 '>
               <div className='flex justify-center'>
                 <div className="relative bg-[#FFD700] flex items-center 
                 justify-center rounded-md shadow-md px-4 py-1">
@@ -156,11 +153,11 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-              <h1 className='font-bold text-xl text-[#002147] mt-5'>20 Kali Pertemuan / 90 Menit</h1>
+              <h1 className='font-bold text-xl text-[#FFD700] mt-5'>20 Kali Pertemuan / 90 Menit</h1>
               <h1 className='text-md text-[#FFFFFF] mt-2'>Kelas intensif selama 20 pertemuan dengan durasi masing-masing 90 menit, dirancang agar peserta benar-benar memahami setiap aspek penting dalam ujian TOEFL.</h1>
             </div>
 
-            <div className='bg-[#4300FF] rounded-md px-4 py-10'>
+            <div className='bg-[#002147] rounded-md px-4 py-10'>
               <div className='flex justify-center'>
                 <div className="relative bg-[#FFD700] flex items-center 
                 justify-center rounded-md shadow-md px-4 py-1">
@@ -177,7 +174,7 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-              <h1 className='font-bold text-xl text-[#002147] mt-5 text-center'>Materi Lengkap: E-Book, Audio, dan PPT</h1>
+              <h1 className='font-bold text-xl text-[#FFD700] mt-5 text-center'>Materi Lengkap: E-Book, Audio, dan PPT</h1>
               
               
               <h1 className='text-md text-[#FFFFFF] mt-2'>Kamu akan mendapatkan:</h1>
@@ -191,7 +188,7 @@ const Home = () => {
               </div>
             </div>
 
-            <div className='bg-[#4300FF] rounded-md text-center px-4 py-10'>
+            <div className='bg-[#002147] rounded-md text-center px-4 py-10'>
               <div className='flex justify-center'>
                 <div className="relative bg-[#FFD700] flex items-center 
                 justify-center rounded-md shadow-md px-4 py-1">
@@ -208,13 +205,13 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-              <h1 className='font-bold text-xl text-[#002147] mt-5'>Rekaman Zoom 20 Kali Pertemuan</h1>
+              <h1 className='font-bold text-xl text-[#FFD700] mt-5'>Rekaman Zoom 20 Kali Pertemuan</h1>
               <h1 className='text-md text-[#FFFFFF] mt-2'>Tidak sempat ikut kelas? Tenang! Seluruh sesi Zoom direkam dan bisa kamu akses kapan saja untuk review ulang materi.</h1>
             </div>
           </div>
           {/* bagian bawah */}
           <div className="flex sm:flex-row flex-col justify-center gap-4 mt-4">
-            <div className='bg-[#4300FF] rounded-md text-center px-4 py-10 sm:w-[285px] w-full'>
+            <div className='bg-[#002147] rounded-md text-center px-4 py-10 sm:w-[285px] w-full'>
               <div className='flex justify-center'>
                 <div className="relative bg-[#FFD700] flex items-center 
                 justify-center rounded-md shadow-md px-4 py-1">
@@ -228,10 +225,10 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-              <h1 className='font-bold text-xl text-[#002147] mt-5'>Sesi Tanya Jawab Gratis via WhatsApp</h1>
+              <h1 className='font-bold text-xl text-[#FFD700] mt-5'>Sesi Tanya Jawab Gratis via WhatsApp</h1>
               <h1 className='text-md text-[#FFFFFF] mt-2'>Konsultasi seputar TOEFL, IELTS, TOEIC, dan berbagai tes Bahasa Inggris lainnya secara fleksibel lewat WhatsApp—langsung bersama Pak Yanto Tanjung.</h1>
             </div>
-            <div className='bg-[#4300FF] rounded-md text-center px-4 py-10 sm:w-[285px] w-full'>
+            <div className='bg-[#002147] rounded-md text-center px-4 py-10 sm:w-[285px] w-full'>
               <div className='flex justify-center'>
                 <div className="relative bg-[#FFD700] flex items-center 
                 justify-center rounded-md shadow-md px-4 py-1">
@@ -245,10 +242,10 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-              <h1 className='font-bold text-xl text-[#002147] mt-5'>Konsultasi Beasiswa Luar Negeri</h1>
+              <h1 className='font-bold text-xl text-[#FFD700] mt-5'>Konsultasi Beasiswa Luar Negeri</h1>
               <h1 className='text-md text-[#FFFFFF] mt-2'>Dapatkan bimbingan gratis untuk mencari dan mendaftar beasiswa luar negeri: mulai dari strategi pendaftaran, persiapan dokumen, hingga tips interview.</h1>
             </div>
-            <div className='bg-[#4300FF] rounded-md text-center px-4 py-10 sm:w-[285px] w-full'>
+            <div className='bg-[#002147] rounded-md text-center px-4 py-10 sm:w-[285px] w-full'>
               <div className='flex justify-center'>
                 <div className="relative bg-[#FFD700] flex items-center 
                 justify-center rounded-md shadow-md px-4 py-1">
@@ -262,7 +259,7 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-              <h1 className='font-bold text-xl text-[#002147] mt-5'>Konsultasi Kesulitan Bahasa Inggris</h1>
+              <h1 className='font-bold text-xl text-[#FFD700] mt-5'>Konsultasi Kesulitan Bahasa Inggris</h1>
               <h1 className='text-md text-[#FFFFFF] mt-2'>Kesulitan memahami grammar, vocab, atau strategi soal? Kamu bisa konsultasi langsung di luar kelas tanpa biaya tambahan.</h1>
             </div>
             
@@ -435,7 +432,7 @@ const Home = () => {
                 </h1>
                 <p className='mt-6 text-justify mb-6'>Dapatkan akses ke konten eksklusif yang dirancang untuk bantu kamu memahami dasar-dasar TOEFL, meningkatkan skill listening, reading, hingga writing semuanya dengan pendekatan yang santai, jelas, dan mudah dipahami.</p>
                 <a
-                  href={"https://www.youtube.com/c/YantoTanjung"}
+                  href={"https://www.youtube.com/@Yantotanjung/join"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mb-6 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg transition w-fit"
@@ -529,12 +526,12 @@ const Home = () => {
                 Uji kemampuanmu sebelum menghadapi tes sesungguhnya!
               </h1>
               <div className='flex sm:justify-start justify-center'>
-                <a
-                  href="/paketsoal"
+                <NavLink
+                  to="/paketsoal"
                   className="inline-flex w-fit sm:text-[18px] text-sm mt-4 bg-white text-[#5B6D84] text-center font-bold px-4 py-4 rounded-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.20)] transition duration-300"
                 >
                   Mulai Simulasi TOEFL
-                </a>
+                </NavLink>
               </div>
             </div>
           </div>

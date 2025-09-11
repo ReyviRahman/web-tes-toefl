@@ -109,23 +109,36 @@ const reducer = (state, action) => {
           )
         : [...state.answer, { id: page, answer }];
 
+      
       return {
         ...state,
         answer: updatedAnswers
       };
     }
-
     case 'getSesi':
       return {
         ...state,
         sesi: action.payload
+      };
+    case 'loadJawaban':
+      const { index, answer } = action.payload;
+      console.log('ini index di loadJawaban', index)
+      return {
+        ...state,
+        answer: answer,
+        index: index,
+      };
+    case 'loadJawabandiListening':
+      const { answerdiListening } = action.payload;
+      return {
+        ...state,
+        answer: answerdiListening,
       };
   }
 }
 
 const ToeflSimulation = () => {
   const { auth } = useAuth()
-  console.log('auth dari toefl simulation', auth)
   const [{questions, status, index, answer, secondsRemaining, sesi}, dispatch] = useReducer(reducer, initialState, initializer)
   console.log('ini sesi', sesi)
   const numQuestions = questions.length
@@ -138,6 +151,18 @@ const ToeflSimulation = () => {
   useEffect(() => {
     const fetchDataSoal = async () => {
       try {
+        const responseAmbilJawaban = await axios.get(
+          `${process.env.REACT_APP_API_BASE_URL}/soal/ambil-jawaban`,
+          { withCredentials: true }
+        );
+        if (responseAmbilJawaban.data.data) {
+          const index = responseAmbilJawaban.data.data.index;
+          const answer = responseAmbilJawaban.data.data.answer;
+          dispatch({ type: "loadJawaban", payload: {index: index, answer: answer} });
+        } else {
+          dispatch({ type: "loadJawaban", payload: {index: 0, answer: []} });
+        }
+
         const response = await axios.get(
           `${process.env.REACT_APP_API_BASE_URL}/soal`,
           { withCredentials: true }

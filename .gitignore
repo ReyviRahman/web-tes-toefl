@@ -16,8 +16,6 @@ pnpm-debug.log*
 .env.local
 .env.*.local
 
-# Uploads (backend)
-server/uploads/
 
 # Optional: ignore OS / IDE files
 .DS_Store

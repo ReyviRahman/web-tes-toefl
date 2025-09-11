@@ -5,7 +5,7 @@ const UserModel = require('../models/users')
 const Question = require('../models/question')
 const ExamHistory = require('../models/exam_history');
 const verifyToken = require('../middleware/verifyToken');
-const User = require('../models/users')
+const User = require('../models/users');
 const PaketSoal = require('../models/paket_soal'); 
 
 router.get('/', verifyToken, async (req, res) => {
@@ -39,7 +39,121 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
-router.post('/jawaban', async (req, res) => {
+router.post('/simpan-jawaban', verifyToken, async (req, res) => {
+  try {
+    const { index, answer } = req.body;
+
+    if (index == null || answer == null) {
+      return res.status(400).json({ message: "index dan answer wajib diisi" });
+    }
+
+    // Ambil user
+    const user = await User.findOne({ where: { nohp: req.user.nohp } });
+
+    // Pastikan struktur awal { index, answer: [] }
+    let jawaban = user?.jawaban || { index, answer: [] };
+
+    // Merge: update kalau id sudah ada, kalau belum ditambah
+    answer.forEach(it => {
+      const idx = jawaban.answer.findIndex(j => String(j.id) === String(it.id));
+      if (idx >= 0) {
+        jawaban.answer[idx].answer = it.answer;
+      } else {
+        jawaban.answer.push({ id: it.id, answer: it.answer });
+      }
+    });
+
+    jawaban.index = index
+
+    // Update DB langsung (tanpa stringify, karena kolom JSON)
+    await User.update(
+      { jawaban },
+      { where: { nohp: req.user.nohp } }
+    );
+
+    return res.json({
+      message: "Jawaban berhasil disimpan",
+      data: jawaban
+    });
+  } catch (err) {
+    console.error("Error simpan jawaban:", err);
+    res.status(500).json({ message: "Terjadi kesalahan server" });
+  }
+});
+
+router.post('/simpan-audio', verifyToken, async (req, res) => {
+  try {
+    const { audio } = req.body;
+
+    if (audio == null) {
+      return res.status(400).json({ message: "audio wajib diisi" });
+    }
+
+    await User.update(
+      { audio },
+      { where: { nohp: req.user.nohp } }
+    );
+
+    return res.json({
+      message: "Audio berhasil disimpan",
+      data: audio
+    });
+  } catch (err) {
+    console.error("Error simpan audio:", err);
+    res.status(500).json({ message: "Terjadi kesalahan server" });
+  }
+});
+
+// GET /ambil-jawaban
+router.get('/ambil-jawaban', verifyToken, async (req, res) => {
+  try {
+    // Ambil user berdasarkan token
+    const user = await User.findOne({ where: { nohp: req.user.nohp } });
+
+    if (!user) {
+      return res.status(404).json({ message: "User tidak ditemukan" });
+    }
+
+    // Karena kolom jawaban sudah JSON, cukup return langsung
+    const jawaban = user.jawaban || null;
+
+    return res.json({
+      message: "Jawaban berhasil diambil",
+      data: jawaban,
+      sesi: user.sesi
+    });
+  } catch (err) {
+    console.error("Error ambil jawaban:", err);
+    res.status(500).json({ message: "Terjadi kesalahan server" });
+  }
+});
+
+// GET /ambil-audio
+router.get('/ambil-audio', verifyToken, async (req, res) => {
+  try {
+    // Ambil user berdasarkan token
+    const user = await User.findOne({ where: { nohp: req.user.nohp } });
+
+    if (!user) {
+      return res.status(404).json({ message: "User tidak ditemukan" });
+    }
+
+    // Karena kolom audio sudah JSON, cukup return langsung
+    const audio = user.audio || null;
+
+    return res.json({
+      message: "audio berhasil diambil",
+      data: audio
+    });
+  } catch (err) {
+    console.error("Error ambil audio:", err);
+    res.status(500).json({ message: "Terjadi kesalahan server" });
+  }
+});
+
+
+
+router.post('/jawaban', verifyToken, async (req, res) => {
   const listeningMap = {
     0: 24,
     1: 25,
@@ -190,24 +304,32 @@ router.post('/jawaban', async (req, res) => {
     48: 65,
     49: 66,
     50: 67,
-  };
+  }; 
 
   try {
-    const { nohp, answers } = req.body;
+    const { answers } = req.body;
     
     if (!Array.isArray(answers)) {
       return res.status(400).json({ message: 'Invalid data format' });
     }
 
-    const user = await UserModel.findByPk(nohp)
+    const user = await UserModel.findByPk(req.user.nohp);
     if (!user) {
       return res.status(404).json({ message: 'User tidak ditemukan' });
+    }
+
+    if (!user.paket_soal_id_aktif) {
+      await user.update({ 
+        jawaban: null,
+        audio: null
+      });
+      return res.status(200).json({ toeflScore: user.lastScore, scoreListening: user.listening, scoreWritten: user.written, scoreReading: user.reading, listeningCorrect: user.listening_correct, writtenCorrect: user.written_correct, readingCorrect: user.reading_correct });
     }
 
     // Ambil hanya kolom 'page' dan 'jawaban' dari semua soal
     const allSoal = await SoalModel.findAll({
       where: { paket_soal_id: user.paket_soal_id_aktif },
-      attributes: ['page', 'jawaban'],
+      attributes: ['id', 'page', 'jawaban'],
       order: [['page', 'ASC']],
     });
 
@@ -218,6 +340,9 @@ router.post('/jawaban', async (req, res) => {
     const processedIds = new Set(); // Untuk melacak id yang sudah diproses
 
     // Loop melalui jawaban user dan bandingkan dengan soal
+    const benarUpdates = [];
+    const salahUpdates = [];
+
     for (const userAnswer of answers) {
       const { id, answer } = userAnswer;
 
@@ -231,18 +356,41 @@ router.post('/jawaban', async (req, res) => {
 
       // Cari soal di memori berdasarkan id
       const soal = allSoal.find((q) => q.page === id);
+      if (soal) {
+        if (soal.jawaban === answer) {
+          // Jawaban BENAR
+          if (id >= 1 && id <= 50) {
+            listeningCorrect += 1;
+          } else if (id >= 52 && id <= 92) {
+            writtenCorrect += 1;
+          } else if (id >= 94 && id <= 143) {
+            readingCorrect += 1;
+          }
+          totalPoints += 1;
 
-      // Cocokkan jawaban user dengan jawaban di database
-      if (soal && soal.jawaban === answer) {
-        if (id >= 1 && id <= 50) {
-          listeningCorrect += 1;
-        } else if (id >= 52 && id <= 92) {
-          writtenCorrect += 1;
-        } else if (id >= 94 && id <= 143) {
-          readingCorrect += 1;
+          // kumpulkan untuk update kolom benar
+          benarUpdates.push(soal.id);
+        } else {
+          // Jawaban SALAH
+          salahUpdates.push(soal.id);
         }
-        totalPoints += 1; // Tambah poin jika jawaban benar
       }
+
+      // old
+      // if (soal && soal.jawaban === answer) {
+      //   if (id >= 1 && id <= 50) {
+      //     listeningCorrect += 1;
+      //   } else if (id >= 52 && id <= 92) {
+      //     writtenCorrect += 1;
+      //   } else if (id >= 94 && id <= 143) {
+      //     readingCorrect += 1;
+      //   }
+      //   totalPoints += 1; 
+      // }
+
+
+
+
     }
 
     let scoreListening = listeningMap[listeningCorrect]
@@ -266,11 +414,14 @@ router.post('/jawaban', async (req, res) => {
       reading_correct: readingCorrect,
       status_ujian: "idle",
       paket_soal_id_aktif: null,
-      paket_terakhir: namaPaket
+      paket_terakhir: namaPaket,
+      jawaban: null,
+      audio: null,
+      sesi: 'finished'
     });
 
     await ExamHistory.create({
-      userNohp: nohp,
+      userNohp: req.user.nohp,
       startedAt: new Date(user.start_time || Date.now()), 
       endedAt: new Date(user.end_time || Date.now()),     
       listeningScore: scoreListening,
@@ -281,7 +432,24 @@ router.post('/jawaban', async (req, res) => {
       written_correct: writtenCorrect,
       reading_correct: readingCorrect,
       nama_paket: namaPaket,
+      jawaban: answers
     });
+
+    // Update sekaligus untuk semua yang benar
+    if (benarUpdates.length > 0) {
+      await SoalModel.increment('benar', {
+        by: 1,
+        where: { id: benarUpdates }
+      });
+    }
+
+    // Update sekaligus untuk semua yang salah
+    if (salahUpdates.length > 0) {
+      await SoalModel.increment('salah', {
+        by: 1,
+        where: { id: salahUpdates }
+      });
+    }
 
     // Kirimkan total poin user
     res.status(200).json({ toeflScore, scoreListening, scoreWritten, scoreReading, listeningCorrect, writtenCorrect, readingCorrect });
@@ -332,11 +500,21 @@ router.put('/timers', async (req, res) => {
 
     let { sesi, start_time, end_time } = user;
 
+    if (sesi === 'finished') {
+      return res.status(200).json({
+        message: 'All sessions completed',
+        server_now,
+        secondsRemaining: 0,
+        sesi: 'finished'
+      });
+    }
+
     // 1) Jika belum pernah memulai sesi apapun, inisialisasi sesi pertama
     if (end_time === null) {
       sesi = sessions[0];
       start_time = server_now;
       end_time = server_now + 30 * 60 * 1000;
+      // end_time = server_now + 1 * 60 * 1000;
       await user.update({ sesi, start_time, end_time });
     }
     // 2) Jika waktu sekarang sudah melewati end_time, pindah ke sesi berikutnya
@@ -411,6 +589,9 @@ router.put('/timers/next', async (req, res) => {
     const server_now = Date.now();
     const sessions = ['listening', 'written', 'reading'];
     const durationMap = {
+      // listening: 1 * 60 * 1000,
+      // written:   1 * 60 * 1000,
+      // reading:   1 * 60 * 1000,
       listening: 30 * 60 * 1000,
       written:   25 * 60 * 1000,
       reading:   55 * 60 * 1000,

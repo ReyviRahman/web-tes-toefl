@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useNavigate, useParams } from 'react-router-dom';
+import { IoArrowBackCircle } from 'react-icons/io5';
 
 const EditSoalListening = () => {
   const { soalId } = useParams();
@@ -131,7 +132,12 @@ const EditSoalListening = () => {
 
   return (
     <div className="max-w-xl mx-auto py-8">
-      <h2 className="text-2xl font-bold mb-6">Edit Soal Listening</h2>
+      <div className='flex gap-2'>
+        <div className='cursor-pointer' onClick={() => {navigate(-1)}}>
+          <IoArrowBackCircle size={30} />
+        </div>
+        <h2 className="text-2xl font-bold mb-6">Edit Soal Listening</h2>
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block mb-1">No. Soal</label>

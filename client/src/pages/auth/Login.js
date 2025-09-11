@@ -14,7 +14,7 @@ const Login = () => {
   const location = useLocation()
   const from = location.state?.from?.pathname || "/"
 
-  const [nohp, setNohp] = useState('')
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null)
@@ -34,7 +34,7 @@ const Login = () => {
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/users/login`,
-        { nohp, password },
+        { identifier, password },
         { withCredentials: true }
       );
 
@@ -44,6 +44,7 @@ const Login = () => {
       const nama = response.data.nama;
       const role = response.data.role;
       const profilePic = response.data.profilePic;
+      const nohp = response.data.nohp;
 
       setAuth({ nohp, nama, role, profilePic });
 
@@ -79,17 +80,17 @@ const Login = () => {
           <form className='border border-primary rounded px-6 py-4 sm:w-1/2 w-full mt-5' onSubmit={handleLogin}>
             <h1 className='text-2xl font-bold mb-2 text-primary'>Login</h1>
 
-            <label htmlFor="nohp" className="block mb-3">
+            <label htmlFor="identifier" className="block mb-3">
               <span className="after:ml-0.5 after:text-red-500 block text-sm font-medium text-slate-700">
-                NO HP
+                Email atau No HP
               </span>
               <input className="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1" 
-              id="nohp"
+              id="identifier"
               type="text"
-              name="nohp"
-              placeholder="Masukkan NO HP"
-              value={nohp}
-              onChange={e => setNohp(e.target.value)} />
+              name="identifier"
+              placeholder="Masukkan Email atau No HP"
+              value={identifier}
+              onChange={e => setIdentifier(e.target.value)} />
             </label>
 
             <label htmlFor="password" className="block">

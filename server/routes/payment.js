@@ -6,6 +6,9 @@ const PaketSoal = require('../models/paket_soal');
 const verifyToken = require('../middleware/verifyToken');
 const path = require('path');
 const axios = require('axios');
+const https = require('https');
+const agent = new https.Agent({ family: 4 });
+
 require('dotenv').config();
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN; 
@@ -29,10 +32,14 @@ router.post('/upload', verifyToken, upload.single('bukti'), async (req, res) => 
   const { paket_soal_id, namaPaket } = req.body;
 
   try {
-    await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-      chat_id: TELEGRAM_CHAT_ID,
-      text: `Notifikasi Pembayaran Masuk!\n\nUser: ${userNohp}\nPaket: ${namaPaket}\nStatus: pending\n${process.env.CLIENT_ORIGIN}/admin/payments`,
-    });
+    await axios.post(
+      `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`,
+      {
+        chat_id: TELEGRAM_CHAT_ID,
+        text: `Notifikasi Pembayaran Masuk!\n\nUser: ${userNohp}\nPaket: ${namaPaket}\nStatus: pending\n${process.env.CLIENT_ORIGIN}/admin/payments`,
+      },
+      { httpsAgent: agent }
+    );
 
     const payment = await Payment.create({
       userNohp,
@@ -47,7 +54,7 @@ router.post('/upload', verifyToken, upload.single('bukti'), async (req, res) => 
       payment
     });
   } catch (err) {
-    console.error('Gagal upload bukti:', err);
+    console.error("Gagal kirim ke Telegram:", err.response?.data || err.message);
     res.status(500).json({ message: 'Gagal menyimpan bukti pembayaran' });
   }
 });

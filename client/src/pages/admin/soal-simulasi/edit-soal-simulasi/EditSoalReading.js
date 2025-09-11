@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import 'react-medium-image-zoom/dist/styles.css'
 import ImageZoom from 'react-medium-image-zoom';
+import { IoArrowBackCircle } from 'react-icons/io5';
 
 const TambahSoalReading = () => {
   const { soalId } = useParams();
@@ -354,7 +355,12 @@ const TambahSoalReading = () => {
   return (
     <div className="mx-auto py-8">
       <div className='flex items-center justify-between mb-4'>
-        <h2 className="text-2xl font-bold">Tambah Question Reading</h2>
+        <div className='flex gap-2'>
+          <div className='cursor-pointer' onClick={() => {navigate(-1)}}>
+            <IoArrowBackCircle size={30} />
+          </div>
+          <h2 className="text-2xl font-bold">Tambah Question Reading</h2>
+        </div>
         <button
           className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm"
           onClick={handleTambahSoal}

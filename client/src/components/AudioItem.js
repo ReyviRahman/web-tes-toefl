@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import axios from 'axios';
 
 const AudioItem = ({ index, audioSrc, nohp }) => {
   const localStorageKey = `audio-played-${nohp}`;
@@ -8,9 +9,7 @@ const AudioItem = ({ index, audioSrc, nohp }) => {
   const audioRef = useRef(null);
 
   useEffect(() => {
-    const playedRaw = localStorage.getItem(localStorageKey);
-    const list = playedRaw ? JSON.parse(playedRaw) : [];
-    setPlayedList(list);
+    getAudio()
   }, [index]);
 
   const hasPlayed = playedList.includes(indexKey);
@@ -29,8 +28,52 @@ const AudioItem = ({ index, audioSrc, nohp }) => {
       }
     } else {
       const updatedList = [...playedList, indexKey];
-      localStorage.setItem(localStorageKey, JSON.stringify(updatedList));
       setPlayedList(updatedList);
+      saveAudio(updatedList);
+    }
+  };
+
+  const getAudio = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/soal/ambil-audio`, 
+        {
+          withCredentials: true,
+        }
+      );
+      const playedRaw = response.data.data;
+      const list = playedRaw ? playedRaw : [];
+      setPlayedList(list);
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        window.location.href = "/login";
+      } else if (error.response) {
+        console.error("Error:", error.response.data);
+      } else {
+        console.error("Error:", error.message);
+      }
+    }
+  };
+
+  const saveAudio = async (audio) => {
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/soal/simpan-audio`, 
+        {
+          audio
+        },
+        {
+          withCredentials: true,
+        }
+      );
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        window.location.href = "/login";
+      } else if (error.response) {
+        console.error("Error:", error.response.data);
+      } else {
+        console.error("Error:", error.message);
+      }
     }
   };
 

