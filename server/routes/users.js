@@ -470,16 +470,16 @@ router.post(
       const userData = user.toJSON();
       delete userData.password;
 
-      await axios.post(
-        `https://yantotanjung.com/wp-json/sts/v1/register`,
-        {
-          nohp: nohp,
-          nama: nama,
-          email: email,
-          password: password
-        },
-        { httpsAgent: agent }
-      );
+      // await axios.post(
+      //   `https://yantotanjung.com/wp-json/sts/v1/register`,
+      //   {
+      //     nohp: nohp,
+      //     nama: nama,
+      //     email: email,
+      //     password: password
+      //   },
+      //   { httpsAgent: agent }
+      // );
 
       res.status(201).json({ message: 'User berhasil dibuat', user: userData });
     } catch (err) {

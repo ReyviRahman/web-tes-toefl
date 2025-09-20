@@ -14,7 +14,7 @@ jest.mock('../models/soal', () => ({
 jest.mock('../models/question', () => ({}));
 jest.mock('../models/paket_soal', () => ({}));
 jest.mock('../middleware/authAdmin', () => (req, res, next) => {
-  req.user = { role: 'Admin', nohp: '08123456789' };
+  req.user = { role: 'Admin', nohp: '081372157714' };
   next();
 });
 
@@ -37,7 +37,7 @@ describe('Listening Soal API', () => {
       kategori: 'listening'
     });
     const res = await request(app)
-      .post('/admin/paket-soal/123/soal-listening')
+      .post('/admin/paket-soal/18/soal-listening')
       .field('pilihan_satu', 'A')
       .field('pilihan_dua', 'B')
       .field('pilihan_tiga', 'C')
@@ -64,7 +64,7 @@ describe('Listening Soal API', () => {
         no_soal: 1
       }
     ]);
-    const res = await request(app).get('/admin/paket-soal/123/soal-listening');
+    const res = await request(app).get('/admin/paket-soal/18/soal-listening');
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe('Daftar soal listening berhasil diambil');
     expect(Array.isArray(res.body.data)).toBe(true);
